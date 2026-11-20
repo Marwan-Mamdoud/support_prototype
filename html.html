@@ -1,0 +1,2615 @@
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Turuq Order Details — TQ-100031</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            accent: '#032486',
+            secondary_accent: '#38cbfc',
+            'primary-950': '#03256c',
+            'primary-500': '#008bff',
+            'secondary-500': '#06bee1',
+            'secondary-950': '#083244',
+            thumbnail: '#42c7b8',
+            surface: {
+              50: '#F4F8FC',
+              100: '#E7F0F9',
+              200: '#CDE1F3',
+            }
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 600, 'GRAD' 0, 'opsz' 20;
+    }
+    .mono-num {
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F0F4F8;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #B5C8DC;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #86A7C6;
+    }
+  </style>
+</head>
+<body class="bg-surface-50 text-primary-950 font-sans antialiased min-h-[1024px] flex" data-stitch-vh="min-h-[1024px]===min-h-screen">
+
+  <!-- ==================== SIDEBAR ==================== -->
+  <aside class="w-64 bg-primary-950 text-white min-h-[1024px] flex flex-col border-r border-secondary-950 flex-shrink-0 select-none" data-stitch-vh="min-h-[1024px]===min-h-screen">
+
+    <!-- Brand / Platform Header -->
+    <div class="h-16 px-6 flex items-center justify-between border-b border-white/15 bg-accent">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-white text-accent flex items-center justify-center font-black tracking-tight shadow-md">
+          <span class="text-base tracking-tighter">TQ</span>
+        </div>
+        <div>
+          <span class="text-base font-black tracking-wider uppercase text-white block leading-none">TURUQ</span>
+          <span class="text-[10px] font-extrabold uppercase tracking-widest text-secondary_accent mt-1 block">LOGISTICS OS</span>
+        </div>
+      </div>
+      <span class="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-thumbnail text-primary-950">
+        LIVE
+      </span>
+    </div>
+
+    <!-- Navigation Groups -->
+    <div class="flex-1 px-3 py-4 space-y-6 overflow-y-auto">
+
+      <!-- Core Management -->
+      <div>
+        <div class="px-3 mb-2 text-[10px] font-black uppercase tracking-widest text-secondary_accent">
+          CORE OPERATIONS
+        </div>
+        <nav class="space-y-1">
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">dashboard</span>
+            <span>DASHBOARD</span>
+          </a>
+          <a href="#" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-black text-white bg-accent shadow-sm border border-secondary_accent/40 uppercase tracking-wider">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-lg text-secondary_accent">local_shipping</span>
+              <span>ORDERS</span>
+            </div>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-secondary_accent text-primary-950 mono-num">
+              33
+            </span>
+          </a>
+          <a href="#" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-lg">history_toggle_off</span>
+              <span>STALE ORDERS</span>
+            </div>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-white/15 text-white mono-num">
+              11
+            </span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">search</span>
+            <span>QUICK LOOKUP</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">person_search</span>
+            <span>CUSTOMER LOOKUP</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">corporate_fare</span>
+            <span>CLIENTS</span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- Actions & Fulfillment -->
+      <div>
+        <div class="px-3 mb-2 text-[10px] font-black uppercase tracking-widest text-secondary_accent">
+          FULFILLMENT &amp; TASKS
+        </div>
+        <nav class="space-y-1">
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">add_box</span>
+            <span>CREATE ORDER</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">cancel_presentation</span>
+            <span>CANCELLATION REVIEW</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">layers</span>
+            <span>DROPOFF BATCHES</span>
+          </a>
+          <a href="#" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-lg text-amber-300">notifications_active</span>
+              <span>ALERTS</span>
+            </div>
+            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- Utilities -->
+      <div>
+        <div class="px-3 mb-2 text-[10px] font-black uppercase tracking-widest text-secondary_accent">
+          SYSTEM &amp; UTILITIES
+        </div>
+        <nav class="space-y-1">
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">sticky_note_2</span>
+            <span>MY NOTES</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">science</span>
+            <span>PROTOTYPE SIMULATOR</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">headset_mic</span>
+            <span>SUPPORT</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">account_circle</span>
+            <span>MY ACCOUNT</span>
+          </a>
+        </nav>
+      </div>
+
+    </div>
+
+    <!-- User / Operator Card in Sidebar Footer -->
+    <div class="p-3.5 border-t border-white/15 bg-secondary-950">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-accent text-white flex items-center justify-center font-bold text-xs uppercase border border-secondary_accent/40">
+            TS
+          </div>
+          <div>
+            <div class="text-xs font-bold text-white uppercase tracking-wider">TURUQ SUPPORT</div>
+            <div class="text-[10px] font-semibold text-thumbnail uppercase tracking-widest">DISPATCH ACTIVE</div>
+          </div>
+        </div>
+        <button class="text-white/80 hover:text-white transition-colors">
+          <span class="material-symbols-outlined text-base">more_vert</span>
+        </button>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="flex-1 min-w-0 flex flex-col bg-surface-50">
+
+    <!-- Contextual Order Header -->
+    <header class="px-8 py-4 border-b-2 border-accent bg-white flex flex-wrap items-center justify-between gap-4 flex-shrink-0">
+      <div class="flex items-center gap-4">
+        <a href="#" class="px-3 py-2 rounded-xl border border-surface-200 bg-surface-50 hover:bg-surface-100 text-xs font-black uppercase tracking-wider text-accent flex items-center gap-1.5 transition-colors">
+          <span class="material-symbols-outlined text-base">arrow_back</span>
+          <span>ORDERS</span>
+        </a>
+        <div class="h-8 w-px bg-surface-200"></div>
+        <div>
+          <div class="flex items-center gap-2.5">
+            <h1 class="text-2xl font-black uppercase tracking-tight text-accent mono-num">TQ-100031</h1>
+            <span class="px-3 py-1 rounded-lg bg-secondary_accent/25 text-secondary-950 border border-secondary-500/40 text-[11px] font-black uppercase tracking-wider">
+              OUT FOR DELIVERY
+            </span>
+            <span class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-800 border border-rose-200 text-[11px] font-black uppercase tracking-wider">
+              VISA · UNPAID
+            </span>
+          </div>
+          <div class="text-xs font-extrabold uppercase tracking-wider text-primary-950/75 mt-1 mono-num">
+            18D AGO · DESERT BLOOM
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Contextual Action -->
+      <div class="flex items-center gap-2.5">
+        <button class="px-4 py-2.5 rounded-xl bg-accent hover:bg-primary-950 text-white text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-md transition-all">
+          <span class="material-symbols-outlined text-sm text-secondary_accent">edit</span>
+          <span>UPDATE STATUS</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Content Workspace Area -->
+    <div class="p-8 space-y-6 flex-1 overflow-x-hidden">
+
+      <!-- Interactive Section Tabs: Details | Shipping | Timeline | Audit log -->
+      <div class="bg-accent p-1.5 rounded-2xl inline-flex flex-wrap items-center gap-1.5 shadow-md border border-primary-950">
+        <button type="button" data-panel="details" onclick="switchOrderTab(&#39;details&#39;)" class="order-tab-btn px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider bg-secondary_accent text-primary-950 shadow-sm flex items-center gap-2 transition-all">
+          <span class="material-symbols-outlined text-base">receipt_long</span>
+          <span>DETAILS</span>
+        </button>
+        <button type="button" data-panel="shipping" onclick="switchOrderTab(&#39;shipping&#39;)" class="order-tab-btn px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white/90 hover:text-white hover:bg-white/10 flex items-center gap-2 transition-all">
+          <span class="material-symbols-outlined text-base">local_shipping</span>
+          <span>SHIPPING</span>
+        </button>
+        <button type="button" data-panel="timeline" onclick="switchOrderTab(&#39;timeline&#39;)" class="order-tab-btn px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white/90 hover:text-white hover:bg-white/10 flex items-center gap-2 transition-all">
+          <span class="material-symbols-outlined text-base">timeline</span>
+          <span>TIMELINE</span>
+        </button>
+        <button type="button" data-panel="audit" onclick="switchOrderTab(&#39;audit&#39;)" class="order-tab-btn px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white/90 hover:text-white hover:bg-white/10 flex items-center gap-2 transition-all">
+          <span class="material-symbols-outlined text-base">history</span>
+          <span>AUDIT LOG</span>
+        </button>
+      </div>
+
+      <!-- ==================== TAB 1: DETAILS ==================== -->
+      <section id="panel-details" class="order-panel space-y-6">
+        <div class="grid grid-cols-12 gap-6">
+
+          <!-- Left Column: Header + Customer -->
+          <div class="col-span-7 space-y-6">
+
+            <!-- Header Card -->
+            <div class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+              <div class="bg-accent text-white px-5 py-3.5 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-secondary_accent text-lg">info</span>
+                  <h2 class="text-xs font-black uppercase tracking-widest">HEADER</h2>
+                </div>
+                <span class="px-2.5 py-0.5 rounded bg-secondary-950 text-secondary_accent text-[10px] font-black uppercase tracking-wider border border-secondary_accent/30">
+                  REFUND
+                </span>
+              </div>
+
+              <div class="p-5 grid grid-cols-2 gap-4">
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">STATUS</span>
+                  <span class="text-xs font-black uppercase text-accent mt-1 block">OUT FOR DELIVERY</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">PAYMENT</span>
+                  <span class="text-xs font-black uppercase text-rose-800 mt-1 block">VISA · UNPAID</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">BRAND</span>
+                  <span class="text-xs font-black uppercase text-primary-950 mt-1 block">DESERT BLOOM</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">SOURCE</span>
+                  <span class="text-xs font-black uppercase text-primary-950 mt-1 block">TURUQ</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">TYPE</span>
+                  <span class="text-xs font-black uppercase text-accent mt-1 block">REFUND</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">LOCATION</span>
+                  <span class="text-xs font-black uppercase text-secondary-950 mt-1 block">WITH COURIER</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">CREATED</span>
+                  <span class="text-xs font-black uppercase text-primary-950 mono-num mt-1 block">20 NOV 2:50 PM</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">LAST CHANGE</span>
+                  <span class="text-xs font-black uppercase text-primary-950 mono-num mt-1 block">2 NOV 11:05 AM</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">CAN OPEN PACKAGE</span>
+                  <span class="text-xs font-black uppercase text-rose-800 mt-1 block">FALSE</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">SPECIAL HANDLING</span>
+                  <span class="text-xs font-black uppercase text-primary-950 mt-1 block">NONE</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Customer Card -->
+            <div class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+              <div class="bg-accent text-white px-5 py-3.5 flex items-center gap-2">
+                <span class="material-symbols-outlined text-secondary_accent text-lg">person</span>
+                <h2 class="text-xs font-black uppercase tracking-widest">CUSTOMER</h2>
+              </div>
+
+              <div class="p-5 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">NAME</span>
+                    <span class="text-sm font-black uppercase text-primary-950 mt-1 block">OMAR KHALED</span>
+                  </div>
+                  <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">PHONE</span>
+                    <span class="text-sm font-black uppercase text-accent mono-num mt-1 block">01210000411</span>
+                  </div>
+                  <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">ADDRESS</span>
+                    <span class="text-xs font-black uppercase text-primary-950 mt-1 block">7 SMOUHA STREET, ALEXANDRIA</span>
+                  </div>
+                  <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">GOVERNORATE</span>
+                    <span class="text-xs font-black uppercase text-accent mt-1 block">BENI SUEF</span>
+                  </div>
+                </div>
+
+                <!-- Previous Addresses -->
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block mb-2">PREVIOUS ADDRESSES</span>
+                  <div class="space-y-1.5">
+                    <div class="flex items-center gap-2 text-xs font-bold uppercase text-primary-950">
+                      <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
+                      <span>18 OCTOBER 6 CITY, GIZA</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs font-bold uppercase text-primary-950">
+                      <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
+                      <span>7 SMOUHA STREET, ALEXANDRIA</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Right Column: Products & Money -->
+          <div class="col-span-5 space-y-6">
+            <div class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+              <div class="bg-accent text-white px-5 py-3.5 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-secondary_accent text-lg">inventory_2</span>
+                  <h2 class="text-xs font-black uppercase tracking-widest">PRODUCTS &amp; FINANCIALS</h2>
+                </div>
+                <span class="px-2 py-0.5 rounded bg-white text-accent text-[10px] font-black uppercase mono-num">3 ITEMS</span>
+              </div>
+
+              <!-- Products List -->
+              <div class="p-5 space-y-3 border-b border-surface-200">
+                <div class="flex items-center justify-between p-3.5 rounded-xl bg-surface-50 border border-surface-200">
+                  <div>
+                    <div class="text-xs font-black uppercase text-primary-950">DRESS</div>
+                    <div class="text-[11px] font-extrabold uppercase text-primary-950/75 mt-0.5 mono-num">RED / XL × 1</div>
+                  </div>
+                  <div class="text-sm font-black uppercase text-accent mono-num">700</div>
+                </div>
+
+                <div class="flex items-center justify-between p-3.5 rounded-xl bg-surface-50 border border-surface-200">
+                  <div>
+                    <div class="text-xs font-black uppercase text-primary-950">DRESS</div>
+                    <div class="text-[11px] font-extrabold uppercase text-primary-950/75 mt-0.5 mono-num">BLACK / M × 1</div>
+                  </div>
+                  <div class="text-sm font-black uppercase text-accent mono-num">700</div>
+                </div>
+
+                <div class="flex items-center justify-between p-3.5 rounded-xl bg-surface-50 border border-surface-200">
+                  <div>
+                    <div class="text-xs font-black uppercase text-primary-950">JACKET</div>
+                    <div class="text-[11px] font-extrabold uppercase text-primary-950/75 mt-0.5 mono-num">GREEN / L × 2</div>
+                  </div>
+                  <div class="text-sm font-black uppercase text-accent mono-num">2400</div>
+                </div>
+              </div>
+
+              <!-- Financial Breakdown -->
+              <div class="p-5 space-y-3 bg-white">
+                <div class="flex items-center justify-between text-xs font-bold uppercase text-primary-950/85">
+                  <span>SUBTOTAL</span>
+                  <span class="font-black mono-num text-primary-950">528</span>
+                </div>
+                <div class="flex items-center justify-between text-xs font-bold uppercase text-primary-950/85">
+                  <span>SHIPPING</span>
+                  <span class="font-black mono-num text-primary-950">90 (CUSTOMER)</span>
+                </div>
+                <div class="flex items-center justify-between text-xs font-bold uppercase text-primary-950/85">
+                  <span>PAYMENT</span>
+                  <span class="px-2 py-0.5 rounded bg-rose-50 text-rose-800 border border-rose-200 font-black">VISA · UNPAID</span>
+                </div>
+                <div class="pt-3 border-t-2 border-accent flex items-center justify-between">
+                  <span class="text-sm font-black uppercase tracking-wider text-accent">TOTAL</span>
+                  <span class="text-xl font-black mono-num text-accent">618</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ==================== TAB 2: SHIPPING ==================== -->
+      <section id="panel-shipping" class="order-panel hidden space-y-6">
+        <div class="grid grid-cols-3 gap-6">
+
+          <!-- Shipping Assignment Card -->
+          <div class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+            <div class="bg-accent text-white px-5 py-3.5 flex items-center gap-2">
+              <span class="material-symbols-outlined text-secondary_accent text-lg">local_shipping</span>
+              <h2 class="text-xs font-black uppercase tracking-widest">SHIPPING</h2>
+            </div>
+            <div class="p-5 space-y-3.5">
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">CARRIER</span>
+                <span class="text-sm font-black uppercase text-accent mt-1 block">BOSTA</span>
+              </div>
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">COURIER</span>
+                <span class="text-xs font-black uppercase text-primary-950 mono-num mt-1 block">BOSTA 01000000001</span>
+              </div>
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">TRACKING</span>
+                <span class="text-sm font-black uppercase text-secondary-950 mono-num mt-1 block">4696913674</span>
+              </div>
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">COURIER ASSIGNED AT</span>
+                <span class="text-xs font-black uppercase text-primary-950 mono-num mt-1 block">15 NOV 8:55 PM</span>
+              </div>
+              <a href="#" class="w-full py-2.5 px-4 rounded-xl bg-accent hover:bg-primary-950 text-white text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition-colors">
+                <span>OPEN ON CARRIER</span>
+                <span class="material-symbols-outlined text-sm text-secondary_accent">arrow_forward</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Current Location Card -->
+          <div class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+            <div class="bg-accent text-white px-5 py-3.5 flex items-center gap-2">
+              <span class="material-symbols-outlined text-secondary_accent text-lg">location_on</span>
+              <h2 class="text-xs font-black uppercase tracking-widest">CURRENT LOCATION</h2>
+            </div>
+            <div class="p-5 space-y-3.5">
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">LOCATION</span>
+                <span class="text-sm font-black uppercase text-accent mt-1 block">WITH COURIER</span>
+              </div>
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">SPECIAL HANDLING</span>
+                <span class="text-xs font-black uppercase text-primary-950 mt-1 block">NONE</span>
+              </div>
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">ISSUE FLAGS</span>
+                <span class="inline-block mt-1 px-2.5 py-1 rounded bg-thumbnail/20 text-secondary-950 border border-thumbnail/40 text-xs font-black uppercase">
+                  NO FLAGS
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cancellation & Courier Payment Card -->
+          <div class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+            <div class="bg-accent text-white px-5 py-3.5 flex items-center gap-2">
+              <span class="material-symbols-outlined text-secondary_accent text-lg">payments</span>
+              <h2 class="text-xs font-black uppercase tracking-widest">CANCELLATION &amp; PAYOUT</h2>
+            </div>
+            <div class="p-5 space-y-3.5">
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">CANCELLATION REASON</span>
+                <span class="text-xs font-black uppercase text-primary-950/70 mt-1 block">—</span>
+              </div>
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">CANCELLED BY</span>
+                <span class="text-xs font-black uppercase text-primary-950/70 mt-1 block">—</span>
+              </div>
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">REVIEW</span>
+                <span class="text-xs font-black uppercase text-primary-950 mt-1 block">NONE</span>
+              </div>
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">COURIER PAYMENT</span>
+                <span class="text-xs font-black uppercase text-rose-800 mt-1 block">NOT ELIGIBLE</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ==================== TAB 3: TIMELINE ==================== -->
+      <section id="panel-timeline" class="order-panel hidden">
+        <div class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+          <div class="bg-accent text-white px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="material-symbols-outlined text-secondary_accent text-xl">timeline</span>
+              <h2 class="text-sm font-black uppercase tracking-wider">TIMELINE</h2>
+            </div>
+            <span class="px-2.5 py-0.5 rounded bg-white text-accent text-[10px] font-black uppercase mono-num">
+              6 EVENTS
+            </span>
+          </div>
+
+          <div class="p-6">
+            <div class="relative pl-8 space-y-6 before:content-[&#39;&#39;] before:absolute before:left-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-surface-200">
+
+              <div class="relative flex items-center justify-between bg-surface-50 p-4 rounded-xl border border-surface-200">
+                <span class="absolute -left-7 w-4 h-4 rounded-full bg-accent border-2 border-white shadow"></span>
+                <div>
+                  <div class="text-xs font-black uppercase text-accent">PENDING</div>
+                </div>
+                <div class="text-xs font-black uppercase mono-num text-primary-950">30 SEP 3:58 PM</div>
+              </div>
+
+              <div class="relative flex items-center justify-between bg-surface-50 p-4 rounded-xl border border-surface-200">
+                <span class="absolute -left-7 w-4 h-4 rounded-full bg-accent border-2 border-white shadow"></span>
+                <div>
+                  <div class="text-xs font-black uppercase text-accent">PROCESSING</div>
+                </div>
+                <div class="text-xs font-black uppercase mono-num text-primary-950">2 OCT 3:58 PM</div>
+              </div>
+
+              <div class="relative flex items-center justify-between bg-surface-50 p-4 rounded-xl border border-surface-200">
+                <span class="absolute -left-7 w-4 h-4 rounded-full bg-secondary-500 border-2 border-white shadow"></span>
+                <div>
+                  <div class="text-xs font-black uppercase text-accent">OUT FOR DELIVERY</div>
+                  <div class="text-[11px] font-extrabold uppercase text-secondary-950 mt-0.5">AHMED HASSAN</div>
+                </div>
+                <div class="text-xs font-black uppercase mono-num text-primary-950">4 OCT 3:58 PM</div>
+              </div>
+
+              <div class="relative flex items-center justify-between bg-surface-50 p-4 rounded-xl border border-surface-200">
+                <span class="absolute -left-7 w-4 h-4 rounded-full bg-thumbnail border-2 border-white shadow"></span>
+                <div>
+                  <div class="text-xs font-black uppercase text-secondary-950">DELIVERED</div>
+                </div>
+                <div class="text-xs font-black uppercase mono-num text-primary-950">6 OCT 3:58 PM</div>
+              </div>
+
+              <div class="relative flex items-center justify-between bg-surface-50 p-4 rounded-xl border border-surface-200">
+                <span class="absolute -left-7 w-4 h-4 rounded-full bg-accent border-2 border-white shadow"></span>
+                <div>
+                  <div class="text-xs font-black uppercase text-accent">QC</div>
+                </div>
+                <div class="text-xs font-black uppercase mono-num text-primary-950">8 OCT 3:58 PM</div>
+              </div>
+
+              <div class="relative flex items-center justify-between bg-surface-50 p-4 rounded-xl border border-surface-200">
+                <span class="absolute -left-7 w-4 h-4 rounded-full bg-purple-700 border-2 border-white shadow"></span>
+                <div>
+                  <div class="text-xs font-black uppercase text-purple-900">RTW</div>
+                  <div class="text-[11px] font-extrabold uppercase text-primary-950/80 mt-0.5">AHMED HASSAN</div>
+                </div>
+                <div class="text-xs font-black uppercase mono-num text-primary-950">10 OCT 3:58 PM</div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 4: AUDIT LOG ==================== -->
+      <section id="panel-audit" class="order-panel hidden">
+        <div class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+          <div class="bg-accent text-white px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="material-symbols-outlined text-secondary_accent text-xl">history</span>
+              <h2 class="text-sm font-black uppercase tracking-wider">AUDIT LOG</h2>
+            </div>
+            <span class="px-2.5 py-0.5 rounded bg-white text-accent text-[10px] font-black uppercase mono-num">
+              2 ENTRIES
+            </span>
+          </div>
+
+          <div class="divide-y divide-surface-200">
+            <div class="p-5 flex items-center justify-between gap-4 hover:bg-surface-50 transition-colors">
+              <div class="space-y-1">
+                <div class="flex items-center gap-2.5">
+                  <span class="px-2.5 py-0.5 rounded bg-accent text-white text-[10px] font-black uppercase tracking-wider">SPECIAL_HANDLING</span>
+                  <span class="text-xs font-black uppercase text-primary-950">SPECIAL HANDLING: NONE → VIP</span>
+                </div>
+                <div class="text-[11px] font-extrabold uppercase text-secondary-950">ACTOR: OMAR FATHY</div>
+              </div>
+              <div class="text-xs font-black uppercase mono-num text-primary-950/80 whitespace-nowrap">20 NOV 2:54 PM</div>
+            </div>
+
+            <div class="p-5 flex items-center justify-between gap-4 hover:bg-surface-50 transition-colors">
+              <div class="space-y-1">
+                <div class="flex items-center gap-2.5">
+                  <span class="px-2.5 py-0.5 rounded bg-thumbnail text-primary-950 text-[10px] font-black uppercase tracking-wider">RESOLVE_FLAG</span>
+                  <span class="text-xs font-black uppercase text-primary-950">ISSUE FLAGS: OPEN → RESOLVED</span>
+                </div>
+                <div class="text-[11px] font-extrabold uppercase text-secondary-950">ACTOR: OMAR FATHY</div>
+              </div>
+              <div class="text-xs font-black uppercase mono-num text-primary-950/80 whitespace-nowrap">20 NOV 2:54 PM</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <script>
+    function switchOrderTab(panelId) {
+      document.querySelectorAll('.order-tab-btn').forEach(btn => {
+        const isActive = btn.dataset.panel === panelId;
+        if (isActive) {
+          btn.className = 'order-tab-btn px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider bg-secondary_accent text-primary-950 shadow-sm flex items-center gap-2 transition-all';
+        } else {
+          btn.className = 'order-tab-btn px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white/90 hover:text-white hover:bg-white/10 flex items-center gap-2 transition-all';
+        }
+      });
+
+      document.querySelectorAll('.order-panel').forEach(panel => {
+        panel.classList.toggle('hidden', panel.id !== `panel-${panelId}`);
+      });
+    }
+  </script>
+
+
+
+</body></html>
+
+
+
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Turuq Order Details — TQ-100031</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            accent: '#032486',
+            secondary_accent: '#38cbfc',
+            'primary-950': '#03256c',
+            'primary-500': '#008bff',
+            'secondary-500': '#06bee1',
+            'secondary-950': '#083244',
+            thumbnail: '#42c7b8',
+            surface: {
+              50: '#F4F8FC',
+              100: '#E7F0F9',
+              200: '#CDE1F3',
+            }
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 600, 'GRAD' 0, 'opsz' 20;
+    }
+    .mono-num {
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F0F4F8;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #B5C8DC;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #86A7C6;
+    }
+  </style>
+</head>
+<body class="bg-surface-50 text-primary-950 font-sans antialiased min-h-[1024px] flex" data-stitch-vh="min-h-[1024px]===min-h-screen">
+
+  <!-- ==================== SIDEBAR ==================== -->
+  <aside class="w-64 bg-primary-950 text-white min-h-[1024px] flex flex-col border-r border-secondary-950 flex-shrink-0 select-none" data-stitch-vh="min-h-[1024px]===min-h-screen">
+
+    <!-- Brand / Platform Header -->
+    <div class="h-16 px-6 flex items-center justify-between border-b border-white/15 bg-accent">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-white text-accent flex items-center justify-center font-black tracking-tight shadow-md">
+          <span class="text-base tracking-tighter">TQ</span>
+        </div>
+        <div>
+          <span class="text-base font-black tracking-wider uppercase text-white block leading-none">TURUQ</span>
+          <span class="text-[10px] font-extrabold uppercase tracking-widest text-secondary_accent mt-1 block">LOGISTICS OS</span>
+        </div>
+      </div>
+      <span class="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-thumbnail text-primary-950">
+        LIVE
+      </span>
+    </div>
+
+    <!-- Navigation Groups -->
+    <div class="flex-1 px-3 py-4 space-y-6 overflow-y-auto">
+
+      <!-- Core Management -->
+      <div>
+        <div class="px-3 mb-2 text-[10px] font-black uppercase tracking-widest text-secondary_accent">
+          CORE OPERATIONS
+        </div>
+        <nav class="space-y-1">
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">dashboard</span>
+            <span>DASHBOARD</span>
+          </a>
+          <a href="#" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-black text-white bg-accent shadow-sm border border-secondary_accent/40 uppercase tracking-wider">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-lg text-secondary_accent">local_shipping</span>
+              <span>ORDERS</span>
+            </div>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-secondary_accent text-primary-950 mono-num">
+              33
+            </span>
+          </a>
+          <a href="#" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-lg">history_toggle_off</span>
+              <span>STALE ORDERS</span>
+            </div>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-white/15 text-white mono-num">
+              11
+            </span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">search</span>
+            <span>QUICK LOOKUP</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">person_search</span>
+            <span>CUSTOMER LOOKUP</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">corporate_fare</span>
+            <span>CLIENTS</span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- Actions & Fulfillment -->
+      <div>
+        <div class="px-3 mb-2 text-[10px] font-black uppercase tracking-widest text-secondary_accent">
+          FULFILLMENT &amp; TASKS
+        </div>
+        <nav class="space-y-1">
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">add_box</span>
+            <span>CREATE ORDER</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">cancel_presentation</span>
+            <span>CANCELLATION REVIEW</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">layers</span>
+            <span>DROPOFF BATCHES</span>
+          </a>
+          <a href="#" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-lg text-amber-300">notifications_active</span>
+              <span>ALERTS</span>
+            </div>
+            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- Utilities -->
+      <div>
+        <div class="px-3 mb-2 text-[10px] font-black uppercase tracking-widest text-secondary_accent">
+          SYSTEM &amp; UTILITIES
+        </div>
+        <nav class="space-y-1">
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">sticky_note_2</span>
+            <span>MY NOTES</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">science</span>
+            <span>PROTOTYPE SIMULATOR</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">headset_mic</span>
+            <span>SUPPORT</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">account_circle</span>
+            <span>MY ACCOUNT</span>
+          </a>
+        </nav>
+      </div>
+
+    </div>
+
+    <!-- User / Operator Card in Sidebar Footer -->
+    <div class="p-3.5 border-t border-white/15 bg-secondary-950">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-accent text-white flex items-center justify-center font-bold text-xs uppercase border border-secondary_accent/40">
+            TS
+          </div>
+          <div>
+            <div class="text-xs font-bold text-white uppercase tracking-wider">TURUQ SUPPORT</div>
+            <div class="text-[10px] font-semibold text-thumbnail uppercase tracking-widest">DISPATCH ACTIVE</div>
+          </div>
+        </div>
+        <button class="text-white/80 hover:text-white transition-colors">
+          <span class="material-symbols-outlined text-base">more_vert</span>
+        </button>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="flex-1 min-w-0 flex flex-col bg-surface-50">
+
+    <!-- Contextual Order Header -->
+    <header class="px-8 py-4 border-b-2 border-accent bg-white flex flex-wrap items-center justify-between gap-4 flex-shrink-0">
+      <div class="flex items-center gap-4">
+        <a href="#" class="px-3 py-2 rounded-xl border border-surface-200 bg-surface-50 hover:bg-surface-100 text-xs font-black uppercase tracking-wider text-accent flex items-center gap-1.5 transition-colors">
+          <span class="material-symbols-outlined text-base">arrow_back</span>
+          <span>ORDERS</span>
+        </a>
+        <div class="h-8 w-px bg-surface-200"></div>
+        <div>
+          <div class="flex items-center gap-2.5">
+            <h1 class="text-2xl font-black uppercase tracking-tight text-accent mono-num">TQ-100031</h1>
+            <span class="px-3 py-1 rounded-lg bg-secondary_accent/25 text-secondary-950 border border-secondary-500/40 text-[11px] font-black uppercase tracking-wider">
+              OUT FOR DELIVERY
+            </span>
+            <span class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-800 border border-rose-200 text-[11px] font-black uppercase tracking-wider">
+              VISA · UNPAID
+            </span>
+          </div>
+          <div class="text-xs font-extrabold uppercase tracking-wider text-primary-950/75 mt-1 mono-num">
+            18D AGO · DESERT BLOOM
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Contextual Action -->
+      <div class="flex items-center gap-2.5">
+        <button class="px-4 py-2.5 rounded-xl bg-accent hover:bg-primary-950 text-white text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-md transition-all">
+          <span class="material-symbols-outlined text-sm text-secondary_accent">edit</span>
+          <span>UPDATE STATUS</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Content Workspace Area -->
+    <div class="p-8 space-y-6 flex-1 overflow-x-hidden">
+
+      <!-- Interactive Section Tabs: Details | Shipping | Timeline | Audit log -->
+      <div class="bg-accent p-1.5 rounded-2xl inline-flex flex-wrap items-center gap-1.5 shadow-md border border-primary-950">
+        <button type="button" data-panel="details" onclick="switchOrderTab(&#39;details&#39;)" class="order-tab-btn px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white/90 hover:text-white hover:bg-white/10 flex items-center gap-2 transition-all">
+          <span class="material-symbols-outlined text-base">receipt_long</span>
+          <span>DETAILS</span>
+        </button>
+        <button type="button" data-panel="shipping" onclick="switchOrderTab(&#39;shipping&#39;)" class="order-tab-btn px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider bg-secondary_accent text-primary-950 shadow-sm flex items-center gap-2 transition-all">
+          <span class="material-symbols-outlined text-base">local_shipping</span>
+          <span>SHIPPING</span>
+        </button>
+        <button type="button" data-panel="timeline" onclick="switchOrderTab(&#39;timeline&#39;)" class="order-tab-btn px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white/90 hover:text-white hover:bg-white/10 flex items-center gap-2 transition-all">
+          <span class="material-symbols-outlined text-base">timeline</span>
+          <span>TIMELINE</span>
+        </button>
+        <button type="button" data-panel="audit" onclick="switchOrderTab(&#39;audit&#39;)" class="order-tab-btn px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white/90 hover:text-white hover:bg-white/10 flex items-center gap-2 transition-all">
+          <span class="material-symbols-outlined text-base">history</span>
+          <span>AUDIT LOG</span>
+        </button>
+      </div>
+
+      <!-- ==================== TAB 1: DETAILS ==================== -->
+      <section id="panel-details" class="order-panel hidden space-y-6">
+        <div class="grid grid-cols-12 gap-6">
+
+          <!-- Left Column: Header + Customer -->
+          <div class="col-span-7 space-y-6">
+
+            <!-- Header Card -->
+            <div class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+              <div class="bg-accent text-white px-5 py-3.5 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-secondary_accent text-lg">info</span>
+                  <h2 class="text-xs font-black uppercase tracking-widest">HEADER</h2>
+                </div>
+                <span class="px-2.5 py-0.5 rounded bg-secondary-950 text-secondary_accent text-[10px] font-black uppercase tracking-wider border border-secondary_accent/30">
+                  REFUND
+                </span>
+              </div>
+
+              <div class="p-5 grid grid-cols-2 gap-4">
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">STATUS</span>
+                  <span class="text-xs font-black uppercase text-accent mt-1 block">OUT FOR DELIVERY</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">PAYMENT</span>
+                  <span class="text-xs font-black uppercase text-rose-800 mt-1 block">VISA · UNPAID</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">BRAND</span>
+                  <span class="text-xs font-black uppercase text-primary-950 mt-1 block">DESERT BLOOM</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">SOURCE</span>
+                  <span class="text-xs font-black uppercase text-primary-950 mt-1 block">TURUQ</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">TYPE</span>
+                  <span class="text-xs font-black uppercase text-accent mt-1 block">REFUND</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">LOCATION</span>
+                  <span class="text-xs font-black uppercase text-secondary-950 mt-1 block">WITH COURIER</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">CREATED</span>
+                  <span class="text-xs font-black uppercase text-primary-950 mono-num mt-1 block">20 NOV 2:50 PM</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">LAST CHANGE</span>
+                  <span class="text-xs font-black uppercase text-primary-950 mono-num mt-1 block">2 NOV 11:05 AM</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">CAN OPEN PACKAGE</span>
+                  <span class="text-xs font-black uppercase text-rose-800 mt-1 block">FALSE</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">SPECIAL HANDLING</span>
+                  <span class="text-xs font-black uppercase text-primary-950 mt-1 block">NONE</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Customer Card -->
+            <div class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+              <div class="bg-accent text-white px-5 py-3.5 flex items-center gap-2">
+                <span class="material-symbols-outlined text-secondary_accent text-lg">person</span>
+                <h2 class="text-xs font-black uppercase tracking-widest">CUSTOMER</h2>
+              </div>
+
+              <div class="p-5 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">NAME</span>
+                    <span class="text-sm font-black uppercase text-primary-950 mt-1 block">OMAR KHALED</span>
+                  </div>
+                  <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">PHONE</span>
+                    <span class="text-sm font-black uppercase text-accent mono-num mt-1 block">01210000411</span>
+                  </div>
+                  <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">ADDRESS</span>
+                    <span class="text-xs font-black uppercase text-primary-950 mt-1 block">7 SMOUHA STREET, ALEXANDRIA</span>
+                  </div>
+                  <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">GOVERNORATE</span>
+                    <span class="text-xs font-black uppercase text-accent mt-1 block">BENI SUEF</span>
+                  </div>
+                </div>
+
+                <!-- Previous Addresses -->
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block mb-2">PREVIOUS ADDRESSES</span>
+                  <div class="space-y-1.5">
+                    <div class="flex items-center gap-2 text-xs font-bold uppercase text-primary-950">
+                      <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
+                      <span>18 OCTOBER 6 CITY, GIZA</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs font-bold uppercase text-primary-950">
+                      <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
+                      <span>7 SMOUHA STREET, ALEXANDRIA</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Right Column: Products & Money -->
+          <div class="col-span-5 space-y-6">
+            <div class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+              <div class="bg-accent text-white px-5 py-3.5 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-secondary_accent text-lg">inventory_2</span>
+                  <h2 class="text-xs font-black uppercase tracking-widest">PRODUCTS &amp; FINANCIALS</h2>
+                </div>
+                <span class="px-2 py-0.5 rounded bg-white text-accent text-[10px] font-black uppercase mono-num">3 ITEMS</span>
+              </div>
+
+              <!-- Products List -->
+              <div class="p-5 space-y-3 border-b border-surface-200">
+                <div class="flex items-center justify-between p-3.5 rounded-xl bg-surface-50 border border-surface-200">
+                  <div>
+                    <div class="text-xs font-black uppercase text-primary-950">DRESS</div>
+                    <div class="text-[11px] font-extrabold uppercase text-primary-950/75 mt-0.5 mono-num">RED / XL × 1</div>
+                  </div>
+                  <div class="text-sm font-black uppercase text-accent mono-num">700</div>
+                </div>
+
+                <div class="flex items-center justify-between p-3.5 rounded-xl bg-surface-50 border border-surface-200">
+                  <div>
+                    <div class="text-xs font-black uppercase text-primary-950">DRESS</div>
+                    <div class="text-[11px] font-extrabold uppercase text-primary-950/75 mt-0.5 mono-num">BLACK / M × 1</div>
+                  </div>
+                  <div class="text-sm font-black uppercase text-accent mono-num">700</div>
+                </div>
+
+                <div class="flex items-center justify-between p-3.5 rounded-xl bg-surface-50 border border-surface-200">
+                  <div>
+                    <div class="text-xs font-black uppercase text-primary-950">JACKET</div>
+                    <div class="text-[11px] font-extrabold uppercase text-primary-950/75 mt-0.5 mono-num">GREEN / L × 2</div>
+                  </div>
+                  <div class="text-sm font-black uppercase text-accent mono-num">2400</div>
+                </div>
+              </div>
+
+              <!-- Financial Breakdown -->
+              <div class="p-5 space-y-3 bg-white">
+                <div class="flex items-center justify-between text-xs font-bold uppercase text-primary-950/85">
+                  <span>SUBTOTAL</span>
+                  <span class="font-black mono-num text-primary-950">528</span>
+                </div>
+                <div class="flex items-center justify-between text-xs font-bold uppercase text-primary-950/85">
+                  <span>SHIPPING</span>
+                  <span class="font-black mono-num text-primary-950">90 (CUSTOMER)</span>
+                </div>
+                <div class="flex items-center justify-between text-xs font-bold uppercase text-primary-950/85">
+                  <span>PAYMENT</span>
+                  <span class="px-2 py-0.5 rounded bg-rose-50 text-rose-800 border border-rose-200 font-black">VISA · UNPAID</span>
+                </div>
+                <div class="pt-3 border-t-2 border-accent flex items-center justify-between">
+                  <span class="text-sm font-black uppercase tracking-wider text-accent">TOTAL</span>
+                  <span class="text-xl font-black mono-num text-accent">618</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ==================== TAB 2: SHIPPING ==================== -->
+      <section id="panel-shipping" class="order-panel space-y-6">
+        <div class="grid grid-cols-3 gap-6">
+
+          <!-- Shipping Assignment Card -->
+          <div class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+            <div class="bg-accent text-white px-5 py-3.5 flex items-center gap-2">
+              <span class="material-symbols-outlined text-secondary_accent text-lg">local_shipping</span>
+              <h2 class="text-xs font-black uppercase tracking-widest">SHIPPING</h2>
+            </div>
+            <div class="p-5 space-y-3.5">
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">CARRIER</span>
+                <span class="text-sm font-black uppercase text-accent mt-1 block">BOSTA</span>
+              </div>
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">COURIER</span>
+                <span class="text-xs font-black uppercase text-primary-950 mono-num mt-1 block">BOSTA 01000000001</span>
+              </div>
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">TRACKING</span>
+                <span class="text-sm font-black uppercase text-secondary-950 mono-num mt-1 block">4696913674</span>
+              </div>
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">COURIER ASSIGNED AT</span>
+                <span class="text-xs font-black uppercase text-primary-950 mono-num mt-1 block">15 NOV 8:55 PM</span>
+              </div>
+              <a href="#" class="w-full py-2.5 px-4 rounded-xl bg-accent hover:bg-primary-950 text-white text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition-colors">
+                <span>OPEN ON CARRIER</span>
+                <span class="material-symbols-outlined text-sm text-secondary_accent">arrow_forward</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Current Location Card -->
+          <div class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+            <div class="bg-accent text-white px-5 py-3.5 flex items-center gap-2">
+              <span class="material-symbols-outlined text-secondary_accent text-lg">location_on</span>
+              <h2 class="text-xs font-black uppercase tracking-widest">CURRENT LOCATION</h2>
+            </div>
+            <div class="p-5 space-y-3.5">
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">LOCATION</span>
+                <span class="text-sm font-black uppercase text-accent mt-1 block">WITH COURIER</span>
+              </div>
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">SPECIAL HANDLING</span>
+                <span class="text-xs font-black uppercase text-primary-950 mt-1 block">NONE</span>
+              </div>
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">ISSUE FLAGS</span>
+                <span class="inline-block mt-1 px-2.5 py-1 rounded bg-thumbnail/20 text-secondary-950 border border-thumbnail/40 text-xs font-black uppercase">
+                  NO FLAGS
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cancellation & Courier Payment Card -->
+          <div class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+            <div class="bg-accent text-white px-5 py-3.5 flex items-center gap-2">
+              <span class="material-symbols-outlined text-secondary_accent text-lg">payments</span>
+              <h2 class="text-xs font-black uppercase tracking-widest">CANCELLATION &amp; PAYOUT</h2>
+            </div>
+            <div class="p-5 space-y-3.5">
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">CANCELLATION REASON</span>
+                <span class="text-xs font-black uppercase text-primary-950/70 mt-1 block">—</span>
+              </div>
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">CANCELLED BY</span>
+                <span class="text-xs font-black uppercase text-primary-950/70 mt-1 block">—</span>
+              </div>
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">REVIEW</span>
+                <span class="text-xs font-black uppercase text-primary-950 mt-1 block">NONE</span>
+              </div>
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">COURIER PAYMENT</span>
+                <span class="text-xs font-black uppercase text-rose-800 mt-1 block">NOT ELIGIBLE</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ==================== TAB 3: TIMELINE ==================== -->
+      <section id="panel-timeline" class="order-panel hidden">
+        <div class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+          <div class="bg-accent text-white px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="material-symbols-outlined text-secondary_accent text-xl">timeline</span>
+              <h2 class="text-sm font-black uppercase tracking-wider">TIMELINE</h2>
+            </div>
+            <span class="px-2.5 py-0.5 rounded bg-white text-accent text-[10px] font-black uppercase mono-num">
+              6 EVENTS
+            </span>
+          </div>
+
+          <div class="p-6">
+            <div class="relative pl-8 space-y-6 before:content-[&#39;&#39;] before:absolute before:left-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-surface-200">
+
+              <div class="relative flex items-center justify-between bg-surface-50 p-4 rounded-xl border border-surface-200">
+                <span class="absolute -left-7 w-4 h-4 rounded-full bg-accent border-2 border-white shadow"></span>
+                <div>
+                  <div class="text-xs font-black uppercase text-accent">PENDING</div>
+                </div>
+                <div class="text-xs font-black uppercase mono-num text-primary-950">30 SEP 3:58 PM</div>
+              </div>
+
+              <div class="relative flex items-center justify-between bg-surface-50 p-4 rounded-xl border border-surface-200">
+                <span class="absolute -left-7 w-4 h-4 rounded-full bg-accent border-2 border-white shadow"></span>
+                <div>
+                  <div class="text-xs font-black uppercase text-accent">PROCESSING</div>
+                </div>
+                <div class="text-xs font-black uppercase mono-num text-primary-950">2 OCT 3:58 PM</div>
+              </div>
+
+              <div class="relative flex items-center justify-between bg-surface-50 p-4 rounded-xl border border-surface-200">
+                <span class="absolute -left-7 w-4 h-4 rounded-full bg-secondary-500 border-2 border-white shadow"></span>
+                <div>
+                  <div class="text-xs font-black uppercase text-accent">OUT FOR DELIVERY</div>
+                  <div class="text-[11px] font-extrabold uppercase text-secondary-950 mt-0.5">AHMED HASSAN</div>
+                </div>
+                <div class="text-xs font-black uppercase mono-num text-primary-950">4 OCT 3:58 PM</div>
+              </div>
+
+              <div class="relative flex items-center justify-between bg-surface-50 p-4 rounded-xl border border-surface-200">
+                <span class="absolute -left-7 w-4 h-4 rounded-full bg-thumbnail border-2 border-white shadow"></span>
+                <div>
+                  <div class="text-xs font-black uppercase text-secondary-950">DELIVERED</div>
+                </div>
+                <div class="text-xs font-black uppercase mono-num text-primary-950">6 OCT 3:58 PM</div>
+              </div>
+
+              <div class="relative flex items-center justify-between bg-surface-50 p-4 rounded-xl border border-surface-200">
+                <span class="absolute -left-7 w-4 h-4 rounded-full bg-accent border-2 border-white shadow"></span>
+                <div>
+                  <div class="text-xs font-black uppercase text-accent">QC</div>
+                </div>
+                <div class="text-xs font-black uppercase mono-num text-primary-950">8 OCT 3:58 PM</div>
+              </div>
+
+              <div class="relative flex items-center justify-between bg-surface-50 p-4 rounded-xl border border-surface-200">
+                <span class="absolute -left-7 w-4 h-4 rounded-full bg-purple-700 border-2 border-white shadow"></span>
+                <div>
+                  <div class="text-xs font-black uppercase text-purple-900">RTW</div>
+                  <div class="text-[11px] font-extrabold uppercase text-primary-950/80 mt-0.5">AHMED HASSAN</div>
+                </div>
+                <div class="text-xs font-black uppercase mono-num text-primary-950">10 OCT 3:58 PM</div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 4: AUDIT LOG ==================== -->
+      <section id="panel-audit" class="order-panel hidden">
+        <div class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+          <div class="bg-accent text-white px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="material-symbols-outlined text-secondary_accent text-xl">history</span>
+              <h2 class="text-sm font-black uppercase tracking-wider">AUDIT LOG</h2>
+            </div>
+            <span class="px-2.5 py-0.5 rounded bg-white text-accent text-[10px] font-black uppercase mono-num">
+              2 ENTRIES
+            </span>
+          </div>
+
+          <div class="divide-y divide-surface-200">
+            <div class="p-5 flex items-center justify-between gap-4 hover:bg-surface-50 transition-colors">
+              <div class="space-y-1">
+                <div class="flex items-center gap-2.5">
+                  <span class="px-2.5 py-0.5 rounded bg-accent text-white text-[10px] font-black uppercase tracking-wider">SPECIAL_HANDLING</span>
+                  <span class="text-xs font-black uppercase text-primary-950">SPECIAL HANDLING: NONE → VIP</span>
+                </div>
+                <div class="text-[11px] font-extrabold uppercase text-secondary-950">ACTOR: OMAR FATHY</div>
+              </div>
+              <div class="text-xs font-black uppercase mono-num text-primary-950/80 whitespace-nowrap">20 NOV 2:54 PM</div>
+            </div>
+
+            <div class="p-5 flex items-center justify-between gap-4 hover:bg-surface-50 transition-colors">
+              <div class="space-y-1">
+                <div class="flex items-center gap-2.5">
+                  <span class="px-2.5 py-0.5 rounded bg-thumbnail text-primary-950 text-[10px] font-black uppercase tracking-wider">RESOLVE_FLAG</span>
+                  <span class="text-xs font-black uppercase text-primary-950">ISSUE FLAGS: OPEN → RESOLVED</span>
+                </div>
+                <div class="text-[11px] font-extrabold uppercase text-secondary-950">ACTOR: OMAR FATHY</div>
+              </div>
+              <div class="text-xs font-black uppercase mono-num text-primary-950/80 whitespace-nowrap">20 NOV 2:54 PM</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <script>
+    function switchOrderTab(panelId) {
+      document.querySelectorAll('.order-tab-btn').forEach(btn => {
+        const isActive = btn.dataset.panel === panelId;
+        if (isActive) {
+          btn.className = 'order-tab-btn px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider bg-secondary_accent text-primary-950 shadow-sm flex items-center gap-2 transition-all';
+        } else {
+          btn.className = 'order-tab-btn px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white/90 hover:text-white hover:bg-white/10 flex items-center gap-2 transition-all';
+        }
+      });
+
+      document.querySelectorAll('.order-panel').forEach(panel => {
+        panel.classList.toggle('hidden', panel.id !== `panel-${panelId}`);
+      });
+    }
+  </script>
+
+
+
+</body></html>
+
+
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Turuq Order Details — TQ-100031</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            accent: '#032486',
+            secondary_accent: '#38cbfc',
+            'primary-950': '#03256c',
+            'primary-500': '#008bff',
+            'secondary-500': '#06bee1',
+            'secondary-950': '#083244',
+            thumbnail: '#42c7b8',
+            surface: {
+              50: '#F4F8FC',
+              100: '#E7F0F9',
+              200: '#CDE1F3',
+            }
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 600, 'GRAD' 0, 'opsz' 20;
+    }
+    .mono-num {
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F0F4F8;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #B5C8DC;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #86A7C6;
+    }
+  </style>
+</head>
+<body class="bg-surface-50 text-primary-950 font-sans antialiased min-h-[1024px] flex" data-stitch-vh="min-h-[1024px]===min-h-screen">
+
+  <!-- ==================== SIDEBAR ==================== -->
+  <aside class="w-64 bg-primary-950 text-white min-h-[1024px] flex flex-col border-r border-secondary-950 flex-shrink-0 select-none" data-stitch-vh="min-h-[1024px]===min-h-screen">
+
+    <!-- Brand / Platform Header -->
+    <div class="h-16 px-6 flex items-center justify-between border-b border-white/15 bg-accent">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-white text-accent flex items-center justify-center font-black tracking-tight shadow-md">
+          <span class="text-base tracking-tighter">TQ</span>
+        </div>
+        <div>
+          <span class="text-base font-black tracking-wider uppercase text-white block leading-none">TURUQ</span>
+          <span class="text-[10px] font-extrabold uppercase tracking-widest text-secondary_accent mt-1 block">LOGISTICS OS</span>
+        </div>
+      </div>
+      <span class="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-thumbnail text-primary-950">
+        LIVE
+      </span>
+    </div>
+
+    <!-- Navigation Groups -->
+    <div class="flex-1 px-3 py-4 space-y-6 overflow-y-auto">
+
+      <!-- Core Management -->
+      <div>
+        <div class="px-3 mb-2 text-[10px] font-black uppercase tracking-widest text-secondary_accent">
+          CORE OPERATIONS
+        </div>
+        <nav class="space-y-1">
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">dashboard</span>
+            <span>DASHBOARD</span>
+          </a>
+          <a href="#" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-black text-white bg-accent shadow-sm border border-secondary_accent/40 uppercase tracking-wider">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-lg text-secondary_accent">local_shipping</span>
+              <span>ORDERS</span>
+            </div>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-secondary_accent text-primary-950 mono-num">
+              33
+            </span>
+          </a>
+          <a href="#" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-lg">history_toggle_off</span>
+              <span>STALE ORDERS</span>
+            </div>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-white/15 text-white mono-num">
+              11
+            </span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">search</span>
+            <span>QUICK LOOKUP</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">person_search</span>
+            <span>CUSTOMER LOOKUP</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">corporate_fare</span>
+            <span>CLIENTS</span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- Actions & Fulfillment -->
+      <div>
+        <div class="px-3 mb-2 text-[10px] font-black uppercase tracking-widest text-secondary_accent">
+          FULFILLMENT &amp; TASKS
+        </div>
+        <nav class="space-y-1">
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">add_box</span>
+            <span>CREATE ORDER</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">cancel_presentation</span>
+            <span>CANCELLATION REVIEW</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">layers</span>
+            <span>DROPOFF BATCHES</span>
+          </a>
+          <a href="#" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-lg text-amber-300">notifications_active</span>
+              <span>ALERTS</span>
+            </div>
+            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- Utilities -->
+      <div>
+        <div class="px-3 mb-2 text-[10px] font-black uppercase tracking-widest text-secondary_accent">
+          SYSTEM &amp; UTILITIES
+        </div>
+        <nav class="space-y-1">
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">sticky_note_2</span>
+            <span>MY NOTES</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">science</span>
+            <span>PROTOTYPE SIMULATOR</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">headset_mic</span>
+            <span>SUPPORT</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">account_circle</span>
+            <span>MY ACCOUNT</span>
+          </a>
+        </nav>
+      </div>
+
+    </div>
+
+    <!-- User / Operator Card in Sidebar Footer -->
+    <div class="p-3.5 border-t border-white/15 bg-secondary-950">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-accent text-white flex items-center justify-center font-bold text-xs uppercase border border-secondary_accent/40">
+            TS
+          </div>
+          <div>
+            <div class="text-xs font-bold text-white uppercase tracking-wider">TURUQ SUPPORT</div>
+            <div class="text-[10px] font-semibold text-thumbnail uppercase tracking-widest">DISPATCH ACTIVE</div>
+          </div>
+        </div>
+        <button class="text-white/80 hover:text-white transition-colors">
+          <span class="material-symbols-outlined text-base">more_vert</span>
+        </button>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="flex-1 min-w-0 flex flex-col bg-surface-50">
+
+    <!-- Contextual Order Header -->
+    <header class="px-8 py-4 border-b-2 border-accent bg-white flex flex-wrap items-center justify-between gap-4 flex-shrink-0">
+      <div class="flex items-center gap-4">
+        <a href="#" class="px-3 py-2 rounded-xl border border-surface-200 bg-surface-50 hover:bg-surface-100 text-xs font-black uppercase tracking-wider text-accent flex items-center gap-1.5 transition-colors">
+          <span class="material-symbols-outlined text-base">arrow_back</span>
+          <span>ORDERS</span>
+        </a>
+        <div class="h-8 w-px bg-surface-200"></div>
+        <div>
+          <div class="flex items-center gap-2.5">
+            <h1 class="text-2xl font-black uppercase tracking-tight text-accent mono-num">TQ-100031</h1>
+            <span class="px-3 py-1 rounded-lg bg-secondary_accent/25 text-secondary-950 border border-secondary-500/40 text-[11px] font-black uppercase tracking-wider">
+              OUT FOR DELIVERY
+            </span>
+            <span class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-800 border border-rose-200 text-[11px] font-black uppercase tracking-wider">
+              VISA · UNPAID
+            </span>
+          </div>
+          <div class="text-xs font-extrabold uppercase tracking-wider text-primary-950/75 mt-1 mono-num">
+            18D AGO · DESERT BLOOM
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Contextual Action -->
+      <div class="flex items-center gap-2.5">
+        <button class="px-4 py-2.5 rounded-xl bg-accent hover:bg-primary-950 text-white text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-md transition-all">
+          <span class="material-symbols-outlined text-sm text-secondary_accent">edit</span>
+          <span>UPDATE STATUS</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Content Workspace Area -->
+    <div class="p-8 space-y-6 flex-1 overflow-x-hidden">
+
+      <!-- Interactive Section Tabs: Details | Shipping | Timeline | Audit log -->
+      <div class="bg-accent p-1.5 rounded-2xl inline-flex flex-wrap items-center gap-1.5 shadow-md border border-primary-950">
+        <button type="button" data-panel="details" onclick="switchOrderTab(&#39;details&#39;)" class="order-tab-btn px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white/90 hover:text-white hover:bg-white/10 flex items-center gap-2 transition-all">
+          <span class="material-symbols-outlined text-base">receipt_long</span>
+          <span>DETAILS</span>
+        </button>
+        <button type="button" data-panel="shipping" onclick="switchOrderTab(&#39;shipping&#39;)" class="order-tab-btn px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white/90 hover:text-white hover:bg-white/10 flex items-center gap-2 transition-all">
+          <span class="material-symbols-outlined text-base">local_shipping</span>
+          <span>SHIPPING</span>
+        </button>
+        <button type="button" data-panel="timeline" onclick="switchOrderTab(&#39;timeline&#39;)" class="order-tab-btn px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider bg-secondary_accent text-primary-950 shadow-sm flex items-center gap-2 transition-all">
+          <span class="material-symbols-outlined text-base">timeline</span>
+          <span>TIMELINE</span>
+        </button>
+        <button type="button" data-panel="audit" onclick="switchOrderTab(&#39;audit&#39;)" class="order-tab-btn px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white/90 hover:text-white hover:bg-white/10 flex items-center gap-2 transition-all">
+          <span class="material-symbols-outlined text-base">history</span>
+          <span>AUDIT LOG</span>
+        </button>
+      </div>
+
+      <!-- ==================== TAB 1: DETAILS ==================== -->
+      <section id="panel-details" class="order-panel hidden space-y-6">
+        <div class="grid grid-cols-12 gap-6">
+
+          <!-- Left Column: Header + Customer -->
+          <div class="col-span-7 space-y-6">
+
+            <!-- Header Card -->
+            <div class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+              <div class="bg-accent text-white px-5 py-3.5 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-secondary_accent text-lg">info</span>
+                  <h2 class="text-xs font-black uppercase tracking-widest">HEADER</h2>
+                </div>
+                <span class="px-2.5 py-0.5 rounded bg-secondary-950 text-secondary_accent text-[10px] font-black uppercase tracking-wider border border-secondary_accent/30">
+                  REFUND
+                </span>
+              </div>
+
+              <div class="p-5 grid grid-cols-2 gap-4">
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">STATUS</span>
+                  <span class="text-xs font-black uppercase text-accent mt-1 block">OUT FOR DELIVERY</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">PAYMENT</span>
+                  <span class="text-xs font-black uppercase text-rose-800 mt-1 block">VISA · UNPAID</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">BRAND</span>
+                  <span class="text-xs font-black uppercase text-primary-950 mt-1 block">DESERT BLOOM</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">SOURCE</span>
+                  <span class="text-xs font-black uppercase text-primary-950 mt-1 block">TURUQ</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">TYPE</span>
+                  <span class="text-xs font-black uppercase text-accent mt-1 block">REFUND</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">LOCATION</span>
+                  <span class="text-xs font-black uppercase text-secondary-950 mt-1 block">WITH COURIER</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">CREATED</span>
+                  <span class="text-xs font-black uppercase text-primary-950 mono-num mt-1 block">20 NOV 2:50 PM</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">LAST CHANGE</span>
+                  <span class="text-xs font-black uppercase text-primary-950 mono-num mt-1 block">2 NOV 11:05 AM</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">CAN OPEN PACKAGE</span>
+                  <span class="text-xs font-black uppercase text-rose-800 mt-1 block">FALSE</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">SPECIAL HANDLING</span>
+                  <span class="text-xs font-black uppercase text-primary-950 mt-1 block">NONE</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Customer Card -->
+            <div class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+              <div class="bg-accent text-white px-5 py-3.5 flex items-center gap-2">
+                <span class="material-symbols-outlined text-secondary_accent text-lg">person</span>
+                <h2 class="text-xs font-black uppercase tracking-widest">CUSTOMER</h2>
+              </div>
+
+              <div class="p-5 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">NAME</span>
+                    <span class="text-sm font-black uppercase text-primary-950 mt-1 block">OMAR KHALED</span>
+                  </div>
+                  <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">PHONE</span>
+                    <span class="text-sm font-black uppercase text-accent mono-num mt-1 block">01210000411</span>
+                  </div>
+                  <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">ADDRESS</span>
+                    <span class="text-xs font-black uppercase text-primary-950 mt-1 block">7 SMOUHA STREET, ALEXANDRIA</span>
+                  </div>
+                  <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">GOVERNORATE</span>
+                    <span class="text-xs font-black uppercase text-accent mt-1 block">BENI SUEF</span>
+                  </div>
+                </div>
+
+                <!-- Previous Addresses -->
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block mb-2">PREVIOUS ADDRESSES</span>
+                  <div class="space-y-1.5">
+                    <div class="flex items-center gap-2 text-xs font-bold uppercase text-primary-950">
+                      <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
+                      <span>18 OCTOBER 6 CITY, GIZA</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs font-bold uppercase text-primary-950">
+                      <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
+                      <span>7 SMOUHA STREET, ALEXANDRIA</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Right Column: Products & Money -->
+          <div class="col-span-5 space-y-6">
+            <div class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+              <div class="bg-accent text-white px-5 py-3.5 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-secondary_accent text-lg">inventory_2</span>
+                  <h2 class="text-xs font-black uppercase tracking-widest">PRODUCTS &amp; FINANCIALS</h2>
+                </div>
+                <span class="px-2 py-0.5 rounded bg-white text-accent text-[10px] font-black uppercase mono-num">3 ITEMS</span>
+              </div>
+
+              <!-- Products List -->
+              <div class="p-5 space-y-3 border-b border-surface-200">
+                <div class="flex items-center justify-between p-3.5 rounded-xl bg-surface-50 border border-surface-200">
+                  <div>
+                    <div class="text-xs font-black uppercase text-primary-950">DRESS</div>
+                    <div class="text-[11px] font-extrabold uppercase text-primary-950/75 mt-0.5 mono-num">RED / XL × 1</div>
+                  </div>
+                  <div class="text-sm font-black uppercase text-accent mono-num">700</div>
+                </div>
+
+                <div class="flex items-center justify-between p-3.5 rounded-xl bg-surface-50 border border-surface-200">
+                  <div>
+                    <div class="text-xs font-black uppercase text-primary-950">DRESS</div>
+                    <div class="text-[11px] font-extrabold uppercase text-primary-950/75 mt-0.5 mono-num">BLACK / M × 1</div>
+                  </div>
+                  <div class="text-sm font-black uppercase text-accent mono-num">700</div>
+                </div>
+
+                <div class="flex items-center justify-between p-3.5 rounded-xl bg-surface-50 border border-surface-200">
+                  <div>
+                    <div class="text-xs font-black uppercase text-primary-950">JACKET</div>
+                    <div class="text-[11px] font-extrabold uppercase text-primary-950/75 mt-0.5 mono-num">GREEN / L × 2</div>
+                  </div>
+                  <div class="text-sm font-black uppercase text-accent mono-num">2400</div>
+                </div>
+              </div>
+
+              <!-- Financial Breakdown -->
+              <div class="p-5 space-y-3 bg-white">
+                <div class="flex items-center justify-between text-xs font-bold uppercase text-primary-950/85">
+                  <span>SUBTOTAL</span>
+                  <span class="font-black mono-num text-primary-950">528</span>
+                </div>
+                <div class="flex items-center justify-between text-xs font-bold uppercase text-primary-950/85">
+                  <span>SHIPPING</span>
+                  <span class="font-black mono-num text-primary-950">90 (CUSTOMER)</span>
+                </div>
+                <div class="flex items-center justify-between text-xs font-bold uppercase text-primary-950/85">
+                  <span>PAYMENT</span>
+                  <span class="px-2 py-0.5 rounded bg-rose-50 text-rose-800 border border-rose-200 font-black">VISA · UNPAID</span>
+                </div>
+                <div class="pt-3 border-t-2 border-accent flex items-center justify-between">
+                  <span class="text-sm font-black uppercase tracking-wider text-accent">TOTAL</span>
+                  <span class="text-xl font-black mono-num text-accent">618</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ==================== TAB 2: SHIPPING ==================== -->
+      <section id="panel-shipping" class="order-panel hidden space-y-6">
+        <div class="grid grid-cols-3 gap-6">
+
+          <!-- Shipping Assignment Card -->
+          <div class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+            <div class="bg-accent text-white px-5 py-3.5 flex items-center gap-2">
+              <span class="material-symbols-outlined text-secondary_accent text-lg">local_shipping</span>
+              <h2 class="text-xs font-black uppercase tracking-widest">SHIPPING</h2>
+            </div>
+            <div class="p-5 space-y-3.5">
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">CARRIER</span>
+                <span class="text-sm font-black uppercase text-accent mt-1 block">BOSTA</span>
+              </div>
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">COURIER</span>
+                <span class="text-xs font-black uppercase text-primary-950 mono-num mt-1 block">BOSTA 01000000001</span>
+              </div>
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">TRACKING</span>
+                <span class="text-sm font-black uppercase text-secondary-950 mono-num mt-1 block">4696913674</span>
+              </div>
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">COURIER ASSIGNED AT</span>
+                <span class="text-xs font-black uppercase text-primary-950 mono-num mt-1 block">15 NOV 8:55 PM</span>
+              </div>
+              <a href="#" class="w-full py-2.5 px-4 rounded-xl bg-accent hover:bg-primary-950 text-white text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition-colors">
+                <span>OPEN ON CARRIER</span>
+                <span class="material-symbols-outlined text-sm text-secondary_accent">arrow_forward</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Current Location Card -->
+          <div class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+            <div class="bg-accent text-white px-5 py-3.5 flex items-center gap-2">
+              <span class="material-symbols-outlined text-secondary_accent text-lg">location_on</span>
+              <h2 class="text-xs font-black uppercase tracking-widest">CURRENT LOCATION</h2>
+            </div>
+            <div class="p-5 space-y-3.5">
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">LOCATION</span>
+                <span class="text-sm font-black uppercase text-accent mt-1 block">WITH COURIER</span>
+              </div>
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">SPECIAL HANDLING</span>
+                <span class="text-xs font-black uppercase text-primary-950 mt-1 block">NONE</span>
+              </div>
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">ISSUE FLAGS</span>
+                <span class="inline-block mt-1 px-2.5 py-1 rounded bg-thumbnail/20 text-secondary-950 border border-thumbnail/40 text-xs font-black uppercase">
+                  NO FLAGS
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cancellation & Courier Payment Card -->
+          <div class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+            <div class="bg-accent text-white px-5 py-3.5 flex items-center gap-2">
+              <span class="material-symbols-outlined text-secondary_accent text-lg">payments</span>
+              <h2 class="text-xs font-black uppercase tracking-widest">CANCELLATION &amp; PAYOUT</h2>
+            </div>
+            <div class="p-5 space-y-3.5">
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">CANCELLATION REASON</span>
+                <span class="text-xs font-black uppercase text-primary-950/70 mt-1 block">—</span>
+              </div>
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">CANCELLED BY</span>
+                <span class="text-xs font-black uppercase text-primary-950/70 mt-1 block">—</span>
+              </div>
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">REVIEW</span>
+                <span class="text-xs font-black uppercase text-primary-950 mt-1 block">NONE</span>
+              </div>
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">COURIER PAYMENT</span>
+                <span class="text-xs font-black uppercase text-rose-800 mt-1 block">NOT ELIGIBLE</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ==================== TAB 3: TIMELINE ==================== -->
+      <section id="panel-timeline" class="order-panel">
+        <div class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+          <div class="bg-accent text-white px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="material-symbols-outlined text-secondary_accent text-xl">timeline</span>
+              <h2 class="text-sm font-black uppercase tracking-wider">TIMELINE</h2>
+            </div>
+            <span class="px-2.5 py-0.5 rounded bg-white text-accent text-[10px] font-black uppercase mono-num">
+              6 EVENTS
+            </span>
+          </div>
+
+          <div class="p-6">
+            <div class="relative pl-8 space-y-6 before:content-[&#39;&#39;] before:absolute before:left-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-surface-200">
+
+              <div class="relative flex items-center justify-between bg-surface-50 p-4 rounded-xl border border-surface-200">
+                <span class="absolute -left-7 w-4 h-4 rounded-full bg-accent border-2 border-white shadow"></span>
+                <div>
+                  <div class="text-xs font-black uppercase text-accent">PENDING</div>
+                </div>
+                <div class="text-xs font-black uppercase mono-num text-primary-950">30 SEP 3:58 PM</div>
+              </div>
+
+              <div class="relative flex items-center justify-between bg-surface-50 p-4 rounded-xl border border-surface-200">
+                <span class="absolute -left-7 w-4 h-4 rounded-full bg-accent border-2 border-white shadow"></span>
+                <div>
+                  <div class="text-xs font-black uppercase text-accent">PROCESSING</div>
+                </div>
+                <div class="text-xs font-black uppercase mono-num text-primary-950">2 OCT 3:58 PM</div>
+              </div>
+
+              <div class="relative flex items-center justify-between bg-surface-50 p-4 rounded-xl border border-surface-200">
+                <span class="absolute -left-7 w-4 h-4 rounded-full bg-secondary-500 border-2 border-white shadow"></span>
+                <div>
+                  <div class="text-xs font-black uppercase text-accent">OUT FOR DELIVERY</div>
+                  <div class="text-[11px] font-extrabold uppercase text-secondary-950 mt-0.5">AHMED HASSAN</div>
+                </div>
+                <div class="text-xs font-black uppercase mono-num text-primary-950">4 OCT 3:58 PM</div>
+              </div>
+
+              <div class="relative flex items-center justify-between bg-surface-50 p-4 rounded-xl border border-surface-200">
+                <span class="absolute -left-7 w-4 h-4 rounded-full bg-thumbnail border-2 border-white shadow"></span>
+                <div>
+                  <div class="text-xs font-black uppercase text-secondary-950">DELIVERED</div>
+                </div>
+                <div class="text-xs font-black uppercase mono-num text-primary-950">6 OCT 3:58 PM</div>
+              </div>
+
+              <div class="relative flex items-center justify-between bg-surface-50 p-4 rounded-xl border border-surface-200">
+                <span class="absolute -left-7 w-4 h-4 rounded-full bg-accent border-2 border-white shadow"></span>
+                <div>
+                  <div class="text-xs font-black uppercase text-accent">QC</div>
+                </div>
+                <div class="text-xs font-black uppercase mono-num text-primary-950">8 OCT 3:58 PM</div>
+              </div>
+
+              <div class="relative flex items-center justify-between bg-surface-50 p-4 rounded-xl border border-surface-200">
+                <span class="absolute -left-7 w-4 h-4 rounded-full bg-purple-700 border-2 border-white shadow"></span>
+                <div>
+                  <div class="text-xs font-black uppercase text-purple-900">RTW</div>
+                  <div class="text-[11px] font-extrabold uppercase text-primary-950/80 mt-0.5">AHMED HASSAN</div>
+                </div>
+                <div class="text-xs font-black uppercase mono-num text-primary-950">10 OCT 3:58 PM</div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 4: AUDIT LOG ==================== -->
+      <section id="panel-audit" class="order-panel hidden">
+        <div class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+          <div class="bg-accent text-white px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="material-symbols-outlined text-secondary_accent text-xl">history</span>
+              <h2 class="text-sm font-black uppercase tracking-wider">AUDIT LOG</h2>
+            </div>
+            <span class="px-2.5 py-0.5 rounded bg-white text-accent text-[10px] font-black uppercase mono-num">
+              2 ENTRIES
+            </span>
+          </div>
+
+          <div class="divide-y divide-surface-200">
+            <div class="p-5 flex items-center justify-between gap-4 hover:bg-surface-50 transition-colors">
+              <div class="space-y-1">
+                <div class="flex items-center gap-2.5">
+                  <span class="px-2.5 py-0.5 rounded bg-accent text-white text-[10px] font-black uppercase tracking-wider">SPECIAL_HANDLING</span>
+                  <span class="text-xs font-black uppercase text-primary-950">SPECIAL HANDLING: NONE → VIP</span>
+                </div>
+                <div class="text-[11px] font-extrabold uppercase text-secondary-950">ACTOR: OMAR FATHY</div>
+              </div>
+              <div class="text-xs font-black uppercase mono-num text-primary-950/80 whitespace-nowrap">20 NOV 2:54 PM</div>
+            </div>
+
+            <div class="p-5 flex items-center justify-between gap-4 hover:bg-surface-50 transition-colors">
+              <div class="space-y-1">
+                <div class="flex items-center gap-2.5">
+                  <span class="px-2.5 py-0.5 rounded bg-thumbnail text-primary-950 text-[10px] font-black uppercase tracking-wider">RESOLVE_FLAG</span>
+                  <span class="text-xs font-black uppercase text-primary-950">ISSUE FLAGS: OPEN → RESOLVED</span>
+                </div>
+                <div class="text-[11px] font-extrabold uppercase text-secondary-950">ACTOR: OMAR FATHY</div>
+              </div>
+              <div class="text-xs font-black uppercase mono-num text-primary-950/80 whitespace-nowrap">20 NOV 2:54 PM</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <script>
+    function switchOrderTab(panelId) {
+      document.querySelectorAll('.order-tab-btn').forEach(btn => {
+        const isActive = btn.dataset.panel === panelId;
+        if (isActive) {
+          btn.className = 'order-tab-btn px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider bg-secondary_accent text-primary-950 shadow-sm flex items-center gap-2 transition-all';
+        } else {
+          btn.className = 'order-tab-btn px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white/90 hover:text-white hover:bg-white/10 flex items-center gap-2 transition-all';
+        }
+      });
+
+      document.querySelectorAll('.order-panel').forEach(panel => {
+        panel.classList.toggle('hidden', panel.id !== `panel-${panelId}`);
+      });
+    }
+  </script>
+
+
+
+</body></html>
+
+
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Turuq Order Details — TQ-100031</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            accent: '#032486',
+            secondary_accent: '#38cbfc',
+            'primary-950': '#03256c',
+            'primary-500': '#008bff',
+            'secondary-500': '#06bee1',
+            'secondary-950': '#083244',
+            thumbnail: '#42c7b8',
+            surface: {
+              50: '#F4F8FC',
+              100: '#E7F0F9',
+              200: '#CDE1F3',
+            }
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 600, 'GRAD' 0, 'opsz' 20;
+    }
+    .mono-num {
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F0F4F8;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #B5C8DC;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #86A7C6;
+    }
+  </style>
+</head>
+<body class="bg-surface-50 text-primary-950 font-sans antialiased min-h-[1024px] flex" data-stitch-vh="min-h-[1024px]===min-h-screen">
+
+  <!-- ==================== SIDEBAR ==================== -->
+  <aside class="w-64 bg-primary-950 text-white min-h-[1024px] flex flex-col border-r border-secondary-950 flex-shrink-0 select-none" data-stitch-vh="min-h-[1024px]===min-h-screen">
+
+    <!-- Brand / Platform Header -->
+    <div class="h-16 px-6 flex items-center justify-between border-b border-white/15 bg-accent">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-white text-accent flex items-center justify-center font-black tracking-tight shadow-md">
+          <span class="text-base tracking-tighter">TQ</span>
+        </div>
+        <div>
+          <span class="text-base font-black tracking-wider uppercase text-white block leading-none">TURUQ</span>
+          <span class="text-[10px] font-extrabold uppercase tracking-widest text-secondary_accent mt-1 block">LOGISTICS OS</span>
+        </div>
+      </div>
+      <span class="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-thumbnail text-primary-950">
+        LIVE
+      </span>
+    </div>
+
+    <!-- Navigation Groups -->
+    <div class="flex-1 px-3 py-4 space-y-6 overflow-y-auto">
+
+      <!-- Core Management -->
+      <div>
+        <div class="px-3 mb-2 text-[10px] font-black uppercase tracking-widest text-secondary_accent">
+          CORE OPERATIONS
+        </div>
+        <nav class="space-y-1">
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">dashboard</span>
+            <span>DASHBOARD</span>
+          </a>
+          <a href="#" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-black text-white bg-accent shadow-sm border border-secondary_accent/40 uppercase tracking-wider">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-lg text-secondary_accent">local_shipping</span>
+              <span>ORDERS</span>
+            </div>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-secondary_accent text-primary-950 mono-num">
+              33
+            </span>
+          </a>
+          <a href="#" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-lg">history_toggle_off</span>
+              <span>STALE ORDERS</span>
+            </div>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-white/15 text-white mono-num">
+              11
+            </span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">search</span>
+            <span>QUICK LOOKUP</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">person_search</span>
+            <span>CUSTOMER LOOKUP</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">corporate_fare</span>
+            <span>CLIENTS</span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- Actions & Fulfillment -->
+      <div>
+        <div class="px-3 mb-2 text-[10px] font-black uppercase tracking-widest text-secondary_accent">
+          FULFILLMENT &amp; TASKS
+        </div>
+        <nav class="space-y-1">
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">add_box</span>
+            <span>CREATE ORDER</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">cancel_presentation</span>
+            <span>CANCELLATION REVIEW</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">layers</span>
+            <span>DROPOFF BATCHES</span>
+          </a>
+          <a href="#" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-lg text-amber-300">notifications_active</span>
+              <span>ALERTS</span>
+            </div>
+            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- Utilities -->
+      <div>
+        <div class="px-3 mb-2 text-[10px] font-black uppercase tracking-widest text-secondary_accent">
+          SYSTEM &amp; UTILITIES
+        </div>
+        <nav class="space-y-1">
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">sticky_note_2</span>
+            <span>MY NOTES</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">science</span>
+            <span>PROTOTYPE SIMULATOR</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">headset_mic</span>
+            <span>SUPPORT</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">account_circle</span>
+            <span>MY ACCOUNT</span>
+          </a>
+        </nav>
+      </div>
+
+    </div>
+
+    <!-- User / Operator Card in Sidebar Footer -->
+    <div class="p-3.5 border-t border-white/15 bg-secondary-950">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-accent text-white flex items-center justify-center font-bold text-xs uppercase border border-secondary_accent/40">
+            TS
+          </div>
+          <div>
+            <div class="text-xs font-bold text-white uppercase tracking-wider">TURUQ SUPPORT</div>
+            <div class="text-[10px] font-semibold text-thumbnail uppercase tracking-widest">DISPATCH ACTIVE</div>
+          </div>
+        </div>
+        <button class="text-white/80 hover:text-white transition-colors">
+          <span class="material-symbols-outlined text-base">more_vert</span>
+        </button>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="flex-1 min-w-0 flex flex-col bg-surface-50">
+
+    <!-- Contextual Order Header -->
+    <header class="px-8 py-4 border-b-2 border-accent bg-white flex flex-wrap items-center justify-between gap-4 flex-shrink-0">
+      <div class="flex items-center gap-4">
+        <a href="#" class="px-3 py-2 rounded-xl border border-surface-200 bg-surface-50 hover:bg-surface-100 text-xs font-black uppercase tracking-wider text-accent flex items-center gap-1.5 transition-colors">
+          <span class="material-symbols-outlined text-base">arrow_back</span>
+          <span>ORDERS</span>
+        </a>
+        <div class="h-8 w-px bg-surface-200"></div>
+        <div>
+          <div class="flex items-center gap-2.5">
+            <h1 class="text-2xl font-black uppercase tracking-tight text-accent mono-num">TQ-100031</h1>
+            <span class="px-3 py-1 rounded-lg bg-secondary_accent/25 text-secondary-950 border border-secondary-500/40 text-[11px] font-black uppercase tracking-wider">
+              OUT FOR DELIVERY
+            </span>
+            <span class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-800 border border-rose-200 text-[11px] font-black uppercase tracking-wider">
+              VISA · UNPAID
+            </span>
+          </div>
+          <div class="text-xs font-extrabold uppercase tracking-wider text-primary-950/75 mt-1 mono-num">
+            18D AGO · DESERT BLOOM
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Contextual Action -->
+      <div class="flex items-center gap-2.5">
+        <button class="px-4 py-2.5 rounded-xl bg-accent hover:bg-primary-950 text-white text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-md transition-all">
+          <span class="material-symbols-outlined text-sm text-secondary_accent">edit</span>
+          <span>UPDATE STATUS</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Content Workspace Area -->
+    <div class="p-8 space-y-6 flex-1 overflow-x-hidden">
+
+      <!-- Interactive Section Tabs: Details | Shipping | Timeline | Audit log -->
+      <div class="bg-accent p-1.5 rounded-2xl inline-flex flex-wrap items-center gap-1.5 shadow-md border border-primary-950">
+        <button type="button" data-panel="details" onclick="switchOrderTab(&#39;details&#39;)" class="order-tab-btn px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white/90 hover:text-white hover:bg-white/10 flex items-center gap-2 transition-all">
+          <span class="material-symbols-outlined text-base">receipt_long</span>
+          <span>DETAILS</span>
+        </button>
+        <button type="button" data-panel="shipping" onclick="switchOrderTab(&#39;shipping&#39;)" class="order-tab-btn px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white/90 hover:text-white hover:bg-white/10 flex items-center gap-2 transition-all">
+          <span class="material-symbols-outlined text-base">local_shipping</span>
+          <span>SHIPPING</span>
+        </button>
+        <button type="button" data-panel="timeline" onclick="switchOrderTab(&#39;timeline&#39;)" class="order-tab-btn px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white/90 hover:text-white hover:bg-white/10 flex items-center gap-2 transition-all">
+          <span class="material-symbols-outlined text-base">timeline</span>
+          <span>TIMELINE</span>
+        </button>
+        <button type="button" data-panel="audit" onclick="switchOrderTab(&#39;audit&#39;)" class="order-tab-btn px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider bg-secondary_accent text-primary-950 shadow-sm flex items-center gap-2 transition-all">
+          <span class="material-symbols-outlined text-base">history</span>
+          <span>AUDIT LOG</span>
+        </button>
+      </div>
+
+      <!-- ==================== TAB 1: DETAILS ==================== -->
+      <section id="panel-details" class="order-panel hidden space-y-6">
+        <div class="grid grid-cols-12 gap-6">
+
+          <!-- Left Column: Header + Customer -->
+          <div class="col-span-7 space-y-6">
+
+            <!-- Header Card -->
+            <div class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+              <div class="bg-accent text-white px-5 py-3.5 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-secondary_accent text-lg">info</span>
+                  <h2 class="text-xs font-black uppercase tracking-widest">HEADER</h2>
+                </div>
+                <span class="px-2.5 py-0.5 rounded bg-secondary-950 text-secondary_accent text-[10px] font-black uppercase tracking-wider border border-secondary_accent/30">
+                  REFUND
+                </span>
+              </div>
+
+              <div class="p-5 grid grid-cols-2 gap-4">
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">STATUS</span>
+                  <span class="text-xs font-black uppercase text-accent mt-1 block">OUT FOR DELIVERY</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">PAYMENT</span>
+                  <span class="text-xs font-black uppercase text-rose-800 mt-1 block">VISA · UNPAID</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">BRAND</span>
+                  <span class="text-xs font-black uppercase text-primary-950 mt-1 block">DESERT BLOOM</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">SOURCE</span>
+                  <span class="text-xs font-black uppercase text-primary-950 mt-1 block">TURUQ</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">TYPE</span>
+                  <span class="text-xs font-black uppercase text-accent mt-1 block">REFUND</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">LOCATION</span>
+                  <span class="text-xs font-black uppercase text-secondary-950 mt-1 block">WITH COURIER</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">CREATED</span>
+                  <span class="text-xs font-black uppercase text-primary-950 mono-num mt-1 block">20 NOV 2:50 PM</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">LAST CHANGE</span>
+                  <span class="text-xs font-black uppercase text-primary-950 mono-num mt-1 block">2 NOV 11:05 AM</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">CAN OPEN PACKAGE</span>
+                  <span class="text-xs font-black uppercase text-rose-800 mt-1 block">FALSE</span>
+                </div>
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">SPECIAL HANDLING</span>
+                  <span class="text-xs font-black uppercase text-primary-950 mt-1 block">NONE</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Customer Card -->
+            <div class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+              <div class="bg-accent text-white px-5 py-3.5 flex items-center gap-2">
+                <span class="material-symbols-outlined text-secondary_accent text-lg">person</span>
+                <h2 class="text-xs font-black uppercase tracking-widest">CUSTOMER</h2>
+              </div>
+
+              <div class="p-5 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">NAME</span>
+                    <span class="text-sm font-black uppercase text-primary-950 mt-1 block">OMAR KHALED</span>
+                  </div>
+                  <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">PHONE</span>
+                    <span class="text-sm font-black uppercase text-accent mono-num mt-1 block">01210000411</span>
+                  </div>
+                  <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">ADDRESS</span>
+                    <span class="text-xs font-black uppercase text-primary-950 mt-1 block">7 SMOUHA STREET, ALEXANDRIA</span>
+                  </div>
+                  <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">GOVERNORATE</span>
+                    <span class="text-xs font-black uppercase text-accent mt-1 block">BENI SUEF</span>
+                  </div>
+                </div>
+
+                <!-- Previous Addresses -->
+                <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block mb-2">PREVIOUS ADDRESSES</span>
+                  <div class="space-y-1.5">
+                    <div class="flex items-center gap-2 text-xs font-bold uppercase text-primary-950">
+                      <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
+                      <span>18 OCTOBER 6 CITY, GIZA</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs font-bold uppercase text-primary-950">
+                      <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
+                      <span>7 SMOUHA STREET, ALEXANDRIA</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Right Column: Products & Money -->
+          <div class="col-span-5 space-y-6">
+            <div class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+              <div class="bg-accent text-white px-5 py-3.5 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-secondary_accent text-lg">inventory_2</span>
+                  <h2 class="text-xs font-black uppercase tracking-widest">PRODUCTS &amp; FINANCIALS</h2>
+                </div>
+                <span class="px-2 py-0.5 rounded bg-white text-accent text-[10px] font-black uppercase mono-num">3 ITEMS</span>
+              </div>
+
+              <!-- Products List -->
+              <div class="p-5 space-y-3 border-b border-surface-200">
+                <div class="flex items-center justify-between p-3.5 rounded-xl bg-surface-50 border border-surface-200">
+                  <div>
+                    <div class="text-xs font-black uppercase text-primary-950">DRESS</div>
+                    <div class="text-[11px] font-extrabold uppercase text-primary-950/75 mt-0.5 mono-num">RED / XL × 1</div>
+                  </div>
+                  <div class="text-sm font-black uppercase text-accent mono-num">700</div>
+                </div>
+
+                <div class="flex items-center justify-between p-3.5 rounded-xl bg-surface-50 border border-surface-200">
+                  <div>
+                    <div class="text-xs font-black uppercase text-primary-950">DRESS</div>
+                    <div class="text-[11px] font-extrabold uppercase text-primary-950/75 mt-0.5 mono-num">BLACK / M × 1</div>
+                  </div>
+                  <div class="text-sm font-black uppercase text-accent mono-num">700</div>
+                </div>
+
+                <div class="flex items-center justify-between p-3.5 rounded-xl bg-surface-50 border border-surface-200">
+                  <div>
+                    <div class="text-xs font-black uppercase text-primary-950">JACKET</div>
+                    <div class="text-[11px] font-extrabold uppercase text-primary-950/75 mt-0.5 mono-num">GREEN / L × 2</div>
+                  </div>
+                  <div class="text-sm font-black uppercase text-accent mono-num">2400</div>
+                </div>
+              </div>
+
+              <!-- Financial Breakdown -->
+              <div class="p-5 space-y-3 bg-white">
+                <div class="flex items-center justify-between text-xs font-bold uppercase text-primary-950/85">
+                  <span>SUBTOTAL</span>
+                  <span class="font-black mono-num text-primary-950">528</span>
+                </div>
+                <div class="flex items-center justify-between text-xs font-bold uppercase text-primary-950/85">
+                  <span>SHIPPING</span>
+                  <span class="font-black mono-num text-primary-950">90 (CUSTOMER)</span>
+                </div>
+                <div class="flex items-center justify-between text-xs font-bold uppercase text-primary-950/85">
+                  <span>PAYMENT</span>
+                  <span class="px-2 py-0.5 rounded bg-rose-50 text-rose-800 border border-rose-200 font-black">VISA · UNPAID</span>
+                </div>
+                <div class="pt-3 border-t-2 border-accent flex items-center justify-between">
+                  <span class="text-sm font-black uppercase tracking-wider text-accent">TOTAL</span>
+                  <span class="text-xl font-black mono-num text-accent">618</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ==================== TAB 2: SHIPPING ==================== -->
+      <section id="panel-shipping" class="order-panel hidden space-y-6">
+        <div class="grid grid-cols-3 gap-6">
+
+          <!-- Shipping Assignment Card -->
+          <div class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+            <div class="bg-accent text-white px-5 py-3.5 flex items-center gap-2">
+              <span class="material-symbols-outlined text-secondary_accent text-lg">local_shipping</span>
+              <h2 class="text-xs font-black uppercase tracking-widest">SHIPPING</h2>
+            </div>
+            <div class="p-5 space-y-3.5">
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">CARRIER</span>
+                <span class="text-sm font-black uppercase text-accent mt-1 block">BOSTA</span>
+              </div>
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">COURIER</span>
+                <span class="text-xs font-black uppercase text-primary-950 mono-num mt-1 block">BOSTA 01000000001</span>
+              </div>
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">TRACKING</span>
+                <span class="text-sm font-black uppercase text-secondary-950 mono-num mt-1 block">4696913674</span>
+              </div>
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">COURIER ASSIGNED AT</span>
+                <span class="text-xs font-black uppercase text-primary-950 mono-num mt-1 block">15 NOV 8:55 PM</span>
+              </div>
+              <a href="#" class="w-full py-2.5 px-4 rounded-xl bg-accent hover:bg-primary-950 text-white text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition-colors">
+                <span>OPEN ON CARRIER</span>
+                <span class="material-symbols-outlined text-sm text-secondary_accent">arrow_forward</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Current Location Card -->
+          <div class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+            <div class="bg-accent text-white px-5 py-3.5 flex items-center gap-2">
+              <span class="material-symbols-outlined text-secondary_accent text-lg">location_on</span>
+              <h2 class="text-xs font-black uppercase tracking-widest">CURRENT LOCATION</h2>
+            </div>
+            <div class="p-5 space-y-3.5">
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">LOCATION</span>
+                <span class="text-sm font-black uppercase text-accent mt-1 block">WITH COURIER</span>
+              </div>
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">SPECIAL HANDLING</span>
+                <span class="text-xs font-black uppercase text-primary-950 mt-1 block">NONE</span>
+              </div>
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">ISSUE FLAGS</span>
+                <span class="inline-block mt-1 px-2.5 py-1 rounded bg-thumbnail/20 text-secondary-950 border border-thumbnail/40 text-xs font-black uppercase">
+                  NO FLAGS
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cancellation & Courier Payment Card -->
+          <div class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+            <div class="bg-accent text-white px-5 py-3.5 flex items-center gap-2">
+              <span class="material-symbols-outlined text-secondary_accent text-lg">payments</span>
+              <h2 class="text-xs font-black uppercase tracking-widest">CANCELLATION &amp; PAYOUT</h2>
+            </div>
+            <div class="p-5 space-y-3.5">
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">CANCELLATION REASON</span>
+                <span class="text-xs font-black uppercase text-primary-950/70 mt-1 block">—</span>
+              </div>
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">CANCELLED BY</span>
+                <span class="text-xs font-black uppercase text-primary-950/70 mt-1 block">—</span>
+              </div>
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">REVIEW</span>
+                <span class="text-xs font-black uppercase text-primary-950 mt-1 block">NONE</span>
+              </div>
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
+                <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">COURIER PAYMENT</span>
+                <span class="text-xs font-black uppercase text-rose-800 mt-1 block">NOT ELIGIBLE</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ==================== TAB 3: TIMELINE ==================== -->
+      <section id="panel-timeline" class="order-panel hidden">
+        <div class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+          <div class="bg-accent text-white px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="material-symbols-outlined text-secondary_accent text-xl">timeline</span>
+              <h2 class="text-sm font-black uppercase tracking-wider">TIMELINE</h2>
+            </div>
+            <span class="px-2.5 py-0.5 rounded bg-white text-accent text-[10px] font-black uppercase mono-num">
+              6 EVENTS
+            </span>
+          </div>
+
+          <div class="p-6">
+            <div class="relative pl-8 space-y-6 before:content-[&#39;&#39;] before:absolute before:left-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-surface-200">
+
+              <div class="relative flex items-center justify-between bg-surface-50 p-4 rounded-xl border border-surface-200">
+                <span class="absolute -left-7 w-4 h-4 rounded-full bg-accent border-2 border-white shadow"></span>
+                <div>
+                  <div class="text-xs font-black uppercase text-accent">PENDING</div>
+                </div>
+                <div class="text-xs font-black uppercase mono-num text-primary-950">30 SEP 3:58 PM</div>
+              </div>
+
+              <div class="relative flex items-center justify-between bg-surface-50 p-4 rounded-xl border border-surface-200">
+                <span class="absolute -left-7 w-4 h-4 rounded-full bg-accent border-2 border-white shadow"></span>
+                <div>
+                  <div class="text-xs font-black uppercase text-accent">PROCESSING</div>
+                </div>
+                <div class="text-xs font-black uppercase mono-num text-primary-950">2 OCT 3:58 PM</div>
+              </div>
+
+              <div class="relative flex items-center justify-between bg-surface-50 p-4 rounded-xl border border-surface-200">
+                <span class="absolute -left-7 w-4 h-4 rounded-full bg-secondary-500 border-2 border-white shadow"></span>
+                <div>
+                  <div class="text-xs font-black uppercase text-accent">OUT FOR DELIVERY</div>
+                  <div class="text-[11px] font-extrabold uppercase text-secondary-950 mt-0.5">AHMED HASSAN</div>
+                </div>
+                <div class="text-xs font-black uppercase mono-num text-primary-950">4 OCT 3:58 PM</div>
+              </div>
+
+              <div class="relative flex items-center justify-between bg-surface-50 p-4 rounded-xl border border-surface-200">
+                <span class="absolute -left-7 w-4 h-4 rounded-full bg-thumbnail border-2 border-white shadow"></span>
+                <div>
+                  <div class="text-xs font-black uppercase text-secondary-950">DELIVERED</div>
+                </div>
+                <div class="text-xs font-black uppercase mono-num text-primary-950">6 OCT 3:58 PM</div>
+              </div>
+
+              <div class="relative flex items-center justify-between bg-surface-50 p-4 rounded-xl border border-surface-200">
+                <span class="absolute -left-7 w-4 h-4 rounded-full bg-accent border-2 border-white shadow"></span>
+                <div>
+                  <div class="text-xs font-black uppercase text-accent">QC</div>
+                </div>
+                <div class="text-xs font-black uppercase mono-num text-primary-950">8 OCT 3:58 PM</div>
+              </div>
+
+              <div class="relative flex items-center justify-between bg-surface-50 p-4 rounded-xl border border-surface-200">
+                <span class="absolute -left-7 w-4 h-4 rounded-full bg-purple-700 border-2 border-white shadow"></span>
+                <div>
+                  <div class="text-xs font-black uppercase text-purple-900">RTW</div>
+                  <div class="text-[11px] font-extrabold uppercase text-primary-950/80 mt-0.5">AHMED HASSAN</div>
+                </div>
+                <div class="text-xs font-black uppercase mono-num text-primary-950">10 OCT 3:58 PM</div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 4: AUDIT LOG ==================== -->
+      <section id="panel-audit" class="order-panel">
+        <div class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+          <div class="bg-accent text-white px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="material-symbols-outlined text-secondary_accent text-xl">history</span>
+              <h2 class="text-sm font-black uppercase tracking-wider">AUDIT LOG</h2>
+            </div>
+            <span class="px-2.5 py-0.5 rounded bg-white text-accent text-[10px] font-black uppercase mono-num">
+              2 ENTRIES
+            </span>
+          </div>
+
+          <div class="divide-y divide-surface-200">
+            <div class="p-5 flex items-center justify-between gap-4 hover:bg-surface-50 transition-colors">
+              <div class="space-y-1">
+                <div class="flex items-center gap-2.5">
+                  <span class="px-2.5 py-0.5 rounded bg-accent text-white text-[10px] font-black uppercase tracking-wider">SPECIAL_HANDLING</span>
+                  <span class="text-xs font-black uppercase text-primary-950">SPECIAL HANDLING: NONE → VIP</span>
+                </div>
+                <div class="text-[11px] font-extrabold uppercase text-secondary-950">ACTOR: OMAR FATHY</div>
+              </div>
+              <div class="text-xs font-black uppercase mono-num text-primary-950/80 whitespace-nowrap">20 NOV 2:54 PM</div>
+            </div>
+
+            <div class="p-5 flex items-center justify-between gap-4 hover:bg-surface-50 transition-colors">
+              <div class="space-y-1">
+                <div class="flex items-center gap-2.5">
+                  <span class="px-2.5 py-0.5 rounded bg-thumbnail text-primary-950 text-[10px] font-black uppercase tracking-wider">RESOLVE_FLAG</span>
+                  <span class="text-xs font-black uppercase text-primary-950">ISSUE FLAGS: OPEN → RESOLVED</span>
+                </div>
+                <div class="text-[11px] font-extrabold uppercase text-secondary-950">ACTOR: OMAR FATHY</div>
+              </div>
+              <div class="text-xs font-black uppercase mono-num text-primary-950/80 whitespace-nowrap">20 NOV 2:54 PM</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <script>
+    function switchOrderTab(panelId) {
+      document.querySelectorAll('.order-tab-btn').forEach(btn => {
+        const isActive = btn.dataset.panel === panelId;
+        if (isActive) {
+          btn.className = 'order-tab-btn px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider bg-secondary_accent text-primary-950 shadow-sm flex items-center gap-2 transition-all';
+        } else {
+          btn.className = 'order-tab-btn px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white/90 hover:text-white hover:bg-white/10 flex items-center gap-2 transition-all';
+        }
+      });
+
+      document.querySelectorAll('.order-panel').forEach(panel => {
+        panel.classList.toggle('hidden', panel.id !== `panel-${panelId}`);
+      });
+    }
+  </script>
+
+
+
+</body></html>
