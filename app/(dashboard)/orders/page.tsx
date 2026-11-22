@@ -311,11 +311,18 @@ function OrdersPageContent() {
                   {items.map((o: any) => {
                     const carrier = detectCarrier(o.courier?.name);
                     const openFlag = (o.issueFlags || []).find((f: any) => f.state === "open");
+                    const goodFinished = ["delivered", "collected"].includes(o.status);
+                    const badFinished = ["returned", "RTW", "RTO", "cancelled"].includes(o.status);
+                    const rowClass = goodFinished
+                      ? "bg-emerald-50/60 hover:bg-emerald-50 border-l-4 border-l-emerald-500 cursor-pointer"
+                      : badFinished
+                      ? "bg-rose-50/60 hover:bg-rose-50 border-l-4 border-l-rose-500 cursor-pointer"
+                      : "hover:bg-slate-50 cursor-pointer";
                     return (
                       <tr
                         key={o.id}
                         onClick={() => setSelected(o)}
-                        className="hover:bg-slate-50 transition-colors cursor-pointer"
+                        className={`transition-colors ${rowClass}`}
                       >
                         <td className="py-3 px-4 font-bold uppercase text-slate-900 whitespace-nowrap">{o.client?.companyName}</td>
                         <td className="py-3 px-3 font-bold mono-num text-primary whitespace-nowrap">{o.oid}</td>

@@ -3,10 +3,11 @@ import { connectDB } from "@/lib/db";
 import { orderModelFor, orderCollectionName } from "@/lib/models/Order";
 import { Client, Courier } from "@/lib/models";
 import { requireSession } from "@/lib/serverAuth";
-import { editableScope, canEditField } from "@/lib/rules/editRules";
+import { canEditData } from "@/lib/rules/editRules";
 import { writeAudit } from "@/lib/audit";
 import { Alert } from "@/lib/models/Alert";
 import { normalizePhone } from "@/lib/rules/phone";
+import { computeTotal } from "@/lib/rules/shipping";
 
 export const dynamic = "force-dynamic";
 
@@ -42,46 +43,50 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ model: st
   const order = await Model.findById(id);
   if (!order) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const body = await req.json();
-  const scope = editableScope(order.status, Object.keys(order.statusHistory || {}));
-  if (scope === "none") {
+  if (!canEditData(order.status)) {
     return NextResponse.json({ error: "This order is read-only" }, { status: 403 });
   }
 
-  const allowedFields = Object.keys(body).filter((f) => canEditField(scope, f));
-  const rejected = Object.keys(body).filter((f) => !canEditField(scope, f) && f !== "status");
+  const body = await req.json();
+  const editableFields = new Set([
+    "customerName",
+    "customerFirstName",
+    "customerLastName",
+    "customerPhone",
+    "customerAddress",
+    "customerGovernorate",
+    "products",
+    "subtotal",
+    "shippingFees",
+    "total",
+    "paymentMethod",
+    "paymentStatus",
+    "shippingHandledBy",
+    "specialHandling",
+    "notes",
+  ]);
+
+  const rejected = Object.keys(body).filter((f) => !editableFields.has(f));
   if (rejected.length) {
     return NextResponse.json({ error: `Cannot edit fields: ${rejected.join(", ")}` }, { status: 400 });
   }
-  // prevent status change via PATCH
-  if (body.status && body.status !== order.status) {
-    return NextResponse.json({ error: "Status cannot be changed via edit" }, { status: 400 });
-  }
 
   const changedFields: { field: string; old: any; new: any }[] = [];
-  for (const f of allowedFields) {
+  for (const f of Object.keys(body)) {
     const oldVal = (order as any)[f];
     let newVal = body[f];
     if (f === "customerGovernorate") newVal = String(newVal || "").toUpperCase();
+    if (f === "customerPhone") (order as any).customerPhoneNormalized = normalizePhone(newVal || "");
     (order as any)[f] = newVal;
     changedFields.push({ field: f, old: oldVal, new: newVal });
   }
 
-  // recompute total if subtotal/total/shipping changed? Trust client but recompute total by rule if subtotal/shipping changed
-  if (allowedFields.includes("subtotal") || allowedFields.includes("shippingFees") || allowedFields.includes("shippingHandledBy")) {
-    const handler = order.shippingHandledBy;
-    if (handler === "TURUQ") order.shippingFees = 0;
-    order.total = handler === "CUSTOMER" ? order.subtotal + order.shippingFees : order.subtotal;
-  }
-
   await order.save();
 
-  // audit rows
   for (const c of changedFields) {
     await writeAudit({ orderModel: model, orderId: order._id, action: "edit", field: c.field, oldValue: c.old, newValue: c.new, userId: session.staffId, userName: session.name || session.username, userRole: session.role });
   }
 
-  // outbox if address/subtotal/total changed
   const tracked = ["customerAddress", "subtotal", "total"];
   const changedTracked = changedFields.filter((c) => tracked.includes(c.field));
   if (changedTracked.length) {

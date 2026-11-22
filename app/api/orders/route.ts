@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import { orderModelFor } from "@/lib/models/Order";
+import { orderModelFor, IntegrationOrder } from "@/lib/models/Order";
 import { requireSession } from "@/lib/serverAuth";
 import { TuruqOrder, Client, Product } from "@/lib/models";
 import { normalizePhone, isValidPhone } from "@/lib/rules/phone";
@@ -126,10 +126,14 @@ export async function GET(req: NextRequest) {
     }
   }
 
+  const finishedStatuses = ["delivered", "collected", "returned", "RTW", "RTO", "cancelled"];
   const pipeline = [
     { $match: filter },
-    { $addFields: { _prio: { $cond: [{ $eq: ["$specialHandling", "urgent"] }, 0, 1 ] } } },
-    { $sort: { _prio: 1, createdAt: -1 } },
+    { $addFields: {
+      _finished: { $cond: [{ $in: ["$status", finishedStatuses] }, 0, 1] },
+      _prio: { $cond: [{ $eq: ["$specialHandling", "urgent"] }, 0, 1 ] }
+    } },
+    { $sort: { _finished: 1, _prio: 1, createdAt: -1 } },
     { $skip: skip },
     { $limit: limit },
   ];
@@ -162,7 +166,7 @@ export async function POST(req: NextRequest) {
   if (response) return response;
   await connectDB();
   const body = await req.json();
-  const { clientId, customerName, customerPhone, customerGovernorate, customerAddress, products, paymentMethod, paymentStatus, shippingHandledBy, canOpenPackage, notes, subtotal: subIn, shippingFees: feeIn, type, specialHandling } = body;
+  const { clientId, customerName, customerPhone, customerGovernorate, customerAddress, products, paymentMethod, paymentStatus, shippingHandledBy, canOpenPackage, notes, subtotal: subIn, shippingFees: feeIn, type, specialHandling, source, provider, externalId } = body;
 
   if (!clientId) return NextResponse.json({ error: "Brand is required" }, { status: 400 });
 
@@ -175,19 +179,20 @@ export async function POST(req: NextRequest) {
   let shippingFees = feeIn;
   if (handler === "TURUQ") shippingFees = 0;
   if (shippingFees == null) shippingFees = defaultShippingFee(customerGovernorate);
-  const total = computeTotal(subtotal, shippingFees, handler);
+  let total = computeTotal(subtotal, shippingFees, handler);
+  if (paymentStatus === "PAID") total = 0;
 
   const defaultLocation = client.serviceScheme === "WAREHOUSE" ? "warehouse" : "brand_storage";
 
+  const orderSource = source === "integration" ? "integration" : "turuq";
   const oid = `TQ-${Date.now().toString().slice(-6)}`;
 
-  const order = await TuruqOrder.create({
+  const commonData = {
     oid,
     clientId: client._id,
     status: "pending",
     statusHistory: { pending: new Date().toISOString() },
     lastStatusChangedAt: new Date(),
-    customerName: customerName || "",
     customerPhone: customerPhone || "",
     customerPhoneNormalized: phoneNorm,
     customerAddress: customerAddress || "",
@@ -217,9 +222,26 @@ export async function POST(req: NextRequest) {
     dropoffBatchId: null,
     tripBatchId: null,
     createdByStaffId: session.staffId,
-    type: type || "NORMAL",
-    courierAssignedAt: null,
-  });
+  };
+
+  let order: any;
+  if (orderSource === "integration") {
+    const nameParts = (customerName || "").split(" ");
+    order = await IntegrationOrder.create({
+      ...commonData,
+      customerFirstName: nameParts[0] || "",
+      customerLastName: nameParts.slice(1).join(" ") || "",
+      provider: provider || "SHOPIFY",
+      externalId: externalId || `EXT-${Date.now().toString().slice(-6)}`,
+    });
+  } else {
+    order = await TuruqOrder.create({
+      ...commonData,
+      customerName: customerName || "",
+      type: type || "NORMAL",
+      courierAssignedAt: null,
+    });
+  }
 
   const flags: any[] = [];
   if (!isAddressValid(customerAddress || "")) {
@@ -233,11 +255,11 @@ export async function POST(req: NextRequest) {
     order.hasOpenIssue = true;
     await order.save();
     for (const f of order.issueFlags) {
-      await Alert.create({ type: "NEW_FLAG", orderModel: "turuq", orderId: order._id, flagId: f._id, createdAt: f.reportedAt, handled: false });
+      await Alert.create({ type: "NEW_FLAG", orderModel: orderSource, orderId: order._id, flagId: f._id, createdAt: f.reportedAt, handled: false });
     }
   }
 
-  await writeAudit({ orderModel: "turuq", orderId: order._id, action: "create", field: null, oldValue: null, newValue: order.oid, userId: session.staffId, userName: session.name || session.username, userRole: session.role });
+  await writeAudit({ orderModel: orderSource, orderId: order._id, action: "create", field: null, oldValue: null, newValue: order.oid, userId: session.staffId, userName: session.name || session.username, userRole: session.role });
 
   return NextResponse.json({ id: String(order._id), oid: order.oid }, { status: 201 });
 }

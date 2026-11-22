@@ -13,9 +13,14 @@ import { normalizePhone, isValidPhone } from "../lib/rules/phone";
 import { isAddressValid } from "../lib/rules/address";
 import { computeTotal } from "../lib/rules/shipping";
 import { defaultShippingFee } from "../lib/rules/constants";
-import { FINAL_STATUSES } from "../lib/rules/constants";
+import { FINAL_STATUSES, ISSUE_FLAG_TYPES } from "../lib/rules/constants";
 
-const brandNames = ["Nile Wear", "Cairo Home", "Glow Cosmetics", "Tech Souk", "Baby Corner", "Desert Bloom"];
+const brandNames = [
+  "Nile Wear", "Cairo Home", "Glow Cosmetics", "Tech Souk", "Baby Corner",
+  "Desert Bloom", "Delta Foods", "Pyramid Electronics", "Red Sea Sports", "Mediterranean Home",
+  "Pharma Care", "Auto Parts EG", "Cotton Line", "Kitchen King", "Book Nook",
+  "Pet Paradise", "Gardenia", "Sound Wave", "Luxury Leather", "Daily Market",
+];
 
 const turuqCourierNames = [
   "Ahmed Hassan", "Mohamed Ali", "Youssef Ibrahim", "Khaled Mahmoud", "Omar Sayed",
@@ -26,13 +31,25 @@ const turuqCourierNames = [
 
 const zones = ["Cairo", "Giza", "Alexandria", "Qalyubia", "Sharqia", "Gharbia", "Dakahlia", "Fayoum"];
 
-const customerFirst = ["Ahmed", "Mohamed", "Ali", "Omar", "Youssef", "Fatma", "Mona", "Sara", "Nour", "Yasmin", "Hana", "Laila", "Karim", "Hassan", "Tarek"];
-const customerLast = ["Hassan", "Ali", "Ibrahim", "Mahmoud", "Ahmed", "Mohamed", "Sayed", "Farouk", "Nabil", "Khaled", "Adel", "Fathy"];
+const customerFirst = [
+  "Ahmed", "Mohamed", "Ali", "Omar", "Youssef", "Mahmoud", "Hassan", "Tarek",
+  "Fatma", "Mona", "Sara", "Nour", "Yasmin", "Hana", "Laila", "Karim",
+  "Khaled", "Amr", "Mostafa", "Ramy", "Sherif", "Wael", "Hany", "Bassem",
+  "Nader", "Samy", "Gamal", "Fawzy", "Yehia", "Magdy", "Fouad", "Tawfik",
+  "Adel", "Nabil", "Reda", "Lotfy", "Ibrahim", "Sayed", "Farouk", "Khaled",
+];
+const customerLast = [
+  "Hassan", "Ali", "Ibrahim", "Mahmoud", "Ahmed", "Mohamed", "Sayed", "Farouk",
+  "Nabil", "Khaled", "Adel", "Fathy", "Reda", "Lotfy", "Gamal", "Fawzy",
+  "Yehia", "Magdy", "Fouad", "Tawfik", "Naser", "Ezz", "Hosny", "Salem",
+  "Amin", "Badr", "Dawood", "Emam", "Gaber", "Hafez", "Ismail", "Jaber",
+];
+
 const governorates = [
-  'Cairo', 'Giza', 'Helwan', '6th of October', 'Alexandria', 'Suez', 'Ismailia', 'Fayed',
-  'Port Said', 'Dakahlia', 'Qalyubia', 'Menoufia', 'Sharkeya', 'Gharbeya', 'Beheira',
-  'Kafr El Sheikh', 'Damietta', 'Beni Suef', 'Minya', 'Fayoum', 'Asyut', 'Sohag', 'Qena',
-  'Luxor', 'Aswan', 'Red Sea', 'South Sinai', 'North Sinai', 'New Valley', 'Matrouh',
+  "Cairo", "Giza", "Helwan", "6th of October", "Alexandria", "Suez", "Ismailia", "Fayed",
+  "Port Said", "Dakahlia", "Qalyubia", "Menoufia", "Sharkeya", "Gharbeya", "Beheira",
+  "Kafr El Sheikh", "Damietta", "Beni Suef", "Minya", "Fayoum", "Asyut", "Sohag", "Qena",
+  "Luxor", "Aswan", "Red Sea", "South Sinai", "North Sinai", "New Valley", "Matrouh",
 ];
 
 const validAddresses = [
@@ -46,23 +63,55 @@ const validAddresses = [
   "3 Ramses Street, Cairo",
   "18 October 6 City, Giza",
   "22 El Merghany, Heliopolis, Cairo",
+  "14 Mansoura Street, Zamalek, Cairo",
+  "9 Ahmed Orabi Street, Mohandessin, Giza",
+  "31 Cleopatra Street, Alexandria",
+  "6 El Horreya Road, Gleem, Alexandria",
+  "11 Salah Salem Street, Cairo",
+  "25 Tanta Street, Shubra, Cairo",
+  "4 Maadi Corniche, Cairo",
+  "17 Mostafa Kamel Street, Sidi Gaber, Alexandria",
+  "2 El Hegaz Street, Heliopolis, Cairo",
+  "13 Dokki Street, Giza",
 ];
-const invalidAddresses = ["شارع معز الدولة", "Moez Street", "New Cairo"];
+const invalidAddresses = ["شارع معز الدولة", "Moez Street", "New Cairo", "El Tahrir", "شارع النصر"];
 
-const productItems = [
-  { desc: "T-Shirt", price: 250 }, { desc: "Jeans", price: 600 }, { desc: "Sneakers", price: 900 },
-  { desc: "Hoodie", price: 450 }, { desc: "Dress", price: 700 }, { desc: "Jacket", price: 1200 },
-  { desc: "Bag", price: 350 }, { desc: "Watch", price: 1500 }, { desc: "Perfume", price: 800 },
+const productCatalog = [
+  { desc: "T-Shirt", price: 250 },
+  { desc: "Jeans", price: 600 },
+  { desc: "Sneakers", price: 900 },
+  { desc: "Hoodie", price: 450 },
+  { desc: "Dress", price: 700 },
+  { desc: "Jacket", price: 1200 },
+  { desc: "Bag", price: 350 },
+  { desc: "Watch", price: 1500 },
+  { desc: "Perfume", price: 800 },
+  { desc: "Sunglasses", price: 550 },
+  { desc: "Backpack", price: 650 },
+  { desc: "Wallet", price: 300 },
+  { desc: "Belt", price: 200 },
+  { desc: "Scarf", price: 180 },
+  { desc: "Hat", price: 150 },
+  { desc: "Shirt", price: 400 },
+  { desc: "Shorts", price: 280 },
+  { desc: "Skirt", price: 320 },
+  { desc: "Sweater", price: 500 },
+  { desc: "Coat", price: 1400 },
 ];
 
-const colors = ["Black", "White", "Blue", "Red", "Green", "Beige"];
-const sizes = ["S", "M", "L", "XL", "One Size"];
+const colors = ["Black", "White", "Blue", "Red", "Green", "Beige", "Navy", "Gray", "Pink", "Yellow"];
+const sizes = ["S", "M", "L", "XL", "XXL", "One Size"];
 
 function rnd<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.length)]; }
 function rndInt(min: number, max: number) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 function uid() { return "uid-" + Math.random().toString(36).slice(2, 10); }
 function daysAgo(n: number) { const d = new Date(); d.setDate(d.getDate() - n); d.setHours(rndInt(8, 20), rndInt(0, 59), 0, 0); return d; }
 function oid(prefix: string, n: number) { return `${prefix}-${100000 + n}`; }
+function shuffle<T>(arr: T[]) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
 
 const cancellationReasonsSeed = [
   { code: "WRONG_PHONE_NUMBER", label: "Wrong Phone Number", group: "COURIER_SIDE", requiresAttachment: true, courierPayableIfShipped: true, legacy: false },
@@ -80,6 +129,126 @@ const cancellationReasonsSeed = [
   { code: "SHOPIFY", label: "Cancelled from Shopify", group: "OTHER", requiresAttachment: false, courierPayableIfShipped: false, legacy: true },
   { code: "WHATSAPP", label: "Cancelled via WhatsApp", group: "OTHER", requiresAttachment: false, courierPayableIfShipped: false, legacy: true },
 ];
+
+// Status distribution for 200 orders. Includes every status from the spec.
+const statusDistribution: Record<string, number> = {
+  delivered: 75,
+  collected: 10,
+  outForDelivery: 15,
+  pending: 14,
+  pickedUp: 10,
+  processing: 14,
+  postponed: 6,
+  unreachable: 5,
+  invalidAddress: 4,
+  outOfStock: 6,
+  returned: 10,
+  RTW: 6,
+  cancelled: 17,
+  packed: 3,
+  QC: 3,
+  droppedOff: 2,
+};
+
+const ALL_STATUSES = Object.keys(statusDistribution);
+
+function buildStatusPath(status: string, serviceScheme: string): { path: string[]; location: string | null } {
+  const path: string[] = ["pending"];
+  let location: string | null = serviceScheme === "WAREHOUSE" ? "warehouse" : "brand_storage";
+
+  if (status === "outOfStock") {
+    // Most out-of-stock orders only reach pending + outOfStock
+    if (Math.random() < 0.15) {
+      path.push("pickedUp", "processing");
+    }
+    path.push("outOfStock");
+    return { path, location };
+  }
+
+  if (status !== "pending") {
+    path.push("pickedUp");
+    location = "with_courier";
+  }
+
+  if (["processing", "outForDelivery", "delivered", "collected", "postponed", "unreachable", "invalidAddress", "packed", "droppedOff", "returned", "RTW", "cancelled"].includes(status)) {
+    path.push("processing");
+    location = "distribution_center";
+  }
+
+  if (["packed", "outForDelivery", "delivered", "collected", "postponed", "unreachable", "droppedOff", "returned", "RTW", "cancelled"].includes(status)) {
+    path.push("packed");
+  }
+
+  if (["outForDelivery", "delivered", "collected", "postponed", "unreachable", "droppedOff", "returned", "RTW", "cancelled"].includes(status)) {
+    path.push("outForDelivery");
+    location = Math.random() < 0.4 ? "with_carrier" : "with_courier";
+  }
+
+  if (status === "droppedOff") {
+    path.push("droppedOff");
+    return { path, location };
+  }
+
+  if (["postponed", "unreachable"].includes(status)) {
+    path.push(status);
+    location = "distribution_center";
+    return { path, location };
+  }
+
+  if (status === "invalidAddress") {
+    path.push("invalidAddress");
+    location = "distribution_center";
+    return { path, location };
+  }
+
+  if (["delivered", "collected"].includes(status)) {
+    path.push(status);
+    location = null;
+    return { path, location };
+  }
+
+  if (status === "QC") {
+    if (!path.includes("delivered")) path.push("delivered");
+    path.push("QC");
+    location = "returns_team";
+    return { path, location };
+  }
+
+  if (["returned", "RTW"].includes(status)) {
+    if (!path.includes("delivered")) path.push("delivered");
+    path.push("QC");
+    path.push(status);
+    location = status === "RTW" ? "warehouse" : "returns_team";
+    return { path, location };
+  }
+
+  if (status === "cancelled") {
+    path.push("cancelled");
+    // location keeps the last meaningful location
+    if (path.includes("processing")) location = "distribution_center";
+    else if (path.includes("pickedUp")) location = "with_courier";
+    else location = serviceScheme === "WAREHOUSE" ? "warehouse" : "brand_storage";
+    return { path, location };
+  }
+
+  return { path, location };
+}
+
+function buildHistory(status: string, baseDate: Date, serviceScheme: string): { history: Record<string, string>; lastChanged: Date; location: string | null } {
+  const { path, location } = buildStatusPath(status, serviceScheme);
+  const dedup: string[] = [];
+  for (const s of path) if (dedup[dedup.length - 1] !== s) dedup.push(s);
+
+  const history: Record<string, string> = {};
+  const totalSpanHours = rndInt(24, 240);
+  const stepHours = totalSpanHours / Math.max(1, dedup.length);
+  dedup.forEach((s, idx) => {
+    const d = new Date(baseDate.getTime() - (dedup.length - 1 - idx) * stepHours * 60 * 60 * 1000);
+    history[s] = d.toISOString();
+  });
+  const lastChanged = new Date(history[status]);
+  return { history, lastChanged, location };
+}
 
 async function main() {
   await connectDB();
@@ -104,22 +273,22 @@ async function main() {
   const staff = await StaffMember.insertMany(staffData.map((s) => ({ ...s, role: "SUPPORT", active: true, passwordHash })));
   console.log("staff", staff.length);
 
-  // Clients (6 brands)
+  // Clients: 20 brands, 10 WAREHOUSE, 10 PICKUP
   const clients = [];
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < brandNames.length; i++) {
     clients.push({
       name: brandNames[i],
       companyName: brandNames[i],
       phone: `010${String(10000000 + i).slice(0, 8)}`,
       email: `${brandNames[i].toLowerCase().replace(/\s+/g, "")}@example.com`,
-      serviceScheme: i < 3 ? "WAREHOUSE" : "PICKUP",
+      serviceScheme: i < 10 ? "WAREHOUSE" : "PICKUP",
       active: true,
     });
   }
   const clientDocs = await Client.insertMany(clients);
   console.log("clients", clientDocs.length);
 
-  // Couriers
+  // Couriers: Bosta, ShipBlu + 18 Turuq
   const couriers: any[] = [
     { name: "Bosta", phone: "01000000001", username: "bosta", outsourced: true, zone: "All", active: true },
     { name: "ShipBlu", phone: "01000000002", username: "shipblu", outsourced: true, zone: "All", active: true },
@@ -140,17 +309,18 @@ async function main() {
   const turuqCouriers = courierDocs.slice(2);
   console.log("couriers", courierDocs.length);
 
-  // Products: 4 per client
+  // Products: ~80 (4 per client)
   const productDocs = [];
   for (const c of clientDocs) {
-    for (let i = 0; i < 4; i++) {
-      const it = rnd(productItems);
+    const numProducts = rndInt(3, 5);
+    for (let i = 0; i < numProducts; i++) {
+      const it = rnd(productCatalog);
       productDocs.push({
         uid: uid(),
-        itemDescription: it.desc,
+        itemDescription: `${c.name} ${it.desc}`,
         primaryClientId: c._id,
         quantity: rndInt(10, 200),
-        unitPrice: it.price,
+        unitPrice: it.price + rndInt(-50, 100),
         size: rnd(sizes),
         color: rnd(colors),
       });
@@ -159,10 +329,17 @@ async function main() {
   const products = await Product.insertMany(productDocs);
   console.log("products", products.length);
 
-  // Customers (15)
-  interface CustomerT { name: string; phone: string; gov: string; addresses: string[]; normalized: string; validPhone: boolean; }
+  // Customers: 50
+  interface CustomerT {
+    name: string;
+    phone: string;
+    gov: string;
+    addresses: string[];
+    normalized: string;
+    validPhone: boolean;
+  }
   const customers: CustomerT[] = [];
-  for (let i = 0; i < 13; i++) {
+  for (let i = 0; i < 48; i++) {
     const first = rnd(customerFirst);
     const last = rnd(customerLast);
     const phone = `01${rnd(["0", "1", "2", "5"])}${String(10000000 + i * 137).slice(0, 8)}`;
@@ -170,183 +347,86 @@ async function main() {
     const numAddr = rndInt(1, 3);
     const addresses: string[] = [];
     for (let a = 0; a < numAddr; a++) {
-      if (Math.random() < 0.25) addresses.push(rnd(invalidAddresses));
-      else addresses.push(rnd(validAddresses));
+      if (Math.random() < 0.2) addresses.push(rnd(invalidAddresses));
+      else addresses.push(`${rndInt(1, 99)} ${rnd(validAddresses)}`);
     }
     customers.push({ name: `${first} ${last}`, phone, gov, addresses, normalized: normalizePhone(phone), validPhone: true });
   }
   customers.push({ name: "Bad Phone One", phone: "12345", gov: "Cairo", addresses: [rnd(validAddresses)], normalized: normalizePhone("12345"), validPhone: false });
   customers.push({ name: "Bad Phone Two", phone: "010123", gov: "Giza", addresses: [rnd(invalidAddresses)], normalized: normalizePhone("010123"), validPhone: false });
+  console.log("customers", customers.length);
 
-  // Status distribution for 50 orders (all timelines)
+  // Build status list for 200 orders
   const statusList: string[] = [];
-  const dist: Record<string, number> = {
-    delivered: 12, collected: 2, outForDelivery: 4, pending: 4, pickedUp: 3,
-    processing: 4, postponed: 2, outOfStock: 2, returned: 3, RTW: 2, RTO: 2, cancelled: 5,
-    // cancelled->returned flow: 2 orders that are returned after cancelled (handled in history)
-  };
-  dist.delivered = 11; // adjust to 50
-  for (const [s, n] of Object.entries(dist)) for (let i = 0; i < n; i++) statusList.push(s);
-  // ensure 50
-  while (statusList.length < 50) statusList.push("delivered");
-  while (statusList.length > 50) statusList.pop();
-  for (let i = statusList.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [statusList[i], statusList[j]] = [statusList[j], statusList[i]]; }
+  for (const [s, n] of Object.entries(statusDistribution)) {
+    for (let i = 0; i < n; i++) statusList.push(s);
+  }
+  shuffle(statusList);
   console.log("status count", statusList.length);
 
-  function buildHistory(status: string, baseDate: Date, serviceScheme: string, cancelledThenReturned: boolean, isRefund: boolean): { history: Record<string, string>; lastChanged: Date; location: string | null } {
-    const path: string[] = ["pending"];
-    const outOfStockPassedOther = status === "outOfStock" && Math.random() < 0.3;
-
-    if (status === "outOfStock" && !outOfStockPassedOther) {
-      // only pending + outOfStock
-    } else if (status !== "pending") {
-      const reachedPickedUp = !isRefund && ["pickedUp", "processing", "outForDelivery", "postponed", "delivered", "collected", "returned", "RTW", "RTO", "cancelled"].includes(status);
-      if (reachedPickedUp) path.push("pickedUp");
-      if (["processing", "outForDelivery", "postponed", "delivered", "collected", "returned", "RTW", "RTO", "cancelled"].includes(status)) {
-        path.push("processing");
-      }
-      if (["outForDelivery", "delivered", "collected", "postponed", "returned", "RTW", "RTO"].includes(status)) {
-        path.push("outForDelivery");
-      }
-      // delivered before QC for returned/RTW/RTO flows
-      if (["returned", "RTW", "RTO"].includes(status)) {
-        if (!path.includes("delivered")) path.push("delivered");
-        path.push("QC");
-      }
-      if (status === "cancelled" && Math.random() < 0.5) {
-        const idx = path.indexOf("outForDelivery");
-        if (idx !== -1) path.splice(idx, 1);
-      }
-      if (status === "outOfStock" && outOfStockPassedOther) {
-        path.push("pickedUp");
-        path.push("processing");
-      }
-      // cancelled then returned: add cancelled before returned
-      if (cancelledThenReturned && status === "returned") {
-        if (!path.includes("cancelled")) path.push("cancelled");
-      }
-    }
-    if (status === "outOfStock" && outOfStockPassedOther) {
-      if (!path.includes("outOfStock")) path.push("outOfStock");
-    }
-    if (!path.includes(status)) path.push(status);
-    const dedup: string[] = [];
-    for (const s of path) if (dedup[dedup.length - 1] !== s) dedup.push(s);
-
-    const history: Record<string, string> = {};
-    const totalSpan = rndInt(2, 14);
-    const step = totalSpan / dedup.length;
-    dedup.forEach((s, idx) => {
-      const d = new Date(baseDate.getTime() - (dedup.length - 1 - idx) * step * 24 * 60 * 60 * 1000);
-      history[s] = d.toISOString();
-    });
-    const lastChanged = new Date(history[status]);
-
-    let location: string | null = null;
-    const scheme = serviceScheme;
-    if (status === "pending") location = scheme === "WAREHOUSE" ? "warehouse" : "brand_storage";
-    else if (status === "outOfStock") location = scheme === "WAREHOUSE" ? "warehouse" : "brand_storage";
-    else if (status === "pickedUp") location = "with_courier";
-    else if (status === "processing") location = "distribution_center";
-    else if (status === "postponed") location = "distribution_center";
-    else if (status === "outForDelivery") location = Math.random() < 0.5 ? "with_courier" : "with_carrier";
-    else if (status === "RTW") location = "warehouse";
-    else if (status === "RTO") location = "brand_storage";
-    else if (status === "returned") location = cancelledThenReturned ? "returns_team" : "returns_team";
-    else if (status === "cancelled") {
-      if (history["processing"]) location = "distribution_center";
-      else if (history["pickedUp"]) location = "with_courier";
-      else location = scheme === "WAREHOUSE" ? "warehouse" : "brand_storage";
-    } else {
-      location = null;
-    }
-    return { history, lastChanged, location };
-  }
-
   const orderTypes = ["NORMAL", "PROMOTIONAL", "REFUND", "EXCHANGE"];
-
-  const turuqTarget = 33;
-  const ordersCreated: { model: string; id: any; status: string }[] = [];
+  const turuqTarget = 130;
+  const ordersCreated: { model: string; id: any; status: string; clientId: any }[] = [];
   const staleCandidates: any[] = [];
+  let turuqCount = 0;
 
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < 200; i++) {
     let status = statusList[i];
-    // order type: distribute across all 4
     const orderType = rnd(orderTypes);
-    // REFUND orders: pending -> processing -> outForDelivery -> delivered -> QC -> RTW/RTO (no pickedUp, no cancelled/returned)
+
+    // REFUND orders follow the refund lifecycle (delivered -> QC -> RTW/RTO)
     if (orderType === "REFUND") {
-      status = rnd(["pending", "processing", "outForDelivery", "delivered", "RTW", "RTO", "RTW", "RTO"]);
+      status = rnd(["pending", "processing", "outForDelivery", "delivered", "RTW", "RTW"]);
     }
-    const model2 = i < turuqTarget ? "turuq" : "integration";
+
+    // Decide source; aim for ~130 Turuq / 70 Integration
+    let model2: "turuq" | "integration";
+    if (turuqCount < turuqTarget) {
+      model2 = "turuq";
+    } else {
+      model2 = "integration";
+    }
+    if (model2 === "turuq") turuqCount++;
+
     const customer = rnd(customers);
     const client = rnd(clientDocs);
     const serviceScheme = client.serviceScheme;
 
     let baseDate = daysAgo(rndInt(0, 89));
     const isFinal = FINAL_STATUSES.has(status as any);
-    let makeStale = !isFinal && Math.random() < 0.25 && staleCandidates.length < 6;
+    const makeStale = !isFinal && Math.random() < 0.15 && staleCandidates.length < 20;
     if (makeStale) baseDate = daysAgo(rndInt(3, 6));
 
-    // cancelled then returned: only for returned status, ~40% (refund orders are never cancelled first)
-    const cancelledThenReturned = (status === "returned") && orderType !== "REFUND" && Math.random() < 0.4;
-    const isRefund = orderType === "REFUND";
+    const { history, lastChanged, location } = buildHistory(status, baseDate, serviceScheme);
+    const createdAt = new Date(history["pending"] || baseDate.toISOString());
 
-    const { history, lastChanged, location } = buildHistory(status, baseDate, serviceScheme, cancelledThenReturned, isRefund);
-
-    // courier assignment
+    // Courier assignment
     let courierId: any = null;
     let trackingNumber: string | null = null;
-    const cancelledReachedPickup = status === "cancelled" && !!history["pickedUp"];
 
-    if (status === "pending" || status === "outOfStock") {
-      courierId = null;
-      trackingNumber = null;
-    } else if (status === "outForDelivery") {
-      if (Math.random() < 0.6) {
+    const hasBeenWithCourier = ["pickedUp", "processing", "outForDelivery", "droppedOff", "delivered", "collected", "postponed", "unreachable", "invalidAddress", "returned", "RTW", "cancelled"].includes(status);
+    const reachedOutForDelivery = history["outForDelivery"] || ["outForDelivery", "droppedOff", "delivered", "collected", "postponed", "unreachable", "returned", "RTW", "cancelled"].includes(status);
+
+    if (hasBeenWithCourier) {
+      const useOutsourced = reachedOutForDelivery && Math.random() < 0.45;
+      if (useOutsourced) {
         courierId = rnd([bosta, shipblu])._id;
         trackingNumber = courierId.equals(bosta._id) ? `46969${rndInt(10000, 99999)}` : `${rndInt(3000000, 3999999)}`;
       } else {
         courierId = rnd(turuqCouriers)._id;
-        trackingNumber = null;
-      }
-    } else if (["pickedUp", "processing", "postponed"].includes(status)) {
-      courierId = rnd(turuqCouriers)._id;
-      trackingNumber = null;
-    } else if (["delivered", "collected", "returned", "RTW", "RTO"].includes(status)) {
-      if (Math.random() < 0.5) {
-        courierId = rnd([bosta, shipblu])._id;
-        trackingNumber = courierId.equals(bosta._id) ? `46969${rndInt(10000, 99999)}` : `${rndInt(3000000, 3999999)}`;
-      } else {
-        courierId = rnd(turuqCouriers)._id;
-        trackingNumber = null;
-      }
-    } else if (status === "cancelled") {
-      if (cancelledReachedPickup || history["pickedUp"]) {
-        if (Math.random() < 0.5) {
-          courierId = rnd([bosta, shipblu])._id;
-          trackingNumber = courierId.equals(bosta._id) ? `46969${rndInt(10000, 99999)}` : `${rndInt(3000000, 3999999)}`;
-        } else {
-          courierId = rnd(turuqCouriers)._id;
-          trackingNumber = null;
-        }
-      } else {
-        courierId = null;
         trackingNumber = null;
       }
     }
 
+    // Shipping handler
     let shippingHandledBy = "CUSTOMER";
-    if (Math.random() < 0.06) shippingHandledBy = "TURUQ";
-    else if (Math.random() < 0.15) shippingHandledBy = "BRAND";
-    const subtotal = rndInt(1, 5) * 100 + rndInt(0, 50);
-    const gov = (customer.gov || "").toUpperCase();
-    const defaultFee = defaultShippingFee(gov);
-    let shippingFees = shippingHandledBy === "TURUQ" ? 0 : defaultFee;
-    const total = shippingHandledBy === "CUSTOMER" ? subtotal + shippingFees : subtotal;
+    if (i < 3) {
+      shippingHandledBy = "TURUQ";
+    } else if (Math.random() < 0.12) {
+      shippingHandledBy = "BRAND";
+    }
 
-    const address = rnd(customer.addresses);
-    const phoneNorm = customer.normalized;
-
+    // Build products for this order
     const brandProducts = products.filter((p: any) => String(p.primaryClientId) === String(client._id));
     const numProds = rndInt(1, 3);
     const orderProducts = [];
@@ -354,6 +434,13 @@ async function main() {
       const pr = rnd(brandProducts.length ? brandProducts : products);
       orderProducts.push({ uid: pr.uid, name: pr.itemDescription, variant: `${pr.color}/${pr.size}`, quantity: rndInt(1, 3), price: pr.unitPrice });
     }
+    const subtotal = orderProducts.reduce((s, p) => s + p.price * p.quantity, 0);
+    const gov = (customer.gov || "").toUpperCase();
+    let shippingFees = shippingHandledBy === "TURUQ" ? 0 : defaultShippingFee(gov);
+    const total = shippingHandledBy === "CUSTOMER" ? subtotal + shippingFees : subtotal;
+
+    const address = rnd(customer.addresses);
+    const phoneNorm = customer.normalized;
 
     let specialHandling = "none";
     if (Math.random() < 0.08) specialHandling = rnd(["urgent", "vip", "replacement"]);
@@ -377,12 +464,12 @@ async function main() {
       shippingFees,
       shippingHandledBy,
       paymentMethod: rnd(["CASH", "INSTAPAY", "VISA", "FLASH"]),
-      paymentStatus: Math.random() < 0.4 ? "PAID" : "UNPAID",
+      paymentStatus: Math.random() < 0.35 ? "PAID" : "UNPAID",
       canOpenPackage: Math.random() < 0.3,
-      notes: Math.random() < 0.2 ? "Handle with care" : "",
+      notes: Math.random() < 0.25 ? "Handle with care" : "",
       courierId,
       courierNotes: "",
-      deliveryAttempts: status === "cancelled" ? rndInt(0, 2) : 0,
+      deliveryAttempts: ["cancelled", "unreachable", "postponed"].includes(status) ? rndInt(0, 3) : 0,
       deliveryAttemptTimestamps: {},
       trackingNumber,
       currentLocation: location,
@@ -393,9 +480,13 @@ async function main() {
       cancelledBy: null,
       cancellationImages: [],
       cancellationReviewStatus: "NONE",
+      cancellationReviewedBy: null,
+      cancellationReviewedAt: null,
+      cancellationReviewNote: null,
       dropoffBatchId: null,
       tripBatchId: null,
       createdByStaffId: null,
+      createdAt,
     };
 
     if (model2 === "turuq") {
@@ -410,13 +501,14 @@ async function main() {
       orderDoc.externalId = `ext-${i}`;
     }
 
+    // Cancellation specifics
     if (status === "cancelled") {
       const reason = rnd(cancellationReasonsSeed);
       orderDoc.cancellationReason = reason.code;
-      orderDoc.cancelledBy = Math.random() < 0.7 ? "SUPPORT" : rnd(["BRAND", "COURIER", "SYSTEM"]);
+      orderDoc.cancelledBy = Math.random() < 0.6 ? "SUPPORT" : rnd(["BRAND", "COURIER", "SYSTEM"]);
       if (reason.requiresAttachment) {
-        orderDoc.cancellationImages = [`/uploads/evidence-${i}.jpg`];
-        orderDoc.cancellationReviewStatus = Math.random() < 0.6 ? "PENDING" : "APPROVED";
+        orderDoc.cancellationImages = [`/uploads/evidence-${i}.jpg`, `/uploads/evidence-${i}-2.jpg`];
+        orderDoc.cancellationReviewStatus = Math.random() < 0.7 ? "PENDING" : "APPROVED";
       } else {
         orderDoc.cancellationImages = [];
         orderDoc.cancellationReviewStatus = "NONE";
@@ -424,12 +516,13 @@ async function main() {
       if (orderDoc.cancellationReviewStatus === "APPROVED") {
         orderDoc.cancellationReviewedBy = staff[0].name;
         orderDoc.cancellationReviewedAt = daysAgo(rndInt(0, 5));
-        orderDoc.cancellationReviewNote = "Approved";
+        orderDoc.cancellationReviewNote = "Approved after review";
       }
+      // Cancelled-before-delivery: narrow history to only pending/pickedUp/processing + cancelled
       if (Math.random() < 0.5) {
         const h: Record<string, string> = { pending: history["pending"] };
-        if (history["pickedUp"] && Math.random() < 0.6) h["pickedUp"] = history["pickedUp"];
-        if (history["processing"] && Math.random() < 0.7) h["processing"] = history["processing"];
+        if (history["pickedUp"] && Math.random() < 0.55) h["pickedUp"] = history["pickedUp"];
+        if (history["processing"] && Math.random() < 0.55) h["processing"] = history["processing"];
         h["cancelled"] = history["cancelled"] || baseDate.toISOString();
         orderDoc.statusHistory = h;
         orderDoc.lastStatusChangedAt = new Date(h["cancelled"]);
@@ -441,20 +534,24 @@ async function main() {
 
     const Model = model2 === "turuq" ? TuruqOrder : IntegrationOrder;
     const created = await Model.create(orderDoc);
-    ordersCreated.push({ model: model2, id: created._id, status });
+    ordersCreated.push({ model: model2, id: created._id, status, clientId: client._id });
 
+    if (makeStale) staleCandidates.push({ model: model2, id: created._id });
+
+    // Auto flags + random flags
     const flagsToCreate: any[] = [];
     if (!addrValid) flagsToCreate.push({ type: "invalid_address", note: "Auto: invalid address", reportedByRole: "system", reportedByUser: "system", reportedAt: new Date(), state: "open" });
     if (!phoneValid) flagsToCreate.push({ type: "invalid_phone_number", note: "Auto: invalid phone", reportedByRole: "system", reportedByUser: "system", reportedAt: new Date(), state: "open" });
 
-    if (Math.random() < 0.12 && flagsToCreate.length === 0) {
-      const types = ["ticket", "return_missing_items", "return_wrong_items", "delayed_shipment", "defective_items", "other"];
+    if (Math.random() < 0.1 && flagsToCreate.length === 0) {
+      const types = ISSUE_FLAG_TYPES.filter((t) => t !== "invalid_address" && t !== "invalid_phone_number");
       const reporters: any[] = ["brand", "warehouse", "distribution_center", "support"];
+      const reporter = rnd(reporters);
       flagsToCreate.push({
         type: rnd(types),
         note: "Seeded flag",
-        reportedByRole: rnd(reporters),
-        reportedByUser: rnd(reporters),
+        reportedByRole: reporter,
+        reportedByUser: reporter,
         reportedAt: daysAgo(rndInt(0, 10)),
         state: "open",
       });
@@ -465,25 +562,51 @@ async function main() {
       created.hasOpenIssue = flagsToCreate.some((f) => f.state === "open");
       await created.save();
       const fresh = await Model.findById(created._id);
-      for (const f of fresh.issueFlags) {
+      for (const f of fresh!.issueFlags) {
         if (f.state === "open") {
-          await Alert.create({ type: "NEW_FLAG", orderModel: model2, orderId: created._id, flagId: f._id, createdAt: f.reportedAt, handled: Math.random() < 0.3 });
+          await Alert.create({ type: "NEW_FLAG", orderModel: model2, orderId: created._id, flagId: f._id, createdAt: f.reportedAt, handled: Math.random() < 0.2 });
         }
       }
     }
-
-    if (makeStale) staleCandidates.push({ model: model2, id: created._id });
   }
 
-  console.log("orders created", ordersCreated.length);
+  console.log("orders created", ordersCreated.length, "turuq", turuqCount, "integration", 200 - turuqCount);
 
-  // Resolved flags
+  // Ensure ~8 cancelled-before-delivery orders by narrowing some cancelled orders
+  const cancelledBeforeDeliveryTarget = 8;
+  let cbdCount = 0;
+  for (const o of ordersCreated.filter((x) => x.status === "cancelled")) {
+    if (cbdCount >= cancelledBeforeDeliveryTarget) break;
+    const Model = o.model === "turuq" ? TuruqOrder : IntegrationOrder;
+    const doc = await Model.findById(o.id);
+    if (!doc) continue;
+    const h: Record<string, string> = { pending: doc.statusHistory["pending"] || new Date().toISOString() };
+    const includePickedUp = Math.random() < 0.5;
+    const includeProcessing = !includePickedUp || Math.random() < 0.3;
+    if (includePickedUp && doc.statusHistory["pickedUp"]) h["pickedUp"] = doc.statusHistory["pickedUp"];
+    if (includeProcessing && doc.statusHistory["processing"]) h["processing"] = doc.statusHistory["processing"];
+    h["cancelled"] = doc.statusHistory["cancelled"] || new Date().toISOString();
+    doc.statusHistory = h;
+    doc.lastStatusChangedAt = new Date(h["cancelled"]);
+    if (h["processing"]) doc.currentLocation = "distribution_center";
+    else if (h["pickedUp"]) doc.currentLocation = "with_courier";
+    else {
+      const client = clientDocs.find((c: any) => String(c._id) === String(doc.clientId));
+      doc.currentLocation = client?.serviceScheme === "WAREHOUSE" ? "warehouse" : "brand_storage";
+    }
+    await doc.save();
+    cbdCount++;
+  }
+  console.log("cancelled before delivery ensured", cbdCount);
+
+  // Resolve some flags
   let resolvedCount = 0;
-  for (const m of ["turuq", "integration"]) {
+  for (const m of ["turuq", "integration"] as const) {
     const Model = m === "turuq" ? TuruqOrder : IntegrationOrder;
-    const docs = await Model.find({ "issueFlags.0": { $exists: true } }).limit(4);
+    const docs = await Model.find({ "issueFlags.0": { $exists: true } }).limit(10);
     for (const d of docs) {
-      if (d.issueFlags.length > 0 && Math.random() < 0.4 && resolvedCount < 4) {
+      if (resolvedCount >= 8) break;
+      if (d.issueFlags.length > 0 && Math.random() < 0.5) {
         const f = d.issueFlags[0];
         f.state = "resolved";
         f.resolvedBy = staff[0].name;
@@ -495,6 +618,7 @@ async function main() {
       }
     }
   }
+  console.log("resolved flags", resolvedCount);
 
   // Dropoff batches
   const courierForBlock = turuqCouriers[0];
@@ -535,7 +659,9 @@ async function main() {
       finishedBy: staff[0].name,
     });
   }
-  for (let i = 0; i < 4; i++) {
+
+  // Trip batches
+  for (let i = 0; i < 6; i++) {
     await TripBatch.create({
       bid: `TB-${i}`,
       courierId: rnd(turuqCouriers)._id,
@@ -548,13 +674,19 @@ async function main() {
 
   // Support notes
   for (const s of staff) {
-    for (let i = 0; i < rndInt(2, 3); i++) {
-      await SupportNote.create({ staffId: s._id, text: `Private note ${i + 1} for ${s.name}`, done: Math.random() < 0.3, doneAt: null });
+    for (let i = 0; i < rndInt(2, 4); i++) {
+      await SupportNote.create({
+        staffId: s._id,
+        text: `Private note ${i + 1} for ${s.name}: ${["call customer back", "check with warehouse", "escalate to admin", "follow up tomorrow"][i % 4]}`,
+        done: Math.random() < 0.3,
+        doneAt: null,
+      });
     }
   }
+  console.log("notes done");
 
   // Brand email outbox
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 12; i++) {
     await BrandEmailOutbox.create({
       clientId: clientDocs[i % clientDocs.length]._id,
       toEmail: clientDocs[i % clientDocs.length].email,

@@ -47,7 +47,6 @@ export async function GET(req: NextRequest) {
     names: [...names],
     addresses: [...addresses],
     addressList: [...addresses].map((a) => ({ address: a, governorate: addressGovs.get(a) || "" })),
-    verifiedAddresses: [],
     successRate: sr,
     orders,
   });

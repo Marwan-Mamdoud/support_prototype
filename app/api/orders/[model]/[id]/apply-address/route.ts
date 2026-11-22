@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { orderModelFor } from "@/lib/models/Order";
 import { requireSession } from "@/lib/serverAuth";
-import { editableScope, canEditField } from "@/lib/rules/editRules";
+import { canEditData } from "@/lib/rules/editRules";
 import { writeAudit } from "@/lib/audit";
 
 export const dynamic = "force-dynamic";
@@ -16,8 +16,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ model: str
   await connectDB();
   const order = await Model.findById(id);
   if (!order) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  const scope = editableScope(order.status, Object.keys(order.statusHistory || {}));
-  if (!canEditField(scope, "customerAddress")) {
+  if (!canEditData(order.status)) {
     return NextResponse.json({ error: "Address is locked for this order" }, { status: 403 });
   }
   const body = await req.json();

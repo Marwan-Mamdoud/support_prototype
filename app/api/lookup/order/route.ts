@@ -44,5 +44,17 @@ export async function GET(req: NextRequest) {
     ...(await enrich(turuq, "turuq")),
     ...(await enrich(integration, "integration")),
   ];
-  return NextResponse.json({ results });
+
+  const AuditLogModel = (await import("@/lib/models/AuditLog")).AuditLog;
+  const { StaffMember } = await import("@/lib/models");
+  const resultsWithAudit = await Promise.all(results.map(async (order: any) => {
+    const audit = await AuditLogModel.find({ orderModel: order.source, orderId: order.id }).sort({ at: -1 }).lean();
+    const missingIds = [...new Set(audit.filter((a: any) => !a.userName).map((a: any) => a.userId).filter(Boolean))];
+    const staff = missingIds.length ? await StaffMember.find({ _id: { $in: missingIds } }).lean() : [];
+    const nameMap = new Map(staff.map((s: any) => [String(s._id), s.name]));
+    const enrichedAudit = audit.map((a: any) => ({ ...a, userName: a.userName || nameMap.get(String(a.userId)) || a.userId }));
+    return { ...order, audit: enrichedAudit };
+  }));
+
+  return NextResponse.json({ results: resultsWithAudit });
 }

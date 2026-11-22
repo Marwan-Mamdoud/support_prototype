@@ -5,27 +5,40 @@ import { Suspense } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { toast } from "sonner";
 import { computeTotal } from "@/lib/rules/shipping";
-import { defaultShippingFee } from "@/lib/rules/constants";
+import { defaultShippingFee, GOVERNORATE_DEFAULT_SHIPPING } from "@/lib/rules/constants";
+import {
+  Plus,
+  CheckCircle,
+  Building2,
+  User,
+  Package,
+  CreditCard,
+  Receipt,
+  Trash2,
+  Verified,
+  MapPin,
+  Phone,
+  Boxes,
+  X,
+} from "lucide-react";
 
 function CreateOrderContent() {
   const sp = useSearchParams();
   const router = useRouter();
-  const from = sp.get("from"); // "turuq/id" or "integration/id"
-  const mode = sp.get("mode") || "same"; // same | exchange
+  const from = sp.get("from");
+  const mode = sp.get("mode") || "same";
 
   const { data: clientsData } = useQuery({ queryKey: ["clients"], queryFn: async () => (await fetch("/api/clients")).json() });
   const clients = clientsData?.items || [];
 
+  const isEdit = mode === "edit";
+
+  const [source, setSource] = useState<"turuq" | "integration">("turuq");
   const [clientId, setClientId] = useState("");
-  const [brandOpen, setBrandOpen] = useState(false);
+  const [orderType, setOrderType] = useState("NORMAL");
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerGovernorate, setCustomerGovernorate] = useState("");
@@ -34,8 +47,12 @@ function CreateOrderContent() {
   const [paymentStatus, setPaymentStatus] = useState("UNPAID");
   const [shippingHandledBy, setShippingHandledBy] = useState("CUSTOMER");
   const [canOpenPackage, setCanOpenPackage] = useState(false);
+  const [specialHandling, setSpecialHandling] = useState("none");
   const [notes, setNotes] = useState("");
   const [products, setProducts] = useState<{ uid: string; name: string; variant: string; quantity: number; price: number }[]>([]);
+  const [totalInput, setTotalInput] = useState("0");
+  const [totalEdited, setTotalEdited] = useState(false);
+
   const [selectedProductUid, setSelectedProductUid] = useState("");
   const [productQty, setProductQty] = useState(1);
   const [productPrice, setProductPrice] = useState(0);
@@ -43,7 +60,6 @@ function CreateOrderContent() {
   const { data: brandProducts } = useQuery({
     queryKey: ["products", clientId],
     queryFn: async () => {
-      // products filtered by client via /api/products?clientId=
       const res = await fetch(`/api/products?clientId=${clientId}`);
       if (!res.ok) return { items: [] };
       return res.json();
@@ -59,13 +75,13 @@ function CreateOrderContent() {
   });
   const verifiedList = custLookup?.addressList || [];
 
-  // Prefill from source order
   useEffect(() => {
     if (!from) return;
     const [m, id] = from.split("/");
     fetch(`/api/orders/${m}/${id}`).then((r) => r.json()).then((d) => {
       const o = d.order;
       if (!o) return;
+      setSource(m === "integration" ? "integration" : "turuq");
       setClientId(String(o.clientId?._id || o.clientId));
       if (m === "turuq") setCustomerName(o.customerName || "");
       else setCustomerName(`${o.customerFirstName || ""} ${o.customerLastName || ""}`.trim());
@@ -77,12 +93,19 @@ function CreateOrderContent() {
       setShippingHandledBy(o.shippingHandledBy || "CUSTOMER");
       setCanOpenPackage(!!o.canOpenPackage);
       setNotes(o.notes || "");
-      if (mode === "same") {
+      setSpecialHandling(o.specialHandling || "none");
+      if (mode === "same" || mode === "edit") {
         setProducts((o.products || []).map((p: any) => ({ uid: p.uid, name: p.name, variant: p.variant, quantity: p.quantity, price: p.price })));
       } else if (mode === "exchange") {
-        // Support picks products with problems; start empty, let them add
         setProducts([]);
       }
+      const loadedProducts = (o.products || []).map((p: any) => ({ uid: p.uid, name: p.name, variant: p.variant, quantity: p.quantity, price: p.price }));
+      const loadedSubtotal = loadedProducts.reduce((s: number, p: any) => s + p.price * p.quantity, 0);
+      const loadedHandler = (o.shippingHandledBy || "CUSTOMER");
+      const loadedShipping = loadedHandler === "TURUQ" ? 0 : (o.shippingFees ?? defaultShippingFee(o.customerGovernorate || ""));
+      const loadedTotal = (o.paymentStatus || "UNPAID") === "PAID" ? 0 : computeTotal(loadedSubtotal, loadedShipping, loadedHandler);
+      setTotalInput(String(loadedTotal));
+      setTotalEdited(false);
     });
   }, [from, mode]);
 
@@ -91,7 +114,15 @@ function CreateOrderContent() {
     if (shippingHandledBy === "TURUQ") return 0;
     return defaultShippingFee(customerGovernorate);
   }, [shippingHandledBy, customerGovernorate]);
-  const total = useMemo(() => computeTotal(subtotal, shippingFees, shippingHandledBy), [subtotal, shippingFees, shippingHandledBy]);
+  const computedTotal = useMemo(() => (paymentStatus === "PAID" ? 0 : computeTotal(subtotal, shippingFees, shippingHandledBy)), [subtotal, shippingFees, shippingHandledBy, paymentStatus]);
+  const total = isEdit ? (totalInput === "" ? 0 : Number(totalInput)) : computedTotal;
+
+  useEffect(() => {
+    if (!isEdit) return;
+    if (!totalEdited) {
+      setTotalInput(String(computedTotal));
+    }
+  }, [computedTotal, isEdit, totalEdited]);
 
   function addProduct() {
     const pr = availProducts.find((p: any) => p.uid === selectedProductUid);
@@ -106,7 +137,64 @@ function CreateOrderContent() {
     setProducts((prev) => prev.filter((_, idx) => idx !== i));
   }
 
+  function updateProductQty(i: number, qty: number) {
+    setProducts((prev) => prev.map((p, idx) => idx === i ? { ...p, quantity: Math.max(1, qty) } : p));
+  }
+
+  function updateProductPrice(i: number, price: number) {
+    setProducts((prev) => prev.map((p, idx) => idx === i ? { ...p, price: Math.max(0, price) } : p));
+  }
+
+  function clearForm() {
+    setSource("turuq");
+    setClientId("");
+    setOrderType("NORMAL");
+    setCustomerName("");
+    setCustomerPhone("");
+    setCustomerGovernorate("");
+    setCustomerAddress("");
+    setPaymentMethod("CASH");
+    setPaymentStatus("UNPAID");
+    setShippingHandledBy("CUSTOMER");
+    setCanOpenPackage(false);
+    setSpecialHandling("none");
+    setNotes("");
+    setProducts([]);
+    setSelectedProductUid("");
+    setProductQty(1);
+    setProductPrice(0);
+  }
+
   async function submit() {
+    if (isEdit && from) {
+      const [editModel, editId] = from.split("/");
+      const body: any = {
+        customerPhone,
+        customerGovernorate,
+        customerAddress,
+        products,
+        paymentMethod,
+        paymentStatus,
+        shippingHandledBy,
+        notes,
+        subtotal,
+        shippingFees,
+        total,
+        specialHandling,
+      };
+      if (editModel === "turuq") body.customerName = customerName;
+      else {
+        const parts = customerName.split(" ");
+        body.customerFirstName = parts[0] || "";
+        body.customerLastName = parts.slice(1).join(" ") || "";
+      }
+      const res = await fetch(`/api/orders/${editModel}/${editId}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      const data = await res.json();
+      if (!res.ok) { toast.error("Update failed", { description: data.error }); return; }
+      toast.success("Order updated");
+      router.push(`/orders/${editModel}/${editId}`);
+      return;
+    }
     const body = {
       clientId,
       customerName,
@@ -121,157 +209,430 @@ function CreateOrderContent() {
       notes,
       subtotal,
       shippingFees,
-      type: mode === "exchange" ? "EXCHANGE" : "NORMAL",
-      specialHandling: from ? "replacement" : "none",
+      total,
+      type: orderType,
+      source,
+      specialHandling: from ? "replacement" : specialHandling,
     };
     const res = await fetch("/api/orders", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     const data = await res.json();
     if (!res.ok) { toast.error("Failed", { description: data.error }); return; }
     toast.success("Order created", { description: data.oid });
-    router.push(`/orders/turuq/${data.id}`);
+    router.push(`/orders/${source}/${data.id}`);
   }
 
   const selectedClient = clients.find((c: any) => c.id === clientId);
 
+  const SectionHeader = ({ icon: Icon, title, badge }: any) => (
+    <div className="bg-primary text-white px-5 py-3.5 flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        <Icon className="w-5 h-5 text-secondary" />
+        <h2 className="text-xs font-black uppercase tracking-widest">{title}</h2>
+      </div>
+      {badge}
+    </div>
+  );
+
+  const FieldLabel = ({ children }: { children: React.ReactNode }) => (
+    <label className="text-[10px] font-black uppercase tracking-widest text-primary/80 block mb-1.5">{children}</label>
+  );
+
+  const StyledSelect = ({ value, onChange, options }: { value: string; onChange: (v: string) => void; options: string[] }) => (
+    <div className="relative">
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full appearance-none bg-surface-50 border border-surface-200 rounded-xl text-xs font-extrabold uppercase pl-3.5 pr-8 py-2.5 text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus:border-primary cursor-pointer"
+      >
+        {options.map((o) => <option key={o} value={o}>{o}</option>)}
+      </select>
+    </div>
+  );
+
   return (
-    <div className="space-y-4 max-w-3xl">
-      <h1 className="text-2xl font-bold text-primary">Create Order {mode === "exchange" ? "(Exchange)" : ""}</h1>
+    <div className="space-y-6">
+      {/* Header */}
+      <header className="h-16 px-8 border-b-2 border-primary bg-white flex items-center justify-between -mx-4 -mt-4 mb-6">
+        <div className="flex items-center gap-4">
+          <h1 className="text-xl font-black uppercase tracking-wider text-primary flex items-center gap-2.5">
+            <Plus className="w-6 h-6 text-primary" />
+            <span>{isEdit ? "Update Order" : "Create Order"}</span>
+          </h1>
+          <span className="px-2.5 py-1 rounded-lg bg-surface-100 border border-surface-200 text-primary text-[11px] font-black uppercase tracking-wider">
+            {isEdit ? "EDIT CONSIGNMENT" : "NEW CONSIGNMENT"}
+          </span>
+        </div>
+        <div className="flex items-center gap-3">
+          {!isEdit && (
+            <Button
+              onClick={clearForm}
+              variant="outline"
+              className="px-4 py-2 rounded-xl border-surface-200 bg-surface-50 hover:bg-surface-100 text-primary text-xs font-black uppercase tracking-wider transition-colors"
+            >
+              CLEAR FORM
+            </Button>
+          )}
+          <Button
+            onClick={submit}
+            disabled={!clientId || !customerPhone || products.length === 0}
+            className="px-5 py-2 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-md transition-all"
+          >
+            <CheckCircle className="w-4 h-4 text-secondary" />
+            <span>{isEdit ? "UPDATE ORDER" : "CREATE ORDER"}</span>
+          </Button>
+        </div>
+      </header>
 
-      <Card>
-        <CardHeader><CardTitle>Brand</CardTitle></CardHeader>
-        <CardContent>
-          <Select value={clientId} onValueChange={(v) => setClientId(v ?? "")}>
-            <SelectTrigger><SelectValue placeholder="Select brand..." /></SelectTrigger>
-            <SelectContent>
-              {clients.map((c: any) => <SelectItem key={c.id} value={c.id}>{c.companyName}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader><CardTitle>Customer</CardTitle></CardHeader>
-        <CardContent className="space-y-3">
-          <div>
-            <Label className="text-xs font-bold">Name</Label>
-            <Input value={customerName} onChange={(e) => setCustomerName(e.target.value)} />
-          </div>
-          <div>
-            <Label className="text-xs font-bold">Phone</Label>
-            <Input value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} />
-          </div>
-          <div>
-            <Label className="text-xs font-bold">Governorate</Label>
-            <Input value={customerGovernorate} onChange={(e) => setCustomerGovernorate(e.target.value)} />
-          </div>
-          <div>
-            <Label className="text-xs font-bold">Address</Label>
-            <Textarea value={customerAddress} onChange={(e) => setCustomerAddress(e.target.value)} />
-            {verifiedList.length > 0 && (
-              <div className="mt-2 space-y-1">
-                <div className="text-xs text-slate-500">Verified address suggestions (click to apply):</div>
-                {verifiedList
-                  .sort((a: any, b: any) => (a.governorate === customerGovernorate ? -1 : 1))
-                  .map((v: any) => (
-                    <Button key={v.id} size="sm" variant="outline" className="mr-2" onClick={() => { setCustomerAddress(v.address); if (v.governorate) setCustomerGovernorate(v.governorate); }}>
-                      {v.address} {v.governorate === customerGovernorate ? "(same gov)" : ""}
-                    </Button>
-                  ))}
+      <div className="grid grid-cols-12 gap-6 items-start">
+        {/* Left column */}
+        <div className="col-span-12 lg:col-span-7 space-y-6">
+          {/* Brand */}
+          <section className={`border-2 border-primary rounded-2xl bg-white overflow-hidden shadow-sm ${isEdit ? "opacity-70" : ""}`}>
+            <SectionHeader icon={Building2} title="Brand" />
+            <div className="p-5 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <FieldLabel>SELECT BRAND</FieldLabel>
+                <div className="relative">
+                  <select
+                    value={clientId}
+                    disabled={isEdit}
+                    onChange={(e) => setClientId(e.target.value)}
+                    className="w-full appearance-none bg-surface-50 border border-surface-200 rounded-xl text-xs font-extrabold uppercase pl-3.5 pr-8 py-2.5 text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus:border-primary cursor-pointer disabled:cursor-not-allowed disabled:opacity-70"
+                  >
+                    <option value="">Select brand</option>
+                    {clients.map((c: any) => <option key={c.id} value={c.id}>{c.companyName}</option>)}
+                  </select>
+                </div>
               </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+              <div>
+                <FieldLabel>SOURCE</FieldLabel>
+                <select
+                  value={source}
+                  disabled={isEdit}
+                  onChange={(e) => setSource(e.target.value as any)}
+                  className="w-full appearance-none bg-surface-50 border border-surface-200 rounded-xl text-xs font-extrabold uppercase pl-3.5 pr-8 py-2.5 text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus:border-primary cursor-pointer disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {["turuq", "integration"].map((o) => <option key={o} value={o}>{o}</option>)}
+                </select>
+              </div>
+              {source === "turuq" && (
+                <div>
+                  <FieldLabel>ORDER TYPE</FieldLabel>
+                  <select
+                    value={orderType}
+                    disabled={isEdit}
+                    onChange={(e) => setOrderType(e.target.value)}
+                    className="w-full appearance-none bg-surface-50 border border-surface-200 rounded-xl text-xs font-extrabold uppercase pl-3.5 pr-8 py-2.5 text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus:border-primary cursor-pointer disabled:cursor-not-allowed disabled:opacity-70"
+                  >
+                    {["NORMAL", "EXCHANGE", "REFUND", "PROMOTIONAL"].map((o) => <option key={o} value={o}>{o}</option>)}
+                  </select>
+                </div>
+              )}
+            </div>
+          </section>
 
-      <Card>
-        <CardHeader><CardTitle>Products</CardTitle></CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex gap-2 items-end flex-wrap">
-            <div className="flex-1 min-w-[200px]">
-              <Label className="text-xs font-bold">Product</Label>
-              <Select value={selectedProductUid} onValueChange={(v) => { setSelectedProductUid(v ?? ""); const pr = availProducts.find((p: any) => p.uid === v); if (pr) setProductPrice(pr.unitPrice); }}>
-                <SelectTrigger><SelectValue placeholder="Select product" /></SelectTrigger>
-                <SelectContent>
-                  {availProducts.map((p: any) => <SelectItem key={p.uid} value={p.uid}>{p.itemDescription} ({p.color}/{p.size})</SelectItem>)}
-                </SelectContent>
-              </Select>
+          {/* Customer */}
+          <section className="border-2 border-primary rounded-2xl bg-white overflow-hidden shadow-sm">
+            <SectionHeader icon={User} title="Customer" />
+            <div className="p-5 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <FieldLabel>CUSTOMER NAME</FieldLabel>
+                  <Input value={customerName} onChange={(e: any) => setCustomerName(e.target.value)} className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-black text-primary focus-visible:ring-primary focus:border-primary focus:bg-white" />
+                </div>
+                <div>
+                  <FieldLabel>PHONE NUMBER</FieldLabel>
+                  <Input value={customerPhone} onChange={(e: any) => setCustomerPhone(e.target.value)} className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-black text-primary focus-visible:ring-primary focus:border-primary focus:bg-white mono-num text-primary" />
+                </div>
+                <div>
+                  <FieldLabel>STREET ADDRESS</FieldLabel>
+                  <Input value={customerAddress} onChange={(e: any) => setCustomerAddress(e.target.value)} className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-black text-primary focus-visible:ring-primary focus:border-primary focus:bg-white" />
+                </div>
+                <div>
+                  <FieldLabel>GOVERNORATE</FieldLabel>
+                  <div className="relative">
+                    <select
+                      value={customerGovernorate}
+                      onChange={(e) => setCustomerGovernorate(e.target.value)}
+                      className="w-full appearance-none bg-surface-50 border border-surface-200 rounded-xl text-xs font-extrabold uppercase pl-3.5 pr-8 py-2.5 text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus:border-primary cursor-pointer"
+                    >
+                      <option value="">Select governorate</option>
+                      {Object.keys(GOVERNORATE_DEFAULT_SHIPPING).map((g) => (
+                        <option key={g} value={g}>{g}</option>
+                      ))}
+                      <option value="OTHER">OTHER (DEFAULT FEE)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              {verifiedList.length > 0 && (
+                <div className="bg-surface-50 p-4 rounded-xl border border-surface-200 space-y-2.5">
+                  <div className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-1.5">
+                    <Verified className="w-4 h-4 text-thumbnail" />
+                    <span>VERIFIED ADDRESS SUGGESTIONS (CLICK TO APPLY):</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {verifiedList
+                      .sort((a: any, b: any) => (a.governorate === customerGovernorate ? -1 : 1))
+                      .map((v: any, i: number) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => { setCustomerAddress(v.address); if (v.governorate) setCustomerGovernorate(v.governorate); }}
+                          className={`px-3 py-1.5 rounded-lg border text-[11px] font-black uppercase tracking-wide transition-colors ${
+                            v.governorate === customerGovernorate
+                              ? "border-primary bg-white hover:bg-primary hover:text-white text-primary"
+                              : "border-surface-200 bg-white hover:border-primary text-primary"
+                          }`}
+                        >
+                          {v.address}{v.governorate ? `, ${v.governorate}` : ""}
+                        </button>
+                      ))}
+                  </div>
+                </div>
+              )}
             </div>
-            <div>
-              <Label className="text-xs font-bold">Qty</Label>
-              <Input type="number" className="w-20" value={productQty} onChange={(e) => setProductQty(parseInt(e.target.value) || 1)} />
-            </div>
-            <div>
-              <Label className="text-xs font-bold">Price</Label>
-              <Input type="number" className="w-24" value={productPrice} onChange={(e) => setProductPrice(parseFloat(e.target.value) || 0)} />
-            </div>
-            <Button onClick={addProduct}>Add</Button>
-          </div>
-          <ul className="space-y-1">
-            {products.map((p, i) => (
-              <li key={i} className="flex items-center justify-between border rounded p-2 text-sm">
-                <span>{p.name} {p.variant} × {p.quantity} @ {p.price}</span>
-                <Button size="sm" variant="ghost" onClick={() => removeProduct(i)}>Remove</Button>
-              </li>
-            ))}
-          </ul>
-        </CardContent>
-      </Card>
+          </section>
 
-      <Card>
-        <CardHeader><CardTitle>Payment & shipping</CardTitle></CardHeader>
-        <CardContent className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label className="text-xs font-bold">Payment method</Label>
-              <Select value={paymentMethod} onValueChange={(v) => setPaymentMethod(v ?? "CASH")}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {["CASH","INSTAPAY","VISA","FLASH"].map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label className="text-xs font-bold">Payment status</Label>
-              <Select value={paymentStatus} onValueChange={(v) => setPaymentStatus(v ?? "UNPAID")}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {["PAID","UNPAID"].map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <div>
-            <Label className="text-xs font-bold">Shipping handled by</Label>
-            <Select value={shippingHandledBy} onValueChange={(v) => setShippingHandledBy(v ?? "CUSTOMER")}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {["CUSTOMER","BRAND","TURUQ"].map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={canOpenPackage} onChange={(e) => setCanOpenPackage(e.target.checked)} />
-            Can open package
-          </label>
-          <div>
-            <Label className="text-xs font-bold">Notes</Label>
-            <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} />
-          </div>
-        </CardContent>
-      </Card>
+          {/* Products */}
+          <section className="border-2 border-primary rounded-2xl bg-white overflow-hidden shadow-sm">
+            <SectionHeader
+              icon={Package}
+              title="Products"
+              badge={<span className="px-2.5 py-0.5 rounded bg-white text-primary text-[10px] font-black uppercase mono-num">{products.length} ITEMS</span>}
+            />
+            <div className="p-5 space-y-4">
+              <div className="bg-surface-50 p-3.5 rounded-xl border border-surface-200 grid grid-cols-12 gap-2.5 items-end">
+                <div className="col-span-12 md:col-span-6">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-primary/80 block mb-1">SELECT BRAND PRODUCT</label>
+                  <div className="relative">
+                    <select
+                      value={selectedProductUid}
+                      onChange={(e) => {
+                        const uid = e.target.value;
+                        setSelectedProductUid(uid);
+                        const pr = availProducts.find((p: any) => p.uid === uid);
+                        if (pr) setProductPrice(pr.unitPrice);
+                      }}
+                      className="w-full appearance-none bg-white border border-surface-200 rounded-xl text-xs font-extrabold uppercase pl-3 pr-8 py-2 text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus:border-primary cursor-pointer"
+                    >
+                      <option value="">Select product</option>
+                      {availProducts.map((p: any) => (
+                        <option key={p.uid} value={p.uid}>{p.itemDescription} ({p.color}/{p.size})</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div className="col-span-4 md:col-span-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-primary/80 block mb-1">QTY</label>
+                  <Input
+                    type="number"
+                    min={1}
+                    value={productQty}
+                    onChange={(e) => setProductQty(parseInt(e.target.value) || 1)}
+                    className="w-full px-2.5 py-2 bg-white border border-surface-200 rounded-xl text-xs font-black mono-num text-primary text-center focus-visible:ring-primary focus:border-primary"
+                  />
+                </div>
+                <div className="col-span-4 md:col-span-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-primary/80 block mb-1">PRICE</label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={productPrice}
+                    onChange={(e) => setProductPrice(parseFloat(e.target.value) || 0)}
+                    className="w-full px-2.5 py-2 bg-white border border-surface-200 rounded-xl text-xs font-black mono-num text-primary text-center focus-visible:ring-primary focus:border-primary"
+                  />
+                </div>
+                <div className="col-span-4 md:col-span-2">
+                  <Button
+                    onClick={addProduct}
+                    disabled={!selectedProductUid}
+                    className="w-full py-2 px-3 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1 shadow-sm transition-colors"
+                  >
+                    <Plus className="w-4 h-4 text-secondary" />
+                    <span>ADD</span>
+                  </Button>
+                </div>
+              </div>
 
-      <Card>
-        <CardHeader><CardTitle>Totals</CardTitle></CardHeader>
-        <CardContent className="text-sm space-y-1">
-          <div>Subtotal: {subtotal}</div>
-          <div>Shipping: {shippingFees}</div>
-          <div className="font-bold">Total: {total}</div>
-        </CardContent>
-      </Card>
+              <div className="space-y-2.5">
+                {products.map((p, i) => (
+                  <div key={i} className="flex items-center justify-between p-3.5 rounded-xl bg-surface-50 border border-surface-200 gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="text-xs font-black uppercase text-primary-950 truncate">{p.name}</div>
+                      <div className="text-[11px] font-extrabold uppercase text-primary/75 mt-0.5 mono-num">{p.variant}</div>
+                    </div>
+                    {isEdit ? (
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="number"
+                          min={1}
+                          value={p.quantity}
+                          onChange={(e) => updateProductQty(i, parseInt(e.target.value) || 1)}
+                          className="w-16 px-2 py-1.5 bg-white border border-surface-200 rounded-xl text-xs font-black mono-num text-primary text-center"
+                        />
+                        <Input
+                          type="number"
+                          min={0}
+                          value={p.price}
+                          onChange={(e) => updateProductPrice(i, parseFloat(e.target.value) || 0)}
+                          className="w-20 px-2 py-1.5 bg-white border border-surface-200 rounded-xl text-xs font-black mono-num text-primary text-center"
+                        />
+                        <span className="text-sm font-black mono-num text-primary w-16 text-right">{p.price * p.quantity}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeProduct(i)}
+                          className="text-rose-700 hover:text-rose-900 p-1"
+                          aria-label="Remove product"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-black mono-num text-primary">{p.price * p.quantity}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeProduct(i)}
+                          className="text-rose-700 hover:text-rose-900 p-1"
+                          aria-label="Remove product"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        </div>
 
-      <div className="flex gap-2">
-        <Button onClick={submit}>Create order</Button>
-        <Button variant="outline" onClick={() => router.back()}>Cancel</Button>
+        {/* Right column */}
+        <div className="col-span-12 lg:col-span-5 space-y-6">
+          {/* Payment & Shipping */}
+          <section className="border-2 border-primary rounded-2xl bg-white overflow-hidden shadow-sm">
+            <SectionHeader icon={CreditCard} title="Payment & Shipping" />
+            <div className="p-5 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <FieldLabel>PAYMENT METHOD</FieldLabel>
+                  <StyledSelect value={paymentMethod} onChange={setPaymentMethod} options={["CASH", "INSTAPAY", "VISA", "FLASH"]} />
+                </div>
+                <div>
+                  <FieldLabel>PAYMENT STATUS</FieldLabel>
+                  <StyledSelect value={paymentStatus} onChange={setPaymentStatus} options={["UNPAID", "PAID"]} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <FieldLabel>SHIPPING HANDLER</FieldLabel>
+                  <StyledSelect value={shippingHandledBy} onChange={setShippingHandledBy} options={["CUSTOMER", "BRAND", "TURUQ"]} />
+                </div>
+                <div>
+                  <FieldLabel>SHIPPING FEE</FieldLabel>
+                  <Input
+                    type="number"
+                    value={shippingFees}
+                    readOnly
+                    className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-black mono-num text-primary focus:outline-none cursor-not-allowed"
+                  />
+                </div>
+              </div>
+              <label className={`flex items-center justify-between p-3.5 rounded-xl bg-surface-50 border border-surface-200 transition-colors ${isEdit ? "opacity-60 cursor-not-allowed" : "cursor-pointer hover:border-primary/50"}`}>
+                <div>
+                  <span className="text-xs font-black uppercase text-primary-950 block">CAN OPEN PACKAGE</span>
+                  <span className="text-[10px] font-bold uppercase text-primary/70">ALLOW CUSTOMER INSPECTION ON DELIVERY</span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={canOpenPackage}
+                  disabled={isEdit}
+                  onChange={(e) => setCanOpenPackage(e.target.checked)}
+                  className="w-5 h-5 rounded accent-primary cursor-pointer disabled:cursor-not-allowed"
+                />
+              </label>
+              <div>
+                <FieldLabel>SPECIAL HANDLING</FieldLabel>
+                <StyledSelect value={specialHandling} onChange={setSpecialHandling} options={["none", "VIP", "replacement", "urgent"]} />
+              </div>
+              <div>
+                <FieldLabel>NOTE</FieldLabel>
+                <Textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  rows={3}
+                  placeholder="Add delivery instructions or order notes..."
+                  className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-semibold placeholder:text-primary/50 text-primary focus-visible:ring-primary focus:border-primary focus:bg-white resize-y"
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* Totals */}
+          {isEdit ? (
+            <section className="border-2 border-primary rounded-2xl bg-white overflow-hidden shadow-xl">
+              <SectionHeader icon={Receipt} title="Totals" />
+              <div className="p-5 space-y-3.5">
+                <div>
+                  <FieldLabel>SUBTOTAL</FieldLabel>
+                  <div className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-black mono-num text-primary flex items-center justify-between">
+                    <span>{subtotal}</span>
+                  </div>
+                </div>
+                <div>
+                  <FieldLabel>SHIPPING</FieldLabel>
+                  <div className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-black mono-num text-primary flex items-center justify-between">
+                    <span>{shippingFees}</span>
+                  </div>
+                </div>
+                <div className="pt-3 border-t-2 border-primary">
+                  <FieldLabel>TOTAL (+ / -)</FieldLabel>
+                  <Input
+                    type="number"
+                    value={totalInput}
+                    onChange={(e) => { setTotalInput(e.target.value); setTotalEdited(true); }}
+                    className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-sm font-black mono-num text-primary focus-visible:ring-primary focus:border-primary"
+                  />
+                </div>
+                <Button
+                  onClick={submit}
+                  disabled={!customerPhone || products.length === 0}
+                  className="w-full mt-2 py-3 px-4 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-md transition-all"
+                >
+                  <CheckCircle className="w-4 h-4 text-secondary" />
+                  <span>UPDATE ORDER</span>
+                </Button>
+              </div>
+            </section>
+          ) : (
+            <section className="border-2 border-primary rounded-2xl bg-white overflow-hidden shadow-xl">
+              <SectionHeader icon={Receipt} title="Totals" />
+              <div className="p-5 space-y-3.5">
+                <div className="flex items-center justify-between text-xs font-bold uppercase text-primary/85">
+                  <span>SUBTOTAL</span>
+                  <span className="font-black mono-num text-primary-950">{subtotal}</span>
+                </div>
+                <div className="flex items-center justify-between text-xs font-bold uppercase text-primary/85">
+                  <span>SHIPPING</span>
+                  <span className="font-black mono-num text-primary-950">{shippingFees}</span>
+                </div>
+                <div className="pt-3.5 border-t-2 border-primary flex items-center justify-between">
+                  <span className="text-sm font-black uppercase tracking-wider text-primary">TOTAL</span>
+                  <span className="text-2xl font-black mono-num text-primary">{total}</span>
+                </div>
+                <Button
+                  onClick={submit}
+                  disabled={!clientId || !customerPhone || products.length === 0}
+                  className="w-full mt-2 py-3 px-4 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-md transition-all"
+                >
+                  <Plus className="w-4 h-4 text-secondary" />
+                  <span>SUBMIT & CREATE ORDER</span>
+                </Button>
+              </div>
+            </section>
+          )}
+        </div>
       </div>
     </div>
   );

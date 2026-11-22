@@ -1,0 +1,627 @@
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Turuq Create Order</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            accent: '#032486',
+            secondary_accent: '#38cbfc',
+            'primary-950': '#03256c',
+            'primary-500': '#008bff',
+            'secondary-500': '#06bee1',
+            'secondary-950': '#083244',
+            thumbnail: '#42c7b8',
+            surface: {
+              50: '#F4F8FC',
+              100: '#E7F0F9',
+              200: '#CDE1F3',
+            }
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 600, 'GRAD' 0, 'opsz' 20;
+    }
+    .mono-num {
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F0F4F8;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #B5C8DC;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #86A7C6;
+    }
+  </style>
+</head>
+<body class="bg-surface-50 text-primary-950 font-sans antialiased min-h-[1024px] flex" data-stitch-vh="min-h-[1024px]===min-h-screen">
+
+  <!-- ==================== SIDEBAR ==================== -->
+  <aside class="w-64 bg-primary-950 text-white min-h-[1024px] flex flex-col border-r border-secondary-950 flex-shrink-0 select-none" data-stitch-vh="min-h-[1024px]===min-h-screen">
+
+    <!-- Brand / Platform Header -->
+    <div class="h-16 px-6 flex items-center justify-between border-b border-white/15 bg-accent">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-white text-accent flex items-center justify-center font-black tracking-tight shadow-md">
+          <span class="text-base tracking-tighter">TQ</span>
+        </div>
+        <div>
+          <span class="text-base font-black tracking-wider uppercase text-white block leading-none">TURUQ</span>
+          <span class="text-[10px] font-extrabold uppercase tracking-widest text-secondary_accent mt-1 block">LOGISTICS OS</span>
+        </div>
+      </div>
+      <span class="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-thumbnail text-primary-950">
+        LIVE
+      </span>
+    </div>
+
+    <!-- Navigation Groups -->
+    <div class="flex-1 px-3 py-4 space-y-6 overflow-y-auto">
+
+      <!-- Core Management -->
+      <div>
+        <div class="px-3 mb-2 text-[10px] font-black uppercase tracking-widest text-secondary_accent">
+          CORE OPERATIONS
+        </div>
+        <nav class="space-y-1">
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">dashboard</span>
+            <span>DASHBOARD</span>
+          </a>
+          <a href="#" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-lg">local_shipping</span>
+              <span>ORDERS</span>
+            </div>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-white/15 text-white mono-num">
+              33
+            </span>
+          </a>
+          <a href="#" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-lg">history_toggle_off</span>
+              <span>STALE ORDERS</span>
+            </div>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-white/15 text-white mono-num">
+              11
+            </span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">search</span>
+            <span>QUICK LOOKUP</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">person_search</span>
+            <span>CUSTOMER LOOKUP</span>
+          </a>
+          <a href="#" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-lg">corporate_fare</span>
+              <span>CLIENTS</span>
+            </div>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-white/15 text-white mono-num">
+              6
+            </span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- Actions & Fulfillment -->
+      <div>
+        <div class="px-3 mb-2 text-[10px] font-black uppercase tracking-widest text-secondary_accent">
+          FULFILLMENT &amp; TASKS
+        </div>
+        <nav class="space-y-1">
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-black text-white bg-accent shadow-sm border border-secondary_accent/40 uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg text-secondary_accent">add_box</span>
+            <span>CREATE ORDER</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">cancel_presentation</span>
+            <span>CANCELLATION REVIEW</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">layers</span>
+            <span>DROPOFF BATCHES</span>
+          </a>
+          <a href="#" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-lg text-amber-300">notifications_active</span>
+              <span>ALERTS</span>
+            </div>
+            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- Utilities -->
+      <div>
+        <div class="px-3 mb-2 text-[10px] font-black uppercase tracking-widest text-secondary_accent">
+          SYSTEM &amp; UTILITIES
+        </div>
+        <nav class="space-y-1">
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">sticky_note_2</span>
+            <span>MY NOTES</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">science</span>
+            <span>PROTOTYPE SIMULATOR</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">headset_mic</span>
+            <span>SUPPORT</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">account_circle</span>
+            <span>MY ACCOUNT</span>
+          </a>
+        </nav>
+      </div>
+
+    </div>
+
+    <!-- User / Operator Card in Sidebar Footer -->
+    <div class="p-3.5 border-t border-white/15 bg-secondary-950">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-accent text-white flex items-center justify-center font-bold text-xs uppercase border border-secondary_accent/40">
+            TS
+          </div>
+          <div>
+            <div class="text-xs font-bold text-white uppercase tracking-wider">TURUQ SUPPORT</div>
+            <div class="text-[10px] font-semibold text-thumbnail uppercase tracking-widest">DISPATCH ACTIVE</div>
+          </div>
+        </div>
+        <button class="text-white/80 hover:text-white transition-colors">
+          <span class="material-symbols-outlined text-base">more_vert</span>
+        </button>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="flex-1 min-w-0 flex flex-col bg-surface-50">
+
+    <!-- Top Action / Context Header -->
+    <header class="h-16 px-8 border-b-2 border-accent bg-white flex items-center justify-between flex-shrink-0">
+      <div class="flex items-center gap-4">
+        <h1 class="text-xl font-black uppercase tracking-wider text-accent flex items-center gap-2.5">
+          <span class="material-symbols-outlined text-2xl text-accent">add_box</span>
+          <span>CREATE ORDER</span>
+        </h1>
+        <span class="px-2.5 py-1 rounded-lg bg-surface-100 border border-surface-200 text-accent text-[11px] font-black uppercase tracking-wider">
+          NEW CONSIGNMENT
+        </span>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button type="button" class="px-4 py-2 rounded-xl border border-surface-200 bg-surface-50 hover:bg-surface-100 text-primary-950 text-xs font-black uppercase tracking-wider transition-colors">
+          CLEAR FORM
+        </button>
+        <button type="button" class="px-5 py-2 rounded-xl bg-accent hover:bg-primary-950 text-white text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-md transition-all">
+          <span class="material-symbols-outlined text-sm text-secondary_accent">check_circle</span>
+          <span>CREATE ORDER</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Content Workspace Area -->
+    <div class="p-8 space-y-6 flex-1 overflow-x-hidden">
+
+      <div class="grid grid-cols-12 gap-6 items-start">
+
+        <!-- ==================== LEFT COLUMN (7 COLS) ==================== -->
+        <div class="col-span-7 space-y-6">
+
+          <!-- 1. Brand Section -->
+          <section class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+            <div class="bg-accent text-white px-5 py-3.5 flex items-center gap-2">
+              <span class="material-symbols-outlined text-secondary_accent text-lg">corporate_fare</span>
+              <h2 class="text-xs font-black uppercase tracking-widest">BRAND</h2>
+            </div>
+
+            <div class="p-5 grid grid-cols-3 gap-4">
+              <div class="col-span-1">
+                <label for="order-brand" class="text-[10px] font-black uppercase tracking-widest text-primary-950/80 block mb-1.5">SELECT BRAND</label>
+                <div class="relative">
+                  <select id="order-brand" class="w-full appearance-none bg-surface-50 border border-surface-200 rounded-xl text-xs font-extrabold uppercase pl-3.5 pr-8 py-2.5 text-primary-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus:border-accent cursor-pointer">
+                    <option>BABY CORNER</option>
+                    <option>DESERT BLOOM</option>
+                    <option>NILE WEAR</option>
+                    <option>GLOW COSMETICS</option>
+                    <option>CAIRO HOME</option>
+                    <option>TECH SOUK</option>
+                  </select>
+                  <span class="material-symbols-outlined absolute right-2.5 top-2.5 text-primary-950/80 pointer-events-none text-base">expand_more</span>
+                </div>
+              </div>
+
+              <div class="col-span-1">
+                <label for="order-source" class="text-[10px] font-black uppercase tracking-widest text-primary-950/80 block mb-1.5">SOURCE</label>
+                <div class="relative">
+                  <select id="order-source" class="w-full appearance-none bg-surface-50 border border-surface-200 rounded-xl text-xs font-extrabold uppercase pl-3.5 pr-8 py-2.5 text-primary-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus:border-accent cursor-pointer">
+                    <option>TURUQ</option>
+                    <option>INTEGRATION</option>
+                  </select>
+                  <span class="material-symbols-outlined absolute right-2.5 top-2.5 text-primary-950/80 pointer-events-none text-base">expand_more</span>
+                </div>
+              </div>
+
+              <div class="col-span-1">
+                <label for="order-type" class="text-[10px] font-black uppercase tracking-widest text-primary-950/80 block mb-1.5">ORDER TYPE</label>
+                <div class="relative">
+                  <select id="order-type" class="w-full appearance-none bg-surface-50 border border-surface-200 rounded-xl text-xs font-extrabold uppercase pl-3.5 pr-8 py-2.5 text-primary-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus:border-accent cursor-pointer">
+                    <option>NORMAL</option>
+                    <option>FLASH</option>
+                    <option>EXCHANGE</option>
+                    <option>REFUND</option>
+                  </select>
+                  <span class="material-symbols-outlined absolute right-2.5 top-2.5 text-primary-950/80 pointer-events-none text-base">expand_more</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 2. Customer Section -->
+          <section class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+            <div class="bg-accent text-white px-5 py-3.5 flex items-center gap-2">
+              <span class="material-symbols-outlined text-secondary_accent text-lg">person</span>
+              <h2 class="text-xs font-black uppercase tracking-widest">CUSTOMER</h2>
+            </div>
+
+            <div class="p-5 space-y-4">
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label for="cust-name" class="text-[10px] font-black uppercase tracking-widest text-primary-950/80 block mb-1.5">CUSTOMER NAME</label>
+                  <input id="cust-name" type="text" value="OMAR KHALED" class="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-black uppercase text-primary-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus:border-accent focus:bg-white">
+                </div>
+                <div>
+                  <label for="cust-phone" class="text-[10px] font-black uppercase tracking-widest text-primary-950/80 block mb-1.5">PHONE NUMBER</label>
+                  <input id="cust-phone" type="text" value="01210000411" class="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-black uppercase mono-num text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus:border-accent focus:bg-white">
+                </div>
+                <div>
+                  <label for="cust-address" class="text-[10px] font-black uppercase tracking-widest text-primary-950/80 block mb-1.5">STREET ADDRESS</label>
+                  <input id="cust-address" type="text" value="7 SMOUHA STREET" class="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-black uppercase text-primary-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus:border-accent focus:bg-white">
+                </div>
+                <div>
+                  <label for="cust-gov" class="text-[10px] font-black uppercase tracking-widest text-primary-950/80 block mb-1.5">GOVERNORATE</label>
+                  <div class="relative">
+                    <select id="cust-gov" class="w-full appearance-none bg-surface-50 border border-surface-200 rounded-xl text-xs font-extrabold uppercase pl-3.5 pr-8 py-2.5 text-primary-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus:border-accent cursor-pointer">
+                      <option>ALEXANDRIA</option>
+                      <option>CAIRO</option>
+                      <option>GIZA</option>
+                      <option>ASYUT</option>
+                      <option>BENI SUEF</option>
+                    </select>
+                    <span class="material-symbols-outlined absolute right-2.5 top-2.5 text-primary-950/80 pointer-events-none text-base">expand_more</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Verified address suggestions (click to apply) -->
+              <div class="bg-surface-50 p-4 rounded-xl border border-surface-200 space-y-2.5">
+                <div class="text-[10px] font-black uppercase tracking-widest text-accent flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-sm text-thumbnail">verified</span>
+                  <span>VERIFIED ADDRESS SUGGESTIONS (CLICK TO APPLY):</span>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                  <button type="button" onclick="applyAddress(&#39;7 SMOUHA STREET&#39;, &#39;ALEXANDRIA&#39;)" class="px-3 py-1.5 rounded-lg border border-accent bg-white hover:bg-accent hover:text-white text-accent text-[11px] font-black uppercase tracking-wide transition-colors">
+                    7 SMOUHA STREET, ALEXANDRIA
+                  </button>
+                  <button type="button" onclick="applyAddress(&#39;18 OCTOBER 6 CITY&#39;, &#39;GIZA&#39;)" class="px-3 py-1.5 rounded-lg border border-surface-200 bg-white hover:border-accent text-primary-950 text-[11px] font-black uppercase tracking-wide transition-colors">
+                    18 OCTOBER 6 CITY, GIZA
+                  </button>
+                  <button type="button" onclick="applyAddress(&#39;NEW CAIRO&#39;, &#39;CAIRO&#39;)" class="px-3 py-1.5 rounded-lg border border-surface-200 bg-white hover:border-accent text-primary-950 text-[11px] font-black uppercase tracking-wide transition-colors">
+                    NEW CAIRO, CAIRO
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 3. Products Section -->
+          <section class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+            <div class="bg-accent text-white px-5 py-3.5 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-secondary_accent text-lg">inventory_2</span>
+                <h2 class="text-xs font-black uppercase tracking-widest">PRODUCTS</h2>
+              </div>
+              <span id="product-count-badge" class="px-2.5 py-0.5 rounded bg-white text-accent text-[10px] font-black uppercase mono-num">3 ITEMS</span>
+            </div>
+
+            <div class="p-5 space-y-4">
+
+              <!-- Add Product Builder (Selector for Brand Products + Qty + Price) -->
+              <div class="bg-surface-50 p-3.5 rounded-xl border border-surface-200 grid grid-cols-12 gap-2.5 items-end">
+                <div class="col-span-6">
+                  <label for="new-product-select" class="text-[10px] font-black uppercase tracking-widest text-primary-950/80 block mb-1">SELECT BRAND PRODUCT</label>
+                  <div class="relative">
+                    <select id="new-product-select" onchange="onSelectProduct()" class="w-full appearance-none bg-white border border-surface-200 rounded-xl text-xs font-extrabold uppercase pl-3 pr-8 py-2 text-primary-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus:border-accent cursor-pointer">
+                      <option value="HOODIE · RED/XL" data-price="450">HOODIE · RED/XL</option>
+                      <option value="T-SHIRT · WHITE/M" data-price="250">T-SHIRT · WHITE/M</option>
+                      <option value="DRESS · BEIGE/ONE SIZE" data-price="700">DRESS · BEIGE/ONE SIZE</option>
+                      <option value="JACKET · GREEN/L" data-price="1200">JACKET · GREEN/L</option>
+                      <option value="ROMPER · NAVY/S" data-price="380">ROMPER · NAVY/S</option>
+                    </select>
+                    <span class="material-symbols-outlined absolute right-2 top-2 text-primary-950/80 pointer-events-none text-base">expand_more</span>
+                  </div>
+                </div>
+
+                <div class="col-span-2">
+                  <label for="new-product-qty" class="text-[10px] font-black uppercase tracking-widest text-primary-950/80 block mb-1">QTY</label>
+                  <input id="new-product-qty" type="number" min="1" value="1" class="w-full px-2.5 py-2 bg-white border border-surface-200 rounded-xl text-xs font-black uppercase mono-num text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus:border-accent text-center">
+                </div>
+
+                <div class="col-span-2">
+                  <label for="new-product-price" class="text-[10px] font-black uppercase tracking-widest text-primary-950/80 block mb-1">PRICE</label>
+                  <input id="new-product-price" type="number" min="0" value="450" class="w-full px-2.5 py-2 bg-white border border-surface-200 rounded-xl text-xs font-black uppercase mono-num text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus:border-accent text-center">
+                </div>
+
+                <div class="col-span-2">
+                  <button type="button" onclick="addProductRow()" class="w-full py-2 px-3 rounded-xl bg-accent hover:bg-primary-950 text-white text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1 shadow-sm transition-colors">
+                    <span class="material-symbols-outlined text-sm text-secondary_accent">add</span>
+                    <span>ADD</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Selected Products List -->
+              <div id="products-list" class="space-y-2.5">
+                <!-- Item 1 -->
+                <div class="product-row flex items-center justify-between p-3.5 rounded-xl bg-surface-50 border border-surface-200" data-line-total="1350">
+                  <div>
+                    <div class="text-xs font-black uppercase text-primary-950">HOODIE</div>
+                    <div class="text-[11px] font-extrabold uppercase text-primary-950/75 mt-0.5 mono-num">RED/XL × 3 @ 450</div>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <span class="text-sm font-black mono-num text-accent">1350</span>
+                    <button type="button" onclick="removeProductRow(this)" aria-label="Remove product" class="text-rose-700 hover:text-rose-900">
+                      <span class="material-symbols-outlined text-base">delete</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Item 2 -->
+                <div class="product-row flex items-center justify-between p-3.5 rounded-xl bg-surface-50 border border-surface-200" data-line-total="750">
+                  <div>
+                    <div class="text-xs font-black uppercase text-primary-950">T-SHIRT</div>
+                    <div class="text-[11px] font-extrabold uppercase text-primary-950/75 mt-0.5 mono-num">WHITE/M × 3 @ 250</div>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <span class="text-sm font-black mono-num text-accent">750</span>
+                    <button type="button" onclick="removeProductRow(this)" aria-label="Remove product" class="text-rose-700 hover:text-rose-900">
+                      <span class="material-symbols-outlined text-base">delete</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Item 3 -->
+                <div class="product-row flex items-center justify-between p-3.5 rounded-xl bg-surface-50 border border-surface-200" data-line-total="2100">
+                  <div>
+                    <div class="text-xs font-black uppercase text-primary-950">DRESS</div>
+                    <div class="text-[11px] font-extrabold uppercase text-primary-950/75 mt-0.5 mono-num">BEIGE/ONE SIZE × 3 @ 700</div>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <span class="text-sm font-black mono-num text-accent">2100</span>
+                    <button type="button" onclick="removeProductRow(this)" aria-label="Remove product" class="text-rose-700 hover:text-rose-900">
+                      <span class="material-symbols-outlined text-base">delete</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+        </div>
+
+        <!-- ==================== RIGHT COLUMN (5 COLS) ==================== -->
+        <div class="col-span-5 space-y-6">
+
+          <!-- 4. Payment & Shipping -->
+          <section class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-sm">
+            <div class="bg-accent text-white px-5 py-3.5 flex items-center gap-2">
+              <span class="material-symbols-outlined text-secondary_accent text-lg">payments</span>
+              <h2 class="text-xs font-black uppercase tracking-widest">PAYMENT &amp; SHIPPING</h2>
+            </div>
+
+            <div class="p-5 space-y-4">
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label for="pay-method" class="text-[10px] font-black uppercase tracking-widest text-primary-950/80 block mb-1.5">PAYMENT METHOD</label>
+                  <div class="relative">
+                    <select id="pay-method" class="w-full appearance-none bg-surface-50 border border-surface-200 rounded-xl text-xs font-extrabold uppercase pl-3.5 pr-8 py-2.5 text-primary-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus:border-accent cursor-pointer">
+                      <option>COD</option>
+                      <option>VISA</option>
+                      <option>FLASH</option>
+                    </select>
+                    <span class="material-symbols-outlined absolute right-2.5 top-2.5 text-primary-950/80 pointer-events-none text-base">expand_more</span>
+                  </div>
+                </div>
+
+                <div>
+                  <label for="pay-status" class="text-[10px] font-black uppercase tracking-widest text-primary-950/80 block mb-1.5">PAYMENT STATUS</label>
+                  <div class="relative">
+                    <select id="pay-status" class="w-full appearance-none bg-surface-50 border border-surface-200 rounded-xl text-xs font-extrabold uppercase pl-3.5 pr-8 py-2.5 text-primary-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus:border-accent cursor-pointer">
+                      <option>UNPAID</option>
+                      <option>PAID</option>
+                    </select>
+                    <span class="material-symbols-outlined absolute right-2.5 top-2.5 text-primary-950/80 pointer-events-none text-base">expand_more</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label for="ship-handler" class="text-[10px] font-black uppercase tracking-widest text-primary-950/80 block mb-1.5">SHIPPING HANDLER</label>
+                  <div class="relative">
+                    <select id="ship-handler" class="w-full appearance-none bg-surface-50 border border-surface-200 rounded-xl text-xs font-extrabold uppercase pl-3.5 pr-8 py-2.5 text-primary-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus:border-accent cursor-pointer">
+                      <option>TURUQ</option>
+                      <option>BRAND</option>
+                      <option>CUSTOMER</option>
+                    </select>
+                    <span class="material-symbols-outlined absolute right-2.5 top-2.5 text-primary-950/80 pointer-events-none text-base">expand_more</span>
+                  </div>
+                </div>
+
+                <div>
+                  <label for="ship-fee" class="text-[10px] font-black uppercase tracking-widest text-primary-950/80 block mb-1.5">SHIPPING FEE</label>
+                  <input id="ship-fee" type="number" value="60" oninput="recalcTotals()" class="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-black uppercase mono-num text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus:border-accent focus:bg-white">
+                </div>
+              </div>
+
+              <!-- Can open package toggle -->
+              <label class="flex items-center justify-between p-3.5 rounded-xl bg-surface-50 border border-surface-200 cursor-pointer hover:border-accent/50 transition-colors">
+                <div>
+                  <span class="text-xs font-black uppercase text-primary-950 block">CAN OPEN PACKAGE</span>
+                  <span class="text-[10px] font-bold uppercase text-primary-950/70">ALLOW CUSTOMER INSPECTION ON DELIVERY</span>
+                </div>
+                <input type="checkbox" class="w-5 h-5 rounded accent-[#032486] cursor-pointer">
+              </label>
+
+              <div>
+                <label for="special-handling" class="text-[10px] font-black uppercase tracking-widest text-primary-950/80 block mb-1.5">SPECIAL HANDLING</label>
+                <div class="relative">
+                  <select id="special-handling" class="w-full appearance-none bg-surface-50 border border-surface-200 rounded-xl text-xs font-extrabold uppercase pl-3.5 pr-8 py-2.5 text-primary-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus:border-accent cursor-pointer">
+                    <option>NONE</option>
+                    <option>VIP</option>
+                    <option>FRAGILE</option>
+                    <option>COLD CHAIN</option>
+                    <option>URGENT</option>
+                  </select>
+                  <span class="material-symbols-outlined absolute right-2.5 top-2.5 text-primary-950/80 pointer-events-none text-base">expand_more</span>
+                </div>
+              </div>
+
+              <div>
+                <label for="order-note" class="text-[10px] font-black uppercase tracking-widest text-primary-950/80 block mb-1.5">NOTE</label>
+                <textarea id="order-note" rows="3" placeholder="Add delivery instructions or order notes..." class="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-semibold placeholder:text-primary-950/50 text-primary-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus:border-accent focus:bg-white resize-y"></textarea>
+              </div>
+            </div>
+          </section>
+
+          <!-- 5. Totals Card -->
+          <section class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-xl">
+            <div class="bg-accent text-white px-5 py-3.5 flex items-center gap-2">
+              <span class="material-symbols-outlined text-secondary_accent text-lg">receipt</span>
+              <h2 class="text-xs font-black uppercase tracking-widest">TOTALS</h2>
+            </div>
+
+            <div class="p-5 space-y-3.5">
+              <div class="flex items-center justify-between text-xs font-bold uppercase text-primary-950/85">
+                <span>SUBTOTAL</span>
+                <span id="subtotal-val" class="font-black mono-num text-primary-950">4200</span>
+              </div>
+              <div class="flex items-center justify-between text-xs font-bold uppercase text-primary-950/85">
+                <span>SHIPPING</span>
+                <span id="shipping-val" class="font-black mono-num text-primary-950">60</span>
+              </div>
+              <div class="pt-3.5 border-t-2 border-accent flex items-center justify-between">
+                <span class="text-sm font-black uppercase tracking-wider text-accent">TOTAL</span>
+                <span id="total-val" class="text-2xl font-black mono-num text-accent">4260</span>
+              </div>
+
+              <button type="button" class="w-full mt-2 py-3 px-4 rounded-xl bg-accent hover:bg-primary-950 text-white text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-md transition-all">
+                <span class="material-symbols-outlined text-base text-secondary_accent">add_circle</span>
+                <span>SUBMIT &amp; CREATE ORDER</span>
+              </button>
+            </div>
+          </section>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <script>
+    function applyAddress(street, gov) {
+      document.getElementById('cust-address').value = street;
+      document.getElementById('cust-gov').value = gov;
+    }
+
+    function onSelectProduct() {
+      const sel = document.getElementById('new-product-select');
+      const opt = sel.options[sel.selectedIndex];
+      const price = opt.getAttribute('data-price') || 0;
+      document.getElementById('new-product-price').value = price;
+    }
+
+    function addProductRow() {
+      const sel = document.getElementById('new-product-select');
+      const [name, variant] = sel.value.split(' · ');
+      const qty = Math.max(1, parseInt(document.getElementById('new-product-qty').value || '1', 10) || 1);
+      const price = Math.max(0, parseInt(document.getElementById('new-product-price').value || '0', 10) || 0);
+      const lineTotal = qty * price;
+
+      const list = document.getElementById('products-list');
+      const row = document.createElement('div');
+      row.className = 'product-row flex items-center justify-between p-3.5 rounded-xl bg-surface-50 border border-surface-200';
+      row.dataset.lineTotal = String(lineTotal);
+      row.innerHTML = `
+        <div>
+          <div class="text-xs font-black uppercase text-primary-950">${name}</div>
+          <div class="text-[11px] font-extrabold uppercase text-primary-950/75 mt-0.5 mono-num">${variant} &times; ${qty} @ ${price}</div>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-sm font-black mono-num text-accent">${lineTotal}</span>
+          <button type="button" onclick="removeProductRow(this)" aria-label="Remove product" class="text-rose-700 hover:text-rose-900">
+            <span class="material-symbols-outlined text-base">delete</span>
+          </button>
+        </div>
+      `;
+      list.appendChild(row);
+      recalcTotals();
+    }
+
+    function removeProductRow(btn) {
+      const row = btn.closest('.product-row');
+      if (row) {
+        row.remove();
+        recalcTotals();
+      }
+    }
+
+    function recalcTotals() {
+      let subtotal = 0;
+      const rows = document.querySelectorAll('.product-row');
+      rows.forEach(r => {
+        subtotal += parseInt(r.dataset.lineTotal || '0', 10) || 0;
+      });
+      const shipping = parseInt(document.getElementById('ship-fee').value || '0', 10) || 0;
+      document.getElementById('product-count-badge').textContent = `${rows.length} ITEMS`;
+      document.getElementById('subtotal-val').textContent = subtotal;
+      document.getElementById('shipping-val').textContent = shipping;
+      document.getElementById('total-val').textContent = subtotal + shipping;
+    }
+  </script>
+
+
+
+</body></html>

@@ -1,12 +1,19 @@
 "use client";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useBrandPreview } from "@/lib/brandPreview";
 import { timeAgo, formatDate, humanize, humanizeUpper } from "@/lib/time";
 import { detectCarrier, carrierTrackingUrl } from "@/lib/rules/carrier";
-import { Calendar, Clock } from "lucide-react";
+import { canEditData, canEditStatus, allowedNextStatuses } from "@/lib/rules/editRules";
+import { ISSUE_FLAG_TYPES } from "@/lib/rules/constants";
+import { Calendar, Clock, Pencil, Flag, CheckCircle } from "lucide-react";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 export function OrderCard({ order, model, onClose }: any) {
   const router = useRouter();
@@ -16,6 +23,69 @@ export function OrderCard({ order, model, onClose }: any) {
   const trackingUrl = carrierTrackingUrl(carrier, order.trackingNumber);
   const openFlag = (order.issueFlags || []).find((f: any) => f.state === "open");
 
+  const [statusOpen, setStatusOpen] = useState(false);
+  const [newStatus, setNewStatus] = useState("");
+  const [statusReason, setStatusReason] = useState("");
+  const [reasons, setReasons] = useState<any[]>([]);
+
+  const [flagOpen, setFlagOpen] = useState(false);
+  const [flagType, setFlagType] = useState("ticket");
+  const [flagNote, setFlagNote] = useState("");
+
+  const [resolveOpen, setResolveOpen] = useState(false);
+  const [resolveNote, setResolveNote] = useState("");
+
+  async function openStatusDialog() {
+    setNewStatus("");
+    setStatusReason("");
+    try {
+      const res = await fetch("/api/cancellation-reasons");
+      const data = await res.json();
+      setReasons(data.items || []);
+    } catch {}
+    setStatusOpen(true);
+  }
+
+  async function updateStatus() {
+    const res = await fetch(`/api/orders/${model}/${order.id}/status`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: newStatus, reason: statusReason }),
+    });
+    if (res.ok) {
+      setStatusOpen(false);
+      window.location.reload();
+    }
+  }
+
+  async function addFlag() {
+    const res = await fetch(`/api/orders/${model}/${order.id}/flags`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: flagType, note: flagNote }),
+    });
+    if (res.ok) {
+      setFlagOpen(false);
+      setFlagType("ticket");
+      setFlagNote("");
+      window.location.reload();
+    }
+  }
+
+  async function resolveFlag() {
+    if (!openFlag) return;
+    const res = await fetch(`/api/orders/${model}/${order.id}/flags/${openFlag._id}/resolve`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ note: resolveNote }),
+    });
+    if (res.ok) {
+      setResolveOpen(false);
+      setResolveNote("");
+      window.location.reload();
+    }
+  }
+
   return (
     <div className="w-full bg-white rounded-2xl shadow-xl border border-slate-300 overflow-hidden">
       <div className="bg-primary text-white px-5 py-4 border-b border-primary/80">
@@ -24,10 +94,30 @@ export function OrderCard({ order, model, onClose }: any) {
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 ring-4 ring-emerald-400/20"></span>
             <span className="text-xs font-black uppercase tracking-widest text-white/80">Order Details</span>
           </div>
-          <button onClick={() => onClose()} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white/70 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider border border-white/20">
-            <span>Close</span>
-            <span className="text-sm">X</span>
-          </button>
+          <div className="flex items-center gap-2">
+            {!brandPreview && canEditData(order.status) && (
+              <button
+                onClick={() => router.push(`/create-order?from=${model}/${order.id}&mode=edit`)}
+                className="inline-flex items-center gap-1 px-1.5 py-2 rounded-lg text-xs font-black text-white bg-secondary hover:bg-secondary/90 transition-colors uppercase tracking-wider"
+              >
+                <Pencil className="w-3.5 h-3.5 text-primary-950" />
+                <span className="text-primary-950">Update Order</span>
+              </button>
+            )}
+            {!brandPreview && canEditStatus(order.status) && (
+              <button
+                onClick={openStatusDialog}
+                className="inline-flex items-center gap-1 px-1.5 py-2 rounded-lg text-xs font-black text-white bg-thumbnail hover:bg-thumbnail/90 transition-colors uppercase tracking-wider"
+              >
+                <Flag className="w-3.5 h-3.5 text-primary-950" />
+                <span className="text-primary-950">Update Status</span>
+              </button>
+            )}
+            <button onClick={() => onClose()} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white/70 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider border border-white/20">
+              <span>Close</span>
+              <span className="text-sm">X</span>
+            </button>
+          </div>
         </div>
         <div className="flex flex-wrap items-center justify-between gap-3 pt-4 pb-3">
           <div>
@@ -69,24 +159,47 @@ export function OrderCard({ order, model, onClose }: any) {
 
       {/* Action buttons at top */}
       <div className="px-5 py-3 border-b border-slate-200 flex items-center gap-2">
-        <button onClick={() => window.open(`/orders/${model}/${order.id}`, "_blank")} className="flex-1 px-3 py-2 rounded-lg bg-primary hover:bg-primary/90 text-white text-xs font-black uppercase tracking-wider shadow-md transition-colors">
+        <button onClick={() => window.open(`/orders/${model}/${order.id}`, "_blank")} className="flex-1 px-3 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-white text-xs font-black uppercase tracking-wider shadow-md transition-colors">
           Open Details
         </button>
-        <button onClick={() => window.open(`/create-order?from=${model}/${order.id}&mode=same`, "_blank")} className="flex-1 px-3 py-2 rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-900 text-xs font-black uppercase tracking-wider transition-colors">
+        <button onClick={() => window.open(`/create-order?from=${model}/${order.id}&mode=same`, "_blank")} className="flex-1 px-3 py-1.5 rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-900 text-xs font-black uppercase tracking-wider transition-colors">
           Create New Order
         </button>
       </div>
 
-      {openFlag && (
-        <div className="bg-rose-50 border-b border-rose-200 px-5 py-3 flex items-start gap-3">
-          <div className="w-8 h-8 rounded-lg bg-rose-600 text-white flex items-center justify-center flex-shrink-0 font-bold">!</div>
+      {!brandPreview && (
+        <div className={`border-b px-5 py-3 flex items-start gap-3 ${openFlag ? "bg-rose-50 border-rose-200" : "bg-slate-50 border-slate-200"}`}>
+          <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 font-bold ${openFlag ? "bg-rose-600 text-white" : "bg-slate-600 text-white"}`}>{openFlag ? "!" : "+"}</div>
           <div className="flex-1">
             <div className="flex items-center justify-between gap-2 flex-wrap">
-              <span className="text-xs font-black uppercase tracking-wider text-rose-900">Flags &amp; Special Issue</span>
-              <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-rose-600 text-white">Action Required</span>
+              <span className={`text-xs font-black uppercase tracking-wider ${openFlag ? "text-rose-900" : "text-slate-900"}`}>Flags &amp; Special Issue</span>
+              {openFlag ? (
+                <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-rose-600 text-white">Action Required</span>
+              ) : (
+                <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-slate-600 text-white">No Open Flag</span>
+              )}
             </div>
-            <div className="mt-1 text-sm font-bold uppercase tracking-wide text-rose-950">Open flag: {humanizeUpper(openFlag.type)}</div>
-            {order.hasOpenIssue && <div className="text-xs font-bold uppercase tracking-wider text-rose-800 mt-1">Has open issue flag recorded</div>}
+            {openFlag ? (
+              <>
+                <div className="mt-1 text-sm font-bold uppercase tracking-wide text-rose-950">Open flag: {humanizeUpper(openFlag.type)}</div>
+                {openFlag.note && <div className="text-xs font-medium text-rose-800 mt-1">{openFlag.note}</div>}
+                <button
+                  onClick={() => setResolveOpen(true)}
+                  className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-thumbnail hover:bg-thumbnail/90 text-primary-950 text-[10px] font-black uppercase tracking-wider"
+                >
+                  <CheckCircle className="w-3.5 h-3.5" />
+                  <span>Resolve Flag</span>
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => setFlagOpen(true)}
+                className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-[10px] font-black uppercase tracking-wider"
+              >
+                <Flag className="w-3.5 h-3.5" />
+                <span>Add Flag</span>
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -303,6 +416,92 @@ export function OrderCard({ order, model, onClose }: any) {
           <span className="font-extrabold uppercase tracking-wider text-slate-700">Consignment {order.oid}</span>
         </div>
       </div>
+
+      <Dialog open={flagOpen} onOpenChange={setFlagOpen}>
+        <DialogContent className="bg-white rounded-2xl border-2 border-primary shadow-xl">
+          <DialogHeader><DialogTitle className="text-primary font-black uppercase tracking-wider">Add Flag {order.oid}</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label className="text-[10px] font-black uppercase tracking-widest text-primary/80">Flag Type</Label>
+              <Select value={flagType} onValueChange={(v) => setFlagType(v ?? "ticket")}>
+                <SelectTrigger className="bg-surface-50 border-surface-200"><SelectValue placeholder="Select type" /></SelectTrigger>
+                <SelectContent>
+                  {ISSUE_FLAG_TYPES.map((t) => <SelectItem key={t} value={t}>{humanize(t)}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-[10px] font-black uppercase tracking-widest text-primary/80">Note</Label>
+              <Textarea
+                value={flagNote}
+                onChange={(e) => setFlagNote(e.target.value)}
+                placeholder="Add flag note..."
+                className="bg-surface-50 border-surface-200 rounded-xl text-xs font-semibold text-primary"
+              />
+            </div>
+            <Button onClick={addFlag} className="w-full bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-wider">Add Flag</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={resolveOpen} onOpenChange={setResolveOpen}>
+        <DialogContent className="bg-white rounded-2xl border-2 border-primary shadow-xl">
+          <DialogHeader><DialogTitle className="text-primary font-black uppercase tracking-wider">Resolve Flag {order.oid}</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            {openFlag && (
+              <div className="bg-rose-50 border border-rose-200 rounded-xl p-3">
+                <div className="text-xs font-black uppercase text-rose-900">{humanizeUpper(openFlag.type)}</div>
+                {openFlag.note && <div className="text-[11px] font-medium text-rose-800 mt-1">{openFlag.note}</div>}
+              </div>
+            )}
+            <div>
+              <Label className="text-[10px] font-black uppercase tracking-widest text-primary/80">Resolve Note</Label>
+              <Textarea
+                value={resolveNote}
+                onChange={(e) => setResolveNote(e.target.value)}
+                placeholder="Optional resolution note..."
+                className="bg-surface-50 border-surface-200 rounded-xl text-xs font-semibold text-primary"
+              />
+            </div>
+            <Button onClick={resolveFlag} className="w-full bg-thumbnail hover:bg-thumbnail/90 text-primary-950 font-black uppercase tracking-wider">Resolve Flag</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={statusOpen} onOpenChange={setStatusOpen}>
+        <DialogContent className="bg-white rounded-2xl border-2 border-primary shadow-xl">
+          <DialogHeader><DialogTitle className="text-primary font-black uppercase tracking-wider">Update Status {order.oid}</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label className="text-[10px] font-black uppercase tracking-widest text-primary/80">New Status</Label>
+              <Select value={newStatus} onValueChange={(v) => setNewStatus(v ?? "")}>
+                <SelectTrigger className="bg-surface-50 border-surface-200"><SelectValue placeholder="Select status" /></SelectTrigger>
+                <SelectContent>
+                  {allowedNextStatuses(order.status).map((s) => <SelectItem key={s} value={s}>{humanize(s)}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            {newStatus === "cancelled" && (
+              <div>
+                <Label className="text-[10px] font-black uppercase tracking-widest text-primary/80">Cancellation Reason</Label>
+                <Select value={statusReason} onValueChange={(v) => setStatusReason(v ?? "")}>
+                  <SelectTrigger className="bg-surface-50 border-surface-200"><SelectValue placeholder="Reason" /></SelectTrigger>
+                  <SelectContent>
+                    {reasons.map((r: any) => <SelectItem key={r.code} value={r.code}>{r.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            <Button
+              onClick={updateStatus}
+              disabled={!newStatus || (newStatus === "cancelled" && !statusReason)}
+              className="w-full bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-wider"
+            >
+              Update Status
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

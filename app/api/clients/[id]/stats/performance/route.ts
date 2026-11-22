@@ -12,7 +12,8 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string 
   await connectDB();
   const sp = req.nextUrl.searchParams;
   const from = sp.get("from") ? new Date(sp.get("from")!) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-  const to = sp.get("to") ? new Date(sp.get("to")!) : new Date();
+  const toRaw = sp.get("to") ? new Date(sp.get("to")!) : new Date();
+  const to = new Date(toRaw.getTime() + 24 * 60 * 60 * 1000 - 1); // inclusive end of day
   const groupBy = sp.get("groupBy") || "day"; // day|week|month
 
   // fetch orders in range
