@@ -13,6 +13,7 @@ import { timeAgo, formatDate, humanize, humanizeUpper, formatAuditValue } from "
 import { detectCarrier, carrierTrackingUrl } from "@/lib/rules/carrier";
 import { getCancellationReason } from "@/lib/rules/cancellationReasons";
 import { canEditData, canEditStatus, allowedNextStatuses } from "@/lib/rules/editRules";
+import { ISSUE_FLAG_TYPES } from "@/lib/rules/constants";
 import { useBrandPreview } from "@/lib/brandPreview";
 import {
   ArrowLeft,
@@ -24,7 +25,6 @@ import {
   Info,
   User,
   Package,
-  MapPin,
   CreditCard,
   ArrowRight,
   Flag,
@@ -59,7 +59,6 @@ export default function OrderDetailsPage() {
   const [resolveFlagId, setResolveFlagId] = useState("");
   const [resolveNote, setResolveNote] = useState("");
   const [sh, setSh] = useState("");
-  const [moveLoc, setMoveLoc] = useState("");
   const [cancelOpen, setCancelOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
   const [cancelImages, setCancelImages] = useState<string[]>([]);
@@ -101,18 +100,6 @@ export default function OrderDetailsPage() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ specialHandling: sh }),
-      });
-      if (!res.ok) throw new Error((await res.json()).error);
-    },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["order", model, id] }),
-  });
-
-  const moveLocation = useMutation({
-    mutationFn: async () => {
-      const res = await fetch(`/api/orders/${model}/${id}/location`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ location: moveLoc }),
       });
       if (!res.ok) throw new Error((await res.json()).error);
     },
@@ -178,9 +165,9 @@ export default function OrderDetailsPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-surface-50">
-      {/* Contextual header */}
-      <header className="px-8 py-4 border-b-2 border-primary bg-white flex flex-wrap items-center justify-between gap-4 flex-shrink-0">
+    <div className="p-8 space-y-6 bg-surface-50 min-h-full">
+      {/* Order summary card */}
+      <div className="px-6 py-4 border-2 border-primary bg-white rounded-2xl flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <button onClick={() => router.push("/orders")} className="px-3 py-2 rounded-xl border border-surface-200 bg-surface-50 hover:bg-surface-100 text-xs font-black uppercase tracking-wider text-primary flex items-center gap-1.5 transition-colors">
             <ArrowLeft className="w-4 h-4" />
@@ -189,7 +176,7 @@ export default function OrderDetailsPage() {
           <div className="h-8 w-px bg-surface-200"></div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-2xl font-black uppercase tracking-tight text-primary mono-num">{order.oid}</h1>
+              <span className="text-2xl font-black uppercase tracking-tight text-primary mono-num">{order.oid}</span>
               <span className="px-3 py-1 rounded-lg bg-secondary/25 text-primary border border-secondary-500/40 text-[11px] font-black uppercase tracking-wider">
                 {humanize(order.status)}
               </span>
@@ -222,9 +209,9 @@ export default function OrderDetailsPage() {
             </Button>
           )}
         </div>
-      </header>
+      </div>
 
-      <div className=" mt-12 h-fit w-full">
+      <div className="h-fit w-full">
         {/* Tabs */}
         <Tabs defaultValue="details" className="w-full">
           <TabsList className="bg-primary p-1.5 rounded-2xl inline-flex h-fit! flex-wrap items-center gap-1.5 shadow-md border border-primary-950">
@@ -370,13 +357,19 @@ export default function OrderDetailsPage() {
                         <Flag className="w-5 h-5 text-secondary" />
                         <h2 className="text-xs font-black uppercase tracking-widest">Flags &amp; Special Handling</h2>
                       </div>
-                      <Button
-                        size="sm"
-                        onClick={() => setFlagOpen(true)}
-                        className="px-3 py-1.5 rounded-lg bg-secondary hover:bg-secondary/90 text-primary-950 text-[10px] font-black uppercase tracking-wider"
-                      >
-                        Add Flag
-                      </Button>
+                      {["RTW", "RTO", "collected", "delivered"].includes(order.status) ? (
+                        <span className="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-500 text-[10px] font-black uppercase tracking-wider cursor-not-allowed">
+                          Finalized
+                        </span>
+                      ) : (
+                        <Button
+                          size="sm"
+                          onClick={() => setFlagOpen(true)}
+                          className="px-3 py-1.5 rounded-lg bg-secondary hover:bg-secondary/90 text-primary-950 text-[10px] font-black uppercase tracking-wider"
+                        >
+                          Add Flag
+                        </Button>
+                      )}
                     </div>
                     <div className="p-5 space-y-4">
                       <div className="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
@@ -451,29 +444,6 @@ export default function OrderDetailsPage() {
                 </div>
               </div>
 
-              {!brandPreview && (
-                <div className="border-2 border-primary rounded-2xl bg-white overflow-hidden shadow-sm">
-                  <div className="bg-primary text-white px-5 py-3.5 flex items-center gap-2">
-                    <MapPin className="w-5 h-5 text-secondary" />
-                    <h2 className="text-xs font-black uppercase tracking-widest">Current location</h2>
-                  </div>
-                  <div className="p-5 space-y-3.5">
-                    <Tile label="Location" value={humanize(order.currentLocation)} />
-                    <div className="bg-surface-50 p-3.5 rounded-xl border border-surface-200">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-primary/75 block mb-2">Move order to</label>
-                      <div className="flex gap-2">
-                        <Select value={moveLoc || order.currentLocation || ""} onValueChange={(v) => setMoveLoc(v ?? "")}>
-                          <SelectTrigger className="flex-1 bg-white border-surface-200"><SelectValue placeholder="Move to..." /></SelectTrigger>
-                          <SelectContent>
-                            {["warehouse", "brand_storage", "distribution_center", "with_courier", "with_carrier", "returns_team"].map((l) => <SelectItem key={l} value={l}>{humanize(l)}</SelectItem>)}
-                          </SelectContent>
-                        </Select>
-                        <Button size="sm" onClick={() => moveLocation.mutate()} className="bg-primary hover:bg-primary/90 text-white text-xs font-black uppercase">Move</Button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
 
               {!brandPreview && (
                 <div className="border-2 border-primary rounded-2xl bg-white overflow-hidden shadow-sm">
@@ -573,7 +543,7 @@ export default function OrderDetailsPage() {
               <Select value={flagType} onValueChange={(v) => setFlagType(v ?? "ticket")}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {["ticket", "return_missing_items", "return_wrong_items", "invalid_address", "invalid_phone_number", "delayed_shipment", "defective_items", "other"].map((t) => <SelectItem key={t} value={t}>{humanizeUpper(t)}</SelectItem>)}
+                  {ISSUE_FLAG_TYPES.map((t) => <SelectItem key={t} value={t}>{humanizeUpper(t)}</SelectItem>)}
                 </SelectContent>
               </Select>
               <Textarea placeholder="Note" value={flagNote} onChange={(e) => setFlagNote(e.target.value)} />

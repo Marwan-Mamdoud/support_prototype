@@ -21,7 +21,8 @@ export function OrderCard({ order, model, onClose }: any) {
   const courier = order.courier;
   const carrier = detectCarrier(courier?.name);
   const trackingUrl = carrierTrackingUrl(carrier, order.trackingNumber);
-  const openFlag = (order.issueFlags || []).find((f: any) => f.state === "open");
+  const sortedFlags = [...(order.issueFlags || [])].sort((a: any, b: any) => (a.state === "open" ? -1 : 1) || new Date(b.reportedAt).getTime() - new Date(a.reportedAt).getTime());
+  const openFlag = sortedFlags.find((f: any) => f.state === "open");
 
   const [statusOpen, setStatusOpen] = useState(false);
   const [newStatus, setNewStatus] = useState("");
@@ -33,6 +34,7 @@ export function OrderCard({ order, model, onClose }: any) {
   const [flagNote, setFlagNote] = useState("");
 
   const [resolveOpen, setResolveOpen] = useState(false);
+  const [resolveFlagId, setResolveFlagId] = useState("");
   const [resolveNote, setResolveNote] = useState("");
 
   async function openStatusDialog() {
@@ -73,14 +75,15 @@ export function OrderCard({ order, model, onClose }: any) {
   }
 
   async function resolveFlag() {
-    if (!openFlag) return;
-    const res = await fetch(`/api/orders/${model}/${order.id}/flags/${openFlag._id}/resolve`, {
+    if (!resolveFlagId) return;
+    const res = await fetch(`/api/orders/${model}/${order.id}/flags/${resolveFlagId}/resolve`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ note: resolveNote }),
     });
     if (res.ok) {
       setResolveOpen(false);
+      setResolveFlagId("");
       setResolveNote("");
       window.location.reload();
     }
@@ -179,18 +182,29 @@ export function OrderCard({ order, model, onClose }: any) {
                 <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-slate-600 text-white">No Open Flag</span>
               )}
             </div>
-            {openFlag ? (
-              <>
-                <div className="mt-1 text-sm font-bold uppercase tracking-wide text-rose-950">Open flag: {humanizeUpper(openFlag.type)}</div>
-                {openFlag.note && <div className="text-xs font-medium text-rose-800 mt-1">{openFlag.note}</div>}
-                <button
-                  onClick={() => setResolveOpen(true)}
-                  className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-thumbnail hover:bg-thumbnail/90 text-primary-950 text-[10px] font-black uppercase tracking-wider"
-                >
-                  <CheckCircle className="w-3.5 h-3.5" />
-                  <span>Resolve Flag</span>
-                </button>
-              </>
+            {sortedFlags.length > 0 ? (
+              <div className="mt-2 space-y-2">
+                {sortedFlags.map((f: any) => (
+                  <div key={f._id} className={`p-2.5 rounded-lg border ${f.state === "open" ? "bg-rose-50/60 border-rose-200" : "bg-slate-50/60 border-slate-200/60"}`}>
+                    <div className={`text-xs font-black tracking-wide ${f.state === "open" ? "uppercase text-rose-950" : "text-primary/60 line-through"}`}>{f.state === "open" ? humanizeUpper(f.type) : humanize(f.type)}</div>
+                    {f.note && <div className={`text-[11px] font-medium mt-0.5 ${f.state === "open" ? "text-rose-800" : "text-primary/50 line-through"}`}>{f.note}</div>}
+                    {f.state === "open" && (
+                      <button
+                        onClick={() => { setResolveFlagId(String(f._id)); setResolveOpen(true); }}
+                        className="mt-1.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-thumbnail hover:bg-thumbnail/90 text-primary-950 text-[10px] font-black uppercase tracking-wider"
+                      >
+                        <CheckCircle className="w-3.5 h-3.5" />
+                        <span>Resolve Flag</span>
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : ["RTW", "RTO", "collected", "delivered"].includes(order.status) ? (
+              <span className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 text-slate-500 text-[10px] font-black uppercase tracking-wider cursor-not-allowed">
+                <Flag className="w-3.5 h-3.5" />
+                <span>Finalized</span>
+              </span>
             ) : (
               <button
                 onClick={() => setFlagOpen(true)}
@@ -426,7 +440,7 @@ export function OrderCard({ order, model, onClose }: any) {
               <Select value={flagType} onValueChange={(v) => setFlagType(v ?? "ticket")}>
                 <SelectTrigger className="bg-surface-50 border-surface-200"><SelectValue placeholder="Select type" /></SelectTrigger>
                 <SelectContent>
-                  {ISSUE_FLAG_TYPES.map((t) => <SelectItem key={t} value={t}>{humanize(t)}</SelectItem>)}
+                  {ISSUE_FLAG_TYPES.map((t) => <SelectItem key={t} value={t}>{humanizeUpper(t)}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -448,12 +462,16 @@ export function OrderCard({ order, model, onClose }: any) {
         <DialogContent className="bg-white rounded-2xl border-2 border-primary shadow-xl">
           <DialogHeader><DialogTitle className="text-primary font-black uppercase tracking-wider">Resolve Flag {order.oid}</DialogTitle></DialogHeader>
           <div className="space-y-3">
-            {openFlag && (
-              <div className="bg-rose-50 border border-rose-200 rounded-xl p-3">
-                <div className="text-xs font-black uppercase text-rose-900">{humanizeUpper(openFlag.type)}</div>
-                {openFlag.note && <div className="text-[11px] font-medium text-rose-800 mt-1">{openFlag.note}</div>}
-              </div>
-            )}
+            {(() => {
+              const rf = sortedFlags.find((f: any) => String(f._id) === resolveFlagId);
+              if (!rf) return null;
+              return (
+                <div className="bg-rose-50 border border-rose-200 rounded-xl p-3">
+                  <div className="text-xs font-black uppercase text-rose-900">{humanizeUpper(rf.type)}</div>
+                  {rf.note && <div className="text-[11px] font-medium text-rose-800 mt-1">{rf.note}</div>}
+                </div>
+              );
+            })()}
             <div>
               <Label className="text-[10px] font-black uppercase tracking-widest text-primary/80">Resolve Note</Label>
               <Textarea

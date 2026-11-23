@@ -16,7 +16,7 @@ export interface SessionPayload {
   staffId: string;
   username: string;
   name: string;
-  role: "SUPPORT" | "ADMIN";
+  role: "SUPER" | "SUPPORT";
 }
 
 export async function signSession(payload: SessionPayload): Promise<string> {

@@ -1,0 +1,1109 @@
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Turuq Orders &amp; Stale Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            accent: '#032486',
+            secondary_accent: '#38cbfc',
+            'primary-950': '#03256c',
+            'primary-500': '#008bff',
+            'secondary-500': '#06bee1',
+            'secondary-950': '#083244',
+            thumbnail: '#42c7b8',
+            surface: {
+              50: '#F4F8FC',
+              100: '#E7F0F9',
+              200: '#CDE1F3',
+            }
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 600, 'GRAD' 0, 'opsz' 20;
+    }
+    .mono-num {
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F0F4F8;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #B5C8DC;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #86A7C6;
+    }
+  </style>
+</head>
+<body class="bg-surface-50 text-primary-950 font-sans antialiased min-h-[1024px] flex" data-stitch-vh="min-h-[1024px]===min-h-screen">
+
+  <!-- ==================== SIDEBAR ==================== -->
+  <aside class="w-64 bg-primary-950 text-white min-h-[1024px] flex flex-col border-r border-secondary-950 flex-shrink-0 select-none" data-stitch-vh="min-h-[1024px]===min-h-screen">
+
+    <!-- Brand / Platform Header -->
+    <div class="h-16 px-6 flex items-center justify-between border-b border-white/15 bg-accent">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-white text-accent flex items-center justify-center font-black tracking-tight shadow-md">
+          <span class="text-base tracking-tighter">TQ</span>
+        </div>
+        <div>
+          <span class="text-base font-black tracking-wider uppercase text-white block leading-none">TURUQ</span>
+          <span class="text-[10px] font-extrabold uppercase tracking-widest text-secondary_accent mt-1 block">LOGISTICS OS</span>
+        </div>
+      </div>
+      <span class="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-thumbnail text-primary-950">
+        LIVE
+      </span>
+    </div>
+
+    <!-- Navigation Groups -->
+    <div class="flex-1 px-3 py-4 space-y-6 overflow-y-auto">
+
+      <!-- Core Management -->
+      <div>
+        <div class="px-3 mb-2 text-[10px] font-black uppercase tracking-widest text-secondary_accent">
+          CORE OPERATIONS
+        </div>
+        <nav class="space-y-1">
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">dashboard</span>
+            <span>DASHBOARD</span>
+          </a>
+          <a href="#" onclick="setPrimaryView(&#39;all&#39;); return false;" id="nav-orders" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-black text-white bg-accent shadow-sm border border-secondary_accent/40 uppercase tracking-wider">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-lg text-secondary_accent">local_shipping</span>
+              <span>ORDERS</span>
+            </div>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-secondary_accent text-primary-950 mono-num">
+              130
+            </span>
+          </a>
+          <a href="#" onclick="setPrimaryView(&#39;stale&#39;); return false;" id="nav-stale" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-lg">history_toggle_off</span>
+              <span>STALE ORDERS</span>
+            </div>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-700 text-white mono-num">
+              42
+            </span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">search</span>
+            <span>QUICK LOOKUP</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">person_search</span>
+            <span>CUSTOMER LOOKUP</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">corporate_fare</span>
+            <span>CLIENTS</span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- Actions & Fulfillment -->
+      <div>
+        <div class="px-3 mb-2 text-[10px] font-black uppercase tracking-widest text-secondary_accent">
+          FULFILLMENT &amp; TASKS
+        </div>
+        <nav class="space-y-1">
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">add_box</span>
+            <span>CREATE ORDER</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">cancel_presentation</span>
+            <span>CANCELLATION REVIEW</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">layers</span>
+            <span>DROPOFF BATCHES</span>
+          </a>
+          <a href="#" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-lg text-amber-300">notifications_active</span>
+              <span>ALERTS</span>
+            </div>
+            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- Utilities -->
+      <div>
+        <div class="px-3 mb-2 text-[10px] font-black uppercase tracking-widest text-secondary_accent">
+          SYSTEM &amp; UTILITIES
+        </div>
+        <nav class="space-y-1">
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">sticky_note_2</span>
+            <span>MY NOTES</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">science</span>
+            <span>PROTOTYPE SIMULATOR</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">headset_mic</span>
+            <span>SUPPORT</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider">
+            <span class="material-symbols-outlined text-lg">account_circle</span>
+            <span>MY ACCOUNT</span>
+          </a>
+        </nav>
+      </div>
+
+    </div>
+
+    <!-- User / Operator Card in Sidebar Footer -->
+    <div class="p-3.5 border-t border-white/15 bg-secondary-950">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-accent text-white flex items-center justify-center font-bold text-xs uppercase border border-secondary_accent/40">
+            OF
+          </div>
+          <div>
+            <div class="text-xs font-bold text-white uppercase tracking-wider">OMAR FATHY</div>
+            <div class="text-[10px] font-semibold text-thumbnail uppercase tracking-widest">BRAND PREVIEW</div>
+          </div>
+        </div>
+        <button type="button" aria-label="Operator menu" class="text-white/80 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary_accent rounded">
+          <span class="material-symbols-outlined text-base">more_vert</span>
+        </button>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="flex-1 min-w-0 flex flex-col bg-surface-50">
+
+    <!-- Top Header with Order Quick Lookup & Customer Quick Lookup -->
+    <header class="h-16 px-6 border-b-2 border-accent bg-white flex items-center justify-between gap-3 flex-shrink-0">
+      <div class="flex items-center gap-2.5 flex-shrink-0">
+        <span class="material-symbols-outlined text-2xl text-accent">local_shipping</span>
+        <div>
+          <h1 class="text-base font-black uppercase tracking-wider text-accent whitespace-nowrap leading-none">
+            ORDERS DISPATCH HUB
+          </h1>
+          <span class="text-[10px] font-extrabold uppercase tracking-wider text-primary-950/75 mono-num block mt-0.5">
+            130 TOTAL SHIPMENTS
+          </span>
+        </div>
+      </div>
+
+      <!-- Header Quick Lookups + Create Order -->
+      <div class="flex items-center gap-2">
+
+        <!-- Order Quick Lookup -->
+        <form onsubmit="runHeaderOrderLookup(event)" class="flex items-center bg-surface-50 border border-surface-200 rounded-xl p-1 shadow-sm focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20">
+          <span class="material-symbols-outlined text-accent text-base pl-2 pr-1">qr_code_scanner</span>
+          <input id="header-order-lookup" type="text" placeholder="ORDER QUICK LOOKUP (TQ-...)" aria-label="Order Quick Lookup" class="w-44 bg-transparent text-[11px] font-bold uppercase placeholder:text-primary-950/70 text-primary-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded px-1 py-1">
+          <button type="submit" class="px-2.5 py-1 rounded-lg bg-accent hover:bg-primary-950 text-white text-[10px] font-black uppercase tracking-wider transition-colors">
+            GO
+          </button>
+        </form>
+
+        <!-- Customer Quick Lookup -->
+        <form onsubmit="runHeaderCustomerLookup(event)" class="flex items-center bg-surface-50 border border-surface-200 rounded-xl p-1 shadow-sm focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20">
+          <span class="material-symbols-outlined text-primary-950 text-base pl-2 pr-1">person_search</span>
+          <input id="header-customer-lookup" type="text" placeholder="CUSTOMER PHONE / NAME" aria-label="Customer Quick Lookup" class="w-40 bg-transparent text-[11px] font-bold uppercase placeholder:text-primary-950/70 text-primary-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded px-1 py-1">
+          <button type="submit" class="px-2.5 py-1 rounded-lg bg-primary-950 hover:bg-accent text-white text-[10px] font-black uppercase tracking-wider transition-colors">
+            FIND
+          </button>
+        </form>
+
+        <!-- Create Order CTA -->
+        <button type="button" class="px-3.5 py-2 rounded-xl bg-accent hover:bg-primary-950 text-white text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-md transition-all whitespace-nowrap flex-shrink-0">
+          <span class="material-symbols-outlined text-sm text-secondary_accent">add</span>
+          <span>CREATE ORDER</span>
+        </button>
+
+      </div>
+    </header>
+
+    <!-- Content Workspace Area -->
+    <div class="p-6 space-y-5 flex-1 overflow-x-hidden">
+
+      <!-- Quick Lookup Feedback Banner (hidden until used) -->
+      <div id="lookup-feedback" class="hidden bg-surface-100 border-2 border-accent rounded-xl px-4 py-2.5 flex items-center justify-between">
+        <div class="flex items-center gap-2 text-xs font-black uppercase text-accent">
+          <span class="material-symbols-outlined text-base">manage_search</span>
+          <span id="lookup-feedback-text">FILTERED BY QUICK LOOKUP</span>
+        </div>
+        <button type="button" onclick="clearQuickLookup()" class="px-2.5 py-1 rounded-lg bg-white border border-surface-200 text-[10px] font-black uppercase text-primary-950 hover:border-accent">
+          CLEAR LOOKUP
+        </button>
+      </div>
+
+      <!-- Compact Action Required Alert Banner ("Waiting for your decision") -->
+      <div id="decision-banner" class="bg-amber-50 border-2 border-amber-400 rounded-2xl px-5 py-3.5 flex items-center justify-between gap-4 shadow-sm">
+        <div class="flex items-center gap-3.5">
+          <div class="w-10 h-10 rounded-xl bg-amber-400 text-primary-950 flex items-center justify-center flex-shrink-0 shadow font-black">
+            <span class="material-symbols-outlined text-xl">priority_high</span>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-black uppercase tracking-wider text-primary-950">WAITING FOR YOUR DECISION</span>
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase bg-amber-400 text-primary-950 mono-num">
+                12 ORDERS
+              </span>
+            </div>
+            <p class="text-[11px] font-bold uppercase tracking-wide text-primary-950/85 mt-0.5">
+              YOU HAVE 12 ORDERS WAITING FOR YOUR IMMEDIATE ACTION (ADDRESS FIXES, OUT OF STOCK OR CANCELLATIONS)
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <button type="button" onclick="document.getElementById(&#39;decision-banner&#39;).classList.add(&#39;hidden&#39;)" class="px-3 py-1.5 rounded-xl border border-primary-950/25 text-[11px] font-black uppercase tracking-wider text-primary-950 bg-white hover:bg-surface-100 transition-colors">
+            DISMISS
+          </button>
+          <button type="button" onclick="reviewWaitingOrders()" class="px-3.5 py-1.5 rounded-xl bg-accent text-white text-[11px] font-black uppercase tracking-wider hover:bg-primary-950 shadow-sm transition-colors">
+            REVIEW 12 ORDERS
+          </button>
+        </div>
+      </div>
+
+      <!-- Dispatch KPI Ribbon -->
+      <div class="grid grid-cols-4 gap-3">
+        <div class="bg-white p-3.5 rounded-xl border border-surface-200 shadow-sm flex items-center justify-between">
+          <div>
+            <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">DELIVERED</span>
+            <span class="text-2xl font-black mono-num text-emerald-700 mt-0.5 block">63</span>
+          </div>
+          <span class="w-9 h-9 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center">
+            <span class="material-symbols-outlined text-lg">check_circle</span>
+          </span>
+        </div>
+        <div class="bg-white p-3.5 rounded-xl border border-surface-200 shadow-sm flex items-center justify-between">
+          <div>
+            <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">IN DISPATCH / TRANSIT</span>
+            <span class="text-2xl font-black mono-num text-accent mt-0.5 block">36</span>
+          </div>
+          <span class="w-9 h-9 rounded-lg bg-surface-100 text-accent flex items-center justify-center">
+            <span class="material-symbols-outlined text-lg">local_shipping</span>
+          </span>
+        </div>
+        <div class="bg-white p-3.5 rounded-xl border border-surface-200 shadow-sm flex items-center justify-between">
+          <div>
+            <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">PENDING / NEW</span>
+            <span class="text-2xl font-black mono-num text-amber-800 mt-0.5 block">18</span>
+          </div>
+          <span class="w-9 h-9 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center">
+            <span class="material-symbols-outlined text-lg">schedule</span>
+          </span>
+        </div>
+        <div class="bg-white p-3.5 rounded-xl border border-surface-200 shadow-sm flex items-center justify-between">
+          <div>
+            <span class="text-[10px] font-black uppercase tracking-widest text-primary-950/75 block">ISSUES / CANCELLED</span>
+            <span class="text-2xl font-black mono-num text-rose-700 mt-0.5 block">12</span>
+          </div>
+          <span class="w-9 h-9 rounded-lg bg-rose-100 text-rose-800 flex items-center justify-center">
+            <span class="material-symbols-outlined text-lg">report_problem</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- ==================== UNIFIED ORDERS & STALE MASTER CARD ==================== -->
+      <div class="border-2 border-accent rounded-2xl bg-white overflow-hidden shadow-xl">
+
+        <!-- Master Top Bar: Primary View Switcher (All Orders vs Stale Orders) + Channel Tabs -->
+        <div class="bg-accent text-white px-5 py-3.5 flex flex-wrap items-center justify-between gap-4 border-b border-primary-950">
+
+          <!-- Primary View Switcher -->
+          <div class="flex items-center gap-3">
+            <div class="inline-flex bg-primary-950 p-1 rounded-xl border border-secondary_accent/30 shadow-inner gap-1">
+              <button type="button" id="view-btn-all" onclick="setPrimaryView(&#39;all&#39;)" class="px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider bg-white text-accent shadow-md flex items-center gap-2 transition-all">
+                <span class="material-symbols-outlined text-base">table_chart</span>
+                <span>CONSIGNMENT MASTER</span>
+                <span class="px-1.5 py-0.2 rounded bg-accent text-white text-[10px] mono-num">130</span>
+              </button>
+              <button type="button" id="view-btn-stale" onclick="setPrimaryView(&#39;stale&#39;)" class="px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider text-white/90 hover:text-white flex items-center gap-2 transition-all">
+                <span class="material-symbols-outlined text-base">hourglass_bottom</span>
+                <span>STALE ORDERS</span>
+                <span class="px-1.5 py-0.2 rounded bg-rose-700 text-white text-[10px] font-black mono-num">42</span>
+              </button>
+            </div>
+            <span id="master-showing-badge" class="px-2.5 py-1 rounded bg-white/15 text-[10px] font-black uppercase text-white mono-num border border-white/20">
+              SHOWING: 12 OF 130
+            </span>
+          </div>
+
+          <!-- Channel Tabs: Turuq & Integration -->
+          <div class="inline-flex bg-primary-950 p-1 rounded-xl border border-secondary_accent/30 shadow-inner">
+            <button type="button" data-channel="turuq" onclick="setChannelTab(&#39;turuq&#39;)" class="channel-btn px-3.5 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider bg-secondary_accent text-primary-950 shadow-md flex items-center gap-1.5 transition-all">
+              <span id="channel-label-turuq">TURUQ ORDERS</span>
+              <span id="channel-count-turuq" class="px-1.5 py-0.2 rounded bg-primary-950 text-secondary_accent text-[10px] mono-num">130</span>
+            </button>
+            <button type="button" data-channel="integration" onclick="setChannelTab(&#39;integration&#39;)" class="channel-btn px-3.5 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider text-white/90 hover:text-white transition-all flex items-center gap-1.5">
+              <span id="channel-label-integration">INTEGRATION ORDERS</span>
+              <span id="channel-count-integration" class="px-1.5 py-0.2 rounded bg-white/15 text-white text-[10px] mono-num">70</span>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- ==================== PANEL 1: ALL ORDERS ==================== -->
+        <div id="panel-all">
+
+          <!-- All Orders Filters Bar (2 clean rows covering all 8 real filters) -->
+          <div class="bg-surface-50 p-4 border-b border-surface-200 space-y-2.5">
+
+            <!-- Row 1: Search + Status + Couriers + Brand + Reset -->
+            <div class="flex flex-wrap items-center gap-2.5">
+              <div class="relative flex-1 min-w-[200px]">
+                <span class="material-symbols-outlined absolute left-3 top-2.5 text-primary-950/75 text-base">search</span>
+                <input id="all-search" type="text" oninput="applyAllOrdersFilters()" placeholder="SEARCH ORDER #, CUSTOMER, PHONE..." aria-label="Search orders" class="w-full pl-9 pr-3 py-2 bg-white border border-surface-200 rounded-xl text-xs font-bold uppercase placeholder:normal-case placeholder:font-medium placeholder:text-primary-950/70 text-primary-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus:border-accent transition-all shadow-sm">
+              </div>
+
+              <div class="relative">
+                <select id="all-status" onchange="applyAllOrdersFilters()" aria-label="Filter by status" class="appearance-none bg-white border border-surface-200 rounded-xl text-xs font-extrabold uppercase pl-3 pr-7 py-2 text-primary-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus:border-accent shadow-sm cursor-pointer">
+                  <option value>STATUS: ALL</option>
+                  <option value="PENDING">PENDING</option>
+                  <option value="PROCESSING">PROCESSING</option>
+                  <option value="PACKED">PACKED</option>
+                  <option value="QC">QC</option>
+                  <option value="PICKED UP">PICKED UP</option>
+                  <option value="DROPPED OFF">DROPPED OFF</option>
+                  <option value="OUT FOR DELIVERY">OUT FOR DELIVERY</option>
+                  <option value="POSTPONED">POSTPONED</option>
+                  <option value="OUT OF STOCK">OUT OF STOCK</option>
+                  <option value="DELIVERED">DELIVERED</option>
+                  <option value="COLLECTED">COLLECTED</option>
+                  <option value="RETURNED">RETURNED</option>
+                  <option value="RTW">RTW</option>
+                  <option value="RTO">RTO</option>
+                  <option value="CANCELLED">CANCELLED</option>
+                </select>
+                <span class="material-symbols-outlined absolute right-2 top-2.5 text-primary-950/75 pointer-events-none text-base">expand_more</span>
+              </div>
+
+              <div class="relative">
+                <select id="all-courier" onchange="applyAllOrdersFilters()" aria-label="Filter by courier" class="appearance-none bg-white border border-surface-200 rounded-xl text-xs font-extrabold uppercase pl-3 pr-7 py-2 text-primary-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus:border-accent shadow-sm cursor-pointer">
+                  <option value>COURIERS: ALL</option>
+                  <option value="TURUQ COURIER">TURUQ COURIER</option>
+                  <option value="BOSTA">BOSTA</option>
+                  <option value="SHIPBLU">SHIPBLU</option>
+                </select>
+                <span class="material-symbols-outlined absolute right-2 top-2.5 text-primary-950/75 pointer-events-none text-base">expand_more</span>
+              </div>
+
+              <div class="relative">
+                <select id="all-brand" onchange="applyAllOrdersFilters()" aria-label="Filter by brand" class="appearance-none bg-white border border-surface-200 rounded-xl text-xs font-extrabold uppercase pl-3 pr-7 py-2 text-primary-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus:border-accent shadow-sm cursor-pointer">
+                  <option value>BRAND: ALL</option>
+                  <option value="AUTO PARTS EG">AUTO PARTS EG</option>
+                  <option value="BABY CORNER">BABY CORNER</option>
+                  <option value="BOOK NOOK">BOOK NOOK</option>
+                  <option value="CAIRO HOME">CAIRO HOME</option>
+                  <option value="COTTON LINE">COTTON LINE</option>
+                  <option value="DAILY MARKET">DAILY MARKET</option>
+                  <option value="DELTA FOODS">DELTA FOODS</option>
+                  <option value="DESERT BLOOM">DESERT BLOOM</option>
+                  <option value="GARDENIA">GARDENIA</option>
+                  <option value="GLOW COSMETICS">GLOW COSMETICS</option>
+                  <option value="KITCHEN KING">KITCHEN KING</option>
+                  <option value="LUXURY LEATHER">LUXURY LEATHER</option>
+                  <option value="MEDITERRANEAN HOME">MEDITERRANEAN HOME</option>
+                  <option value="NILE WEAR">NILE WEAR</option>
+                  <option value="PET PARADISE">PET PARADISE</option>
+                  <option value="PHARMA CARE">PHARMA CARE</option>
+                  <option value="PYRAMID ELECTRONICS">PYRAMID ELECTRONICS</option>
+                  <option value="RED SEA SPORTS">RED SEA SPORTS</option>
+                  <option value="SOUND WAVE">SOUND WAVE</option>
+                  <option value="TECH SOUK">TECH SOUK</option>
+                </select>
+                <span class="material-symbols-outlined absolute right-2 top-2.5 text-primary-950/75 pointer-events-none text-base">expand_more</span>
+              </div>
+
+              <button type="button" onclick="resetAllOrdersFilters()" class="px-3 py-2 rounded-xl text-xs font-black uppercase tracking-wider text-primary-950/85 hover:text-accent bg-white border border-surface-200 hover:border-accent/40 transition-colors flex items-center gap-1 shadow-sm">
+                <span class="material-symbols-outlined text-sm">refresh</span>
+                <span>RESET</span>
+              </button>
+            </div>
+
+            <!-- Row 2: Flags + Special + Scheme + Governorate -->
+            <div class="grid grid-cols-4 gap-2.5">
+              <div class="relative">
+                <select id="all-flags" onchange="applyAllOrdersFilters()" aria-label="Filter by flags" class="w-full appearance-none bg-white border border-surface-200 rounded-xl text-xs font-extrabold uppercase pl-3 pr-7 py-2 text-primary-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus:border-accent shadow-sm cursor-pointer">
+                  <option value>FLAGS: ALL</option>
+                  <option value="ANY OPEN">ANY OPEN</option>
+                  <option value="TICKET">TICKET</option>
+                  <option value="RETURN MISSING ITEMS">RETURN MISSING ITEMS</option>
+                  <option value="RETURN WRONG ITEMS">RETURN WRONG ITEMS</option>
+                  <option value="INVALID ADDRESS">INVALID ADDRESS</option>
+                  <option value="INVALID PHONE NUMBER">INVALID PHONE NUMBER</option>
+                  <option value="DELAYED SHIPMENT">DELAYED SHIPMENT</option>
+                  <option value="DEFECTIVE ITEMS">DEFECTIVE ITEMS</option>
+                  <option value="OTHERS">OTHERS</option>
+                </select>
+                <span class="material-symbols-outlined absolute right-2 top-2.5 text-primary-950/75 pointer-events-none text-base">expand_more</span>
+              </div>
+
+              <div class="relative">
+                <select id="all-special" onchange="applyAllOrdersFilters()" aria-label="Special filter" class="w-full appearance-none bg-white border border-surface-200 rounded-xl text-xs font-extrabold uppercase pl-3 pr-7 py-2 text-primary-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus:border-accent shadow-sm cursor-pointer">
+                  <option value>SPECIAL: ALL</option>
+                  <option value="URGENT">URGENT</option>
+                  <option value="VIP">VIP</option>
+                  <option value="REPLACEMENT">REPLACEMENT</option>
+                </select>
+                <span class="material-symbols-outlined absolute right-2 top-2.5 text-primary-950/75 pointer-events-none text-base">expand_more</span>
+              </div>
+
+              <div class="relative">
+                <select id="all-scheme" onchange="applyAllOrdersFilters()" aria-label="Filter by scheme" class="w-full appearance-none bg-white border border-surface-200 rounded-xl text-xs font-extrabold uppercase pl-3 pr-7 py-2 text-primary-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus:border-accent shadow-sm cursor-pointer">
+                  <option value>SCHEME: ALL</option>
+                  <option value="WAREHOUSE">WAREHOUSE</option>
+                  <option value="PICKUP">PICKUP</option>
+                </select>
+                <span class="material-symbols-outlined absolute right-2 top-2.5 text-primary-950/75 pointer-events-none text-base">expand_more</span>
+              </div>
+
+              <div class="relative">
+                <select id="all-governorate" onchange="applyAllOrdersFilters()" aria-label="Filter by governorate" class="w-full appearance-none bg-white border border-surface-200 rounded-xl text-xs font-extrabold uppercase pl-3 pr-7 py-2 text-primary-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus:border-accent shadow-sm cursor-pointer">
+                  <option value>GOVERNORATE: ALL</option>
+                  <option value="CAIRO">CAIRO</option>
+                  <option value="GIZA">GIZA</option>
+                  <option value="HELWAN">HELWAN</option>
+                  <option value="6TH OF OCTOBER">6TH OF OCTOBER</option>
+                  <option value="ALEXANDRIA">ALEXANDRIA</option>
+                  <option value="SUEZ">SUEZ</option>
+                  <option value="ISMAILIA">ISMAILIA</option>
+                  <option value="FAYED">FAYED</option>
+                  <option value="PORT SAID">PORT SAID</option>
+                  <option value="DAKAHLIA">DAKAHLIA</option>
+                  <option value="QALYUBIA">QALYUBIA</option>
+                  <option value="MENOUFIA">MENOUFIA</option>
+                  <option value="SHARKEYA">SHARKEYA</option>
+                  <option value="GHARBEYA">GHARBEYA</option>
+                  <option value="BEHEIRA">BEHEIRA</option>
+                  <option value="KAFR EL SHEIKH">KAFR EL SHEIKH</option>
+                  <option value="DAMIETTA">DAMIETTA</option>
+                  <option value="BENI SUEF">BENI SUEF</option>
+                  <option value="MINYA">MINYA</option>
+                  <option value="FAYOUM">FAYOUM</option>
+                  <option value="ASYUT">ASYUT</option>
+                  <option value="SOHAG">SOHAG</option>
+                  <option value="QENA">QENA</option>
+                  <option value="LUXOR">LUXOR</option>
+                  <option value="ASWAN">ASWAN</option>
+                  <option value="RED SEA">RED SEA</option>
+                  <option value="SOUTH SINAI">SOUTH SINAI</option>
+                  <option value="NORTH SINAI">NORTH SINAI</option>
+                  <option value="NEW VALLEY">NEW VALLEY</option>
+                  <option value="MATROUH">MATROUH</option>
+                </select>
+                <span class="material-symbols-outlined absolute right-2 top-2.5 text-primary-950/75 pointer-events-none text-base">expand_more</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- All Orders Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="bg-accent text-white uppercase text-[10px] font-black tracking-wider border-b border-primary-950">
+                  <th class="py-3 px-3 text-white">BRAND</th>
+                  <th class="py-3 px-2.5 text-white">ORDER #</th>
+                  <th class="py-3 px-2.5 text-white">STATUS</th>
+                  <th class="py-3 px-3 text-white">CUSTOMER &amp; CONTACT</th>
+                  <th class="py-3 px-2.5 text-white">CREATED</th>
+                  <th class="py-3 px-2.5 text-white">LAST CHANGE</th>
+                  <th class="py-3 px-2.5 text-white">SHIPS VIA</th>
+                  <th class="py-3 px-2.5 text-white">LOCATION</th>
+                  <th class="py-3 px-3 text-right text-white">FLAGS</th>
+                </tr>
+              </thead>
+              <tbody id="all-orders-tbody" class="divide-y divide-surface-200 font-medium">
+                <!-- Populated by JS with exact 12 rows -->
+              </tbody>
+            </table>
+
+            <!-- All Orders Empty State -->
+            <div id="all-empty-state" class="hidden py-12 px-6 text-center">
+              <span class="material-symbols-outlined text-4xl text-accent/40 mb-2 block">inventory_2</span>
+              <div class="text-sm font-black uppercase tracking-wider text-primary-950">NO ORDERS MATCH CURRENT FILTERS</div>
+              <p class="text-xs font-bold uppercase text-primary-950/75 mt-1">TRY CLEARING SEARCH OR SWITCHING CHANNEL TAB</p>
+            </div>
+          </div>
+
+          <!-- Pagination Bar -->
+          <div class="bg-white px-5 py-3 border-t border-surface-200 flex items-center justify-between text-xs font-bold uppercase text-primary-950/80">
+            <span id="all-pagination-text" class="mono-num">SHOWING 12 OF 130 ENTRIES</span>
+            <div class="inline-flex items-center gap-1.5">
+              <button type="button" class="px-3 py-1 rounded-lg border border-surface-200 bg-surface-50 text-primary-950/80 hover:border-accent text-[11px] font-black uppercase">PREVIOUS</button>
+              <span class="px-3 py-1 rounded-lg bg-accent text-white text-[11px] font-black mono-num">1</span>
+              <button type="button" class="px-3 py-1 rounded-lg border border-surface-200 bg-white text-primary-950 hover:border-accent text-[11px] font-black uppercase">NEXT</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ==================== PANEL 2: STALE ORDERS ==================== -->
+        <div id="panel-stale" class="hidden">
+
+          <!-- Stale Orders Two-Row Filters Bar -->
+          <div class="bg-surface-50 p-4 border-b border-surface-200 space-y-3">
+
+            <!-- Filter Row 1: Time Threshold + No Action Taken Toggle + Reset -->
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div class="flex flex-wrap items-center gap-3">
+
+                <!-- Segmented Time Filter -->
+                <div class="flex items-center gap-2">
+                  <span class="text-[11px] font-black uppercase tracking-wider text-primary-950 flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-base text-accent">schedule</span>
+                    STALE TIME:
+                  </span>
+                  <div class="inline-flex bg-white border border-surface-200 rounded-xl p-1 shadow-sm gap-1">
+                    <button type="button" data-hours="24" onclick="setHoursPreset(24, this)" class="hours-preset-btn px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider bg-accent text-white shadow-sm transition-colors mono-num">
+                      24H
+                    </button>
+                    <button type="button" data-hours="48" onclick="setHoursPreset(48, this)" class="hours-preset-btn px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider text-primary-950/80 hover:bg-surface-100 transition-colors mono-num">
+                      48H
+                    </button>
+                    <button type="button" data-hours="72" onclick="setHoursPreset(72, this)" class="hours-preset-btn px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider text-primary-950/80 hover:bg-surface-100 transition-colors mono-num">
+                      72H
+                    </button>
+                    <button type="button" data-hours="custom" onclick="setHoursPreset(&#39;custom&#39;, this)" class="hours-preset-btn px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider text-primary-950/80 hover:bg-surface-100 transition-colors">
+                      CUSTOM
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Min Hours Input -->
+                <div class="flex items-center bg-white border border-surface-200 rounded-xl px-3 py-1.5 shadow-sm gap-2">
+                  <label for="hours-input" class="text-[10px] font-black uppercase tracking-wider text-primary-950/80">MIN HOURS</label>
+                  <input id="hours-input" type="number" min="0" value="24" placeholder="24" oninput="onCustomHoursInput()" class="w-16 px-2 py-1 bg-surface-50 border border-surface-200 rounded-lg text-xs font-black uppercase mono-num text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus:border-accent focus:bg-white transition-all text-center">
+                </div>
+
+                <!-- No Action Taken Filter Button -->
+                <button type="button" id="no-action-btn" onclick="toggleNoActionFilter()" class="px-3.5 py-2 rounded-xl border-2 border-accent bg-accent text-white text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-sm transition-all">
+                  <span class="material-symbols-outlined text-sm text-secondary_accent">flag</span>
+                  <span>NO ACTION TAKEN</span>
+                  <span class="px-1.5 py-0.5 rounded bg-secondary_accent text-primary-950 text-[10px] font-black mono-num">42</span>
+                </button>
+
+              </div>
+
+              <!-- Reset Button -->
+              <button type="button" onclick="resetStaleFilters()" class="px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider text-primary-950/85 hover:text-accent bg-white border border-surface-200 hover:border-accent/40 transition-colors flex items-center gap-1.5 shadow-sm">
+                <span class="material-symbols-outlined text-sm">refresh</span>
+                <span>RESET</span>
+              </button>
+            </div>
+
+            <!-- Filter Row 2: Brand, Status, Courier Selectors -->
+            <div class="grid grid-cols-3 gap-3 pt-1">
+              <div class="relative">
+                <select id="stale-brand" onchange="applyStaleFilters()" aria-label="Filter stale by brand" class="w-full appearance-none bg-white border border-surface-200 rounded-xl text-xs font-extrabold uppercase pl-3.5 pr-9 py-2.5 text-primary-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus:border-accent shadow-sm cursor-pointer">
+                  <option value>BRAND: ALL</option>
+                  <option value="AUTO PARTS EG">AUTO PARTS EG</option>
+                  <option value="BABY CORNER">BABY CORNER</option>
+                  <option value="BOOK NOOK">BOOK NOOK</option>
+                  <option value="CAIRO HOME">CAIRO HOME</option>
+                  <option value="COTTON LINE">COTTON LINE</option>
+                  <option value="DAILY MARKET">DAILY MARKET</option>
+                  <option value="DELTA FOODS">DELTA FOODS</option>
+                  <option value="DESERT BLOOM">DESERT BLOOM</option>
+                  <option value="GARDENIA">GARDENIA</option>
+                  <option value="GLOW COSMETICS">GLOW COSMETICS</option>
+                  <option value="KITCHEN KING">KITCHEN KING</option>
+                  <option value="LUXURY LEATHER">LUXURY LEATHER</option>
+                  <option value="MEDITERRANEAN HOME">MEDITERRANEAN HOME</option>
+                  <option value="NILE WEAR">NILE WEAR</option>
+                  <option value="PET PARADISE">PET PARADISE</option>
+                  <option value="PHARMA CARE">PHARMA CARE</option>
+                  <option value="PYRAMID ELECTRONICS">PYRAMID ELECTRONICS</option>
+                  <option value="RED SEA SPORTS">RED SEA SPORTS</option>
+                  <option value="SOUND WAVE">SOUND WAVE</option>
+                  <option value="TECH SOUK">TECH SOUK</option>
+                </select>
+                <span class="material-symbols-outlined absolute right-3 top-2.5 text-primary-950/80 pointer-events-none text-base">expand_more</span>
+              </div>
+
+              <div class="relative">
+                <select id="stale-status" onchange="applyStaleFilters()" aria-label="Filter stale by status" class="w-full appearance-none bg-white border border-surface-200 rounded-xl text-xs font-extrabold uppercase pl-3.5 pr-9 py-2.5 text-primary-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus:border-accent shadow-sm cursor-pointer">
+                  <option value>STATUS: ALL</option>
+                  <option value="PENDING">PENDING</option>
+                  <option value="PROCESSING">PROCESSING</option>
+                  <option value="PICKED UP">PICKED UP</option>
+                  <option value="OUT FOR DELIVERY">OUT FOR DELIVERY</option>
+                  <option value="POSTPONED">POSTPONED</option>
+                  <option value="OUT OF STOCK">OUT OF STOCK</option>
+                </select>
+                <span class="material-symbols-outlined absolute right-3 top-2.5 text-primary-950/80 pointer-events-none text-base">expand_more</span>
+              </div>
+
+              <div class="relative">
+                <select id="stale-courier" onchange="applyStaleFilters()" aria-label="Filter stale by courier" class="w-full appearance-none bg-white border border-surface-200 rounded-xl text-xs font-extrabold uppercase pl-3.5 pr-9 py-2.5 text-primary-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus:border-accent shadow-sm cursor-pointer">
+                  <option value>COURIER: ALL</option>
+                  <option value="TURUQ COURIER">TURUQ COURIER</option>
+                  <option value="BOSTA">BOSTA</option>
+                  <option value="SHIPBLU">SHIPBLU</option>
+                </select>
+                <span class="material-symbols-outlined absolute right-3 top-2.5 text-primary-950/80 pointer-events-none text-base">expand_more</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Stale Orders Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="bg-accent text-white uppercase text-[10px] font-black tracking-wider border-b border-primary-950">
+                  <th class="py-3.5 px-4 text-white">BRAND</th>
+                  <th class="py-3.5 px-3 text-white">ORDER #</th>
+                  <th class="py-3.5 px-3 text-white">STATUS</th>
+                  <th class="py-3.5 px-3 text-white">LAST UPDATE</th>
+                  <th class="py-3.5 px-3 text-white">HOURS STALE</th>
+                  <th class="py-3.5 px-3 text-white">SHIPS VIA</th>
+                  <th class="py-3.5 px-3 text-white">FLAG</th>
+                  <th class="py-3.5 px-4 text-right text-white">ACTION</th>
+                </tr>
+              </thead>
+              <tbody id="stale-orders-tbody" class="divide-y divide-surface-200 font-medium">
+                <!-- Populated by JS with all 42 real stale rows -->
+              </tbody>
+            </table>
+
+            <!-- Stale Empty State -->
+            <div id="stale-empty-state" class="hidden py-12 px-6 text-center">
+              <span class="material-symbols-outlined text-4xl text-accent/40 mb-2 block">inventory_2</span>
+              <div class="text-sm font-black uppercase tracking-wider text-primary-950">NO STALE ORDERS MATCH CURRENT FILTERS</div>
+              <p class="text-xs font-bold uppercase text-primary-950/75 mt-1">ADJUST THE HOURS THRESHOLD OR CLEAR FILTERS TO VIEW CONSIGNMENTS</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Master Card Footer -->
+        <div class="bg-surface-50 px-6 py-3.5 border-t border-surface-200 flex items-center justify-between text-xs font-bold uppercase text-primary-950/85">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-thumbnail"></span>
+            <span id="footer-summary" class="mono-num">SHOWING 12 OF 130 ENTRIES · TOTAL STALE: 42</span>
+          </div>
+          <div class="mono-num text-[11px] font-extrabold text-accent">
+            TURUQ SUPPORT DISPATCH
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <script>
+    const ALL_ORDERS_DATA = [
+      { brand: 'COTTON LINE', order: 'TQ-100005', status: 'RTW', statusSub: '10 SEP 7:11 PM', customer: 'BAD PHONE TWO', alt: false, phone: '010123', gov: 'GIZA', created: '7 SEP 10:03 PM', lastChange: '10 SEP 7:11 PM', shipsVia: 'KHALED MAHMOUD', courierGroup: 'TURUQ COURIER', location: 'WAREHOUSE', scheme: 'WAREHOUSE', flag: 'INVALID ADDRESS', special: 'URGENT' },
+      { brand: 'PHARMA CARE', order: 'TQ-100040', status: 'DELIVERED', statusSub: '3D AGO', customer: 'YEHIA YEHIA', alt: false, phone: '01010001918', gov: 'SUEZ', created: '15 NOV 6:49 AM', lastChange: '20 NOV 11:49 AM', shipsVia: 'RAMY FOUAD', courierGroup: 'TURUQ COURIER', location: '—', scheme: 'PICKUP', flag: 'INVALID ADDRESS', special: '' },
+      { brand: 'BABY CORNER', order: 'TQ-100001', status: 'DELIVERED', statusSub: '3D AGO', customer: 'NABIL GAMAL', alt: false, phone: '01510005480', gov: 'MENOUFIA', created: '14 NOV 6:40 AM', lastChange: '20 NOV 11:00 AM', shipsVia: 'BOSTA', courierGroup: 'BOSTA', location: '—', scheme: 'PICKUP', flag: '—', special: '' },
+      { brand: 'PET PARADISE', order: 'TQ-100065', status: 'DELIVERED', statusSub: '2D AGO', customer: 'MOSTAFA DAWOOD', alt: false, phone: '01010000959', gov: 'QALYUBIA', created: '13 NOV 12:08 PM', lastChange: '21 NOV 9:18 AM', shipsVia: 'BOSTA', courierGroup: 'BOSTA', location: '—', scheme: 'PICKUP', flag: 'RETURN MISSING ITEMS', special: 'VIP' },
+      { brand: 'PET PARADISE', order: 'TQ-100002', status: 'DELIVERED', statusSub: '6D AGO', customer: 'ADEL LOTFY', alt: false, phone: '01010002466', gov: 'QENA', created: '13 NOV 5:24 AM', lastChange: '16 NOV 8:04 PM', shipsVia: 'SHIPBLU', courierGroup: 'SHIPBLU', location: '—', scheme: 'PICKUP', flag: '—', special: '' },
+      { brand: 'CAIRO HOME', order: 'TQ-100031', status: 'RTW', statusSub: '3D AGO', customer: 'ADEL LOTFY', alt: false, phone: '01010002466', gov: 'QENA', created: '13 NOV 2:49 AM', lastChange: '19 NOV 6:04 PM', shipsVia: 'SHIPBLU', courierGroup: 'SHIPBLU', location: 'WAREHOUSE', scheme: 'WAREHOUSE', flag: 'INVALID ADDRESS', special: 'REPLACEMENT' },
+      { brand: 'RED SEA SPORTS', order: 'TQ-100017', status: 'RTW', statusSub: '8D AGO', customer: 'BAD PHONE TWO', alt: true, phone: '010123', gov: 'GIZA', created: '12 NOV 8:23 AM', lastChange: '14 NOV 2:38 PM', shipsVia: 'KARIM SAMIR', courierGroup: 'TURUQ COURIER', location: 'WAREHOUSE', scheme: 'WAREHOUSE', flag: 'INVALID ADDRESS', special: 'URGENT' },
+      { brand: 'DAILY MARKET', order: 'TQ-100055', status: 'DELIVERED', statusSub: '10D AGO', customer: 'TAREK HASSAN', alt: false, phone: '01210004384', gov: 'GIZA', created: '10 NOV 2:02 PM', lastChange: '13 NOV 11:12 AM', shipsVia: 'MAHMOUD REDA', courierGroup: 'TURUQ COURIER', location: '—', scheme: 'PICKUP', flag: '—', special: '' },
+      { brand: 'COTTON LINE', order: 'TQ-100050', status: 'DELIVERED', statusSub: '9D AGO', customer: 'FOUAD GAMAL', alt: false, phone: '01210000411', gov: 'ISMAILIA', created: '10 NOV 7:22 AM', lastChange: '13 NOV 6:42 PM', shipsVia: 'HANY FAWZY', courierGroup: 'TURUQ COURIER', location: '—', scheme: 'PICKUP', flag: '—', special: '' },
+      { brand: 'PYRAMID ELECTRONICS', order: 'TQ-100110', status: 'DELIVERED', statusSub: '9D AGO', customer: 'IBRAHIM YEHIA', alt: false, phone: '01210000822', gov: 'DAKAHLIA', created: '10 NOV 12:22 AM', lastChange: '13 NOV 4:42 PM', shipsVia: 'SHIPBLU', courierGroup: 'SHIPBLU', location: '—', scheme: 'PICKUP', flag: '—', special: '' },
+      { brand: 'LUXURY LEATHER', order: 'TQ-100015', status: 'DELIVERED', statusSub: '7D AGO', customer: 'NABIL HOSNY', alt: false, phone: '01010005754', gov: 'MENOUFIA', created: '8 NOV 11:32 PM', lastChange: '15 NOV 6:02 PM', shipsVia: 'BOSTA', courierGroup: 'BOSTA', location: '—', scheme: 'PICKUP', flag: '—', special: 'VIP' },
+      { brand: 'PET PARADISE', order: 'TQ-100063', status: 'DELIVERED', statusSub: '14D AGO', customer: 'IBRAHIM YEHIA', alt: true, phone: '01210000822', gov: 'DAKAHLIA', created: '6 NOV 12:33 PM', lastChange: '9 NOV 12:13 PM', shipsVia: 'BOSTA', courierGroup: 'BOSTA', location: '—', scheme: 'PICKUP', flag: '—', special: '' }
+    ];
+
+    const STALE_ORDERS_DATA = [
+      { brand: 'LUXURY LEATHER', order: 'TQ-100027', status: 'OUT FOR DELIVERY', lastUpdate: '27 AUG 9:53 AM', hours: 2115, shipsVia: 'MOSTAFA ADEL', courierGroup: 'TURUQ COURIER' },
+      { brand: 'PET PARADISE', order: 'TQ-100120', status: 'PICKED UP', lastUpdate: '29 AUG 4:03 PM', hours: 2061, shipsVia: 'NADER MAGDY', courierGroup: 'TURUQ COURIER' },
+      { brand: 'PET PARADISE', order: 'TQ-100116', status: 'PICKED UP', lastUpdate: '30 AUG 11:04 AM', hours: 2042, shipsVia: 'RAMY FOUAD', courierGroup: 'TURUQ COURIER' },
+      { brand: 'CAIRO HOME', order: 'TQ-100105', status: 'PENDING', lastUpdate: '3 SEP 1:17 PM', hours: 1944, shipsVia: 'NO COURIER ASSIGNED', courierGroup: 'TURUQ COURIER' },
+      { brand: 'BOOK NOOK', order: 'TQ-100112', status: 'PENDING', lastUpdate: '3 SEP 1:36 PM', hours: 1943, shipsVia: 'NO COURIER ASSIGNED', courierGroup: 'TURUQ COURIER' },
+      { brand: 'DESERT BLOOM', order: 'TQ-100099', status: 'PROCESSING', lastUpdate: '3 SEP 2:30 PM', hours: 1943, shipsVia: 'MOSTAFA ADEL', courierGroup: 'TURUQ COURIER' },
+      { brand: 'RED SEA SPORTS', order: 'TQ-100096', status: 'OUT FOR DELIVERY', lastUpdate: '7 SEP 8:29 PM', hours: 1841, shipsVia: 'BOSTA', courierGroup: 'BOSTA' },
+      { brand: 'DELTA FOODS', order: 'TQ-100103', status: 'PENDING', lastUpdate: '8 SEP 2:23 PM', hours: 1823, shipsVia: 'NO COURIER ASSIGNED', courierGroup: 'TURUQ COURIER' },
+      { brand: 'PET PARADISE', order: 'TQ-100037', status: 'PROCESSING', lastUpdate: '10 SEP 4:32 PM', hours: 1773, shipsVia: 'NADER MAGDY', courierGroup: 'TURUQ COURIER' },
+      { brand: 'RED SEA SPORTS', order: 'TQ-100097', status: 'OUT FOR DELIVERY', lastUpdate: '11 SEP 2:39 PM', hours: 1750, shipsVia: 'AHMED HASSAN', courierGroup: 'TURUQ COURIER' },
+      { brand: 'DESERT BLOOM', order: 'TQ-100033', status: 'OUT FOR DELIVERY', lastUpdate: '11 SEP 3:23 PM', hours: 1750, shipsVia: 'BOSTA', courierGroup: 'BOSTA' },
+      { brand: 'COTTON LINE', order: 'TQ-100041', status: 'OUT FOR DELIVERY', lastUpdate: '14 SEP 10:45 AM', hours: 1682, shipsVia: 'NADER MAGDY', courierGroup: 'TURUQ COURIER' },
+      { brand: 'BOOK NOOK', order: 'TQ-100094', status: 'OUT FOR DELIVERY', lastUpdate: '14 SEP 3:54 PM', hours: 1677, shipsVia: 'NADER MAGDY', courierGroup: 'TURUQ COURIER' },
+      { brand: 'GARDENIA', order: 'TQ-100046', status: 'PROCESSING', lastUpdate: '14 SEP 4:50 PM', hours: 1676, shipsVia: 'YOUSSEF IBRAHIM', courierGroup: 'TURUQ COURIER' },
+      { brand: 'TECH SOUK', order: 'TQ-100018', status: 'OUT FOR DELIVERY', lastUpdate: '14 SEP 5:58 PM', hours: 1675, shipsVia: 'BOSTA', courierGroup: 'BOSTA' },
+      { brand: 'GARDENIA', order: 'TQ-100123', status: 'PICKED UP', lastUpdate: '16 SEP 8:27 PM', hours: 1625, shipsVia: 'HASSAN FAROUK', courierGroup: 'TURUQ COURIER' },
+      { brand: 'MEDITERRANEAN HOME', order: 'TQ-100030', status: 'PROCESSING', lastUpdate: '19 SEP 9:44 AM', hours: 1563, shipsVia: 'YOUSSEF IBRAHIM', courierGroup: 'TURUQ COURIER' },
+      { brand: 'DESERT BLOOM', order: 'TQ-100102', status: 'PENDING', lastUpdate: '19 SEP 11:38 AM', hours: 1561, shipsVia: 'NO COURIER ASSIGNED', courierGroup: 'TURUQ COURIER' },
+      { brand: 'BABY CORNER', order: 'TQ-100126', status: 'PROCESSING', lastUpdate: '23 SEP 12:37 PM', hours: 1464, shipsVia: 'KHALED MAHMOUD', courierGroup: 'TURUQ COURIER' },
+      { brand: 'LUXURY LEATHER', order: 'TQ-100128', status: 'PROCESSING', lastUpdate: '25 SEP 6:30 PM', hours: 1411, shipsVia: 'MOHAMED ALI', courierGroup: 'TURUQ COURIER' },
+      { brand: 'NILE WEAR', order: 'TQ-100129', status: 'PROCESSING', lastUpdate: '10 OCT 4:29 PM', hours: 1053, shipsVia: 'KHALED MAHMOUD', courierGroup: 'TURUQ COURIER' },
+      { brand: 'BOOK NOOK', order: 'TQ-100053', status: 'PENDING', lastUpdate: '11 OCT 1:13 PM', hours: 1032, shipsVia: 'NO COURIER ASSIGNED', courierGroup: 'TURUQ COURIER' },
+      { brand: 'KITCHEN KING', order: 'TQ-100121', status: 'PICKED UP', lastUpdate: '15 OCT 10:44 AM', hours: 938, shipsVia: 'TAREK NABIL', courierGroup: 'TURUQ COURIER' },
+      { brand: 'DESERT BLOOM', order: 'TQ-100100', status: 'PENDING', lastUpdate: '15 OCT 12:16 PM', hours: 937, shipsVia: 'NO COURIER ASSIGNED', courierGroup: 'TURUQ COURIER' },
+      { brand: 'GLOW COSMETICS', order: 'TQ-100087', status: 'OUT FOR DELIVERY', lastUpdate: '17 OCT 10:22 AM', hours: 891, shipsVia: 'MOSTAFA ADEL', courierGroup: 'TURUQ COURIER' },
+      { brand: 'MEDITERRANEAN HOME', order: 'TQ-100093', status: 'OUT FOR DELIVERY', lastUpdate: '22 OCT 6:05 PM', hours: 763, shipsVia: 'SHIPBLU', courierGroup: 'SHIPBLU' },
+      { brand: 'BABY CORNER', order: 'TQ-100109', status: 'PENDING', lastUpdate: '24 OCT 10:54 AM', hours: 722, shipsVia: 'NO COURIER ASSIGNED', courierGroup: 'TURUQ COURIER' },
+      { brand: 'NILE WEAR', order: 'TQ-100117', status: 'PICKED UP', lastUpdate: '25 OCT 2:08 PM', hours: 695, shipsVia: 'TAREK NABIL', courierGroup: 'TURUQ COURIER' },
+      { brand: 'GARDENIA', order: 'TQ-100101', status: 'PENDING', lastUpdate: '31 OCT 12:40 PM', hours: 551, shipsVia: 'NO COURIER ASSIGNED', courierGroup: 'TURUQ COURIER' },
+      { brand: 'MEDITERRANEAN HOME', order: 'TQ-100124', status: 'PROCESSING', lastUpdate: '3 NOV 10:46 AM', hours: 481, shipsVia: 'MAHMOUD REDA', courierGroup: 'TURUQ COURIER' },
+      { brand: 'DAILY MARKET', order: 'TQ-100125', status: 'PROCESSING', lastUpdate: '5 NOV 1:32 PM', hours: 431, shipsVia: 'MOHAMED ALI', courierGroup: 'TURUQ COURIER' },
+      { brand: 'MEDITERRANEAN HOME', order: 'TQ-100098', status: 'OUT FOR DELIVERY', lastUpdate: '6 NOV 5:49 PM', hours: 402, shipsVia: 'SHIPBLU', courierGroup: 'SHIPBLU' },
+      { brand: 'DELTA FOODS', order: 'TQ-100086', status: 'OUT FOR DELIVERY', lastUpdate: '10 NOV 5:05 PM', hours: 307, shipsVia: 'SHIPBLU', courierGroup: 'SHIPBLU' },
+      { brand: 'PYRAMID ELECTRONICS', order: 'TQ-100107', status: 'PENDING', lastUpdate: '11 NOV 7:21 PM', hours: 281, shipsVia: 'NO COURIER ASSIGNED', courierGroup: 'TURUQ COURIER' },
+      { brand: 'COTTON LINE', order: 'TQ-100088', status: 'OUT FOR DELIVERY', lastUpdate: '14 NOV 1:25 PM', hours: 215, shipsVia: 'SHIPBLU', courierGroup: 'SHIPBLU' },
+      { brand: 'BABY CORNER', order: 'TQ-100070', status: 'PROCESSING', lastUpdate: '16 NOV 12:05 PM', hours: 168, shipsVia: 'TAREK NABIL', courierGroup: 'TURUQ COURIER' },
+      { brand: 'COTTON LINE', order: 'TQ-100106', status: 'PENDING', lastUpdate: '16 NOV 1:17 PM', hours: 167, shipsVia: 'NO COURIER ASSIGNED', courierGroup: 'TURUQ COURIER' },
+      { brand: 'SOUND WAVE', order: 'TQ-100118', status: 'OUT FOR DELIVERY', lastUpdate: '17 NOV 8:21 AM', hours: 148, shipsVia: 'KHALED MAHMOUD', courierGroup: 'TURUQ COURIER' },
+      { brand: 'AUTO PARTS EG', order: 'TQ-100108', status: 'PENDING', lastUpdate: '17 NOV 9:21 AM', hours: 147, shipsVia: 'NO COURIER ASSIGNED', courierGroup: 'TURUQ COURIER' },
+      { brand: 'TECH SOUK', order: 'TQ-100111', status: 'PENDING', lastUpdate: '19 NOV 4:11 PM', hours: 92, shipsVia: 'NO COURIER ASSIGNED', courierGroup: 'TURUQ COURIER' },
+      { brand: 'COTTON LINE', order: 'TQ-100095', status: 'OUT FOR DELIVERY', lastUpdate: '19 NOV 5:45 PM', hours: 90, shipsVia: 'SAMY TAWFIK', courierGroup: 'TURUQ COURIER' },
+      { brand: 'KITCHEN KING', order: 'TQ-100045', status: 'OUT FOR DELIVERY', lastUpdate: '20 NOV 2:17 PM', hours: 70, shipsVia: 'BOSTA', courierGroup: 'BOSTA' }
+    ];
+
+    function statusBadge(status) {
+      if (status === 'DELIVERED') return 'bg-emerald-100 text-emerald-900 border-emerald-300';
+      if (status === 'RTW' || status === 'RTO') return 'bg-purple-100 text-purple-900 border-purple-300';
+      if (status === 'PENDING') return 'bg-amber-100 text-amber-900 border-amber-300';
+      if (status === 'PROCESSING') return 'bg-primary-500/15 text-accent border-primary-500/30';
+      if (status === 'PICKED UP') return 'bg-sky-100 text-sky-900 border-sky-300';
+      if (status === 'OUT FOR DELIVERY') return 'bg-secondary_accent/20 text-secondary-950 border-secondary-500/40';
+      return 'bg-rose-100 text-rose-900 border-rose-300';
+    }
+
+    function flagBadge(flag) {
+      if (flag === 'INVALID ADDRESS') return '<span class="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-rose-100 text-rose-900 border border-rose-300">INVALID ADDRESS</span>';
+      if (flag === 'RETURN MISSING ITEMS') return '<span class="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-amber-100 text-amber-900 border border-amber-300">RETURN MISSING ITEMS</span>';
+      return '<span class="text-primary-950/75 font-bold uppercase">—</span>';
+    }
+
+    function renderAllOrdersRows() {
+      const tbody = document.getElementById('all-orders-tbody');
+      tbody.innerHTML = ALL_ORDERS_DATA.map(r => `
+        <tr class="all-row hover:bg-surface-100/70 transition-colors ${r.flag !== '—' ? 'bg-rose-50/20' : ''}"
+            data-tab="turuq"
+            data-order="${r.order}"
+            data-customer="${r.customer} ${r.phone}"
+            data-brand="${r.brand}"
+            data-status="${r.status}"
+            data-courier="${r.courierGroup}"
+            data-flag="${r.flag}"
+            data-special="${r.special}"
+            data-scheme="${r.scheme}"
+            data-gov="${r.gov}">
+          <td class="py-3 px-3 font-black uppercase text-primary-950 whitespace-nowrap">${r.brand}</td>
+          <td class="py-3 px-2.5 font-black mono-num text-accent whitespace-nowrap">${r.order}</td>
+          <td class="py-3 px-2.5 whitespace-nowrap">
+            <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase border ${statusBadge(r.status)}">${r.status}</span>
+            <div class="text-[10px] text-primary-950/75 font-bold uppercase mt-0.5">${r.statusSub}</div>
+          </td>
+          <td class="py-3 px-3 whitespace-nowrap">
+            <div class="font-extrabold text-primary-950 uppercase">${r.customer}${r.alt ? ' <span class="text-[9px] font-bold text-primary-950/75">(ALT SPELLING)</span>' : ''}</div>
+            <div class="text-[10px] font-bold text-primary-950/75 uppercase mono-num mt-0.5">${r.phone} · ${r.gov}</div>
+          </td>
+          <td class="py-3 px-2.5 font-bold uppercase mono-num text-primary-950/85 whitespace-nowrap">${r.created}</td>
+          <td class="py-3 px-2.5 font-bold uppercase mono-num text-primary-950/85 whitespace-nowrap">${r.lastChange}</td>
+          <td class="py-3 px-2.5 uppercase text-primary-950 font-bold whitespace-nowrap">${r.shipsVia}</td>
+          <td class="py-3 px-2.5 uppercase ${r.location === '—' ? 'text-primary-950/75' : 'text-primary-950'} font-bold whitespace-nowrap">${r.location}</td>
+          <td class="py-3 px-3 text-right whitespace-nowrap">${flagBadge(r.flag)}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderStaleRows() {
+      const tbody = document.getElementById('stale-orders-tbody');
+      tbody.innerHTML = STALE_ORDERS_DATA.map(r => {
+        const hrsBadge = r.hours >= 1000
+          ? 'bg-rose-700 text-white shadow-sm'
+          : (r.hours >= 240 ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-surface-100 text-accent border border-surface-200');
+        return `
+          <tr class="stale-row hover:bg-surface-100/70 transition-colors"
+              data-tab="turuq"
+              data-order="${r.order}"
+              data-brand="${r.brand}"
+              data-status="${r.status}"
+              data-courier="${r.courierGroup}"
+              data-hours="${r.hours}"
+              data-flag="NO ACTION">
+            <td class="py-3 px-4 font-black uppercase text-primary-950 whitespace-nowrap">${r.brand}</td>
+            <td class="py-3 px-3 font-black mono-num text-accent whitespace-nowrap">${r.order}</td>
+            <td class="py-3 px-3 whitespace-nowrap">
+              <span class="px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase border ${statusBadge(r.status)}">${r.status}</span>
+            </td>
+            <td class="py-3 px-3 font-bold uppercase mono-num text-primary-950/85 whitespace-nowrap">${r.lastUpdate}</td>
+            <td class="py-3 px-3 whitespace-nowrap">
+              <span class="px-2.5 py-0.5 rounded-md text-xs font-black mono-num ${hrsBadge}">${r.hours} HRS</span>
+            </td>
+            <td class="py-3 px-3 font-extrabold uppercase ${r.shipsVia === 'NO COURIER ASSIGNED' ? 'text-primary-950/75' : 'text-primary-950'} whitespace-nowrap">${r.shipsVia}</td>
+            <td class="py-3 px-3 whitespace-nowrap">
+              <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-rose-50 text-rose-800 border border-rose-200">NO ACTION</span>
+            </td>
+            <td class="py-3 px-4 text-right whitespace-nowrap">
+              <button type="button" class="px-3 py-1.5 rounded-lg bg-accent hover:bg-primary-950 text-white text-[10px] font-black uppercase tracking-wider shadow-sm transition-colors">TAKE ACTION</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    let currentView = 'all';
+    let currentChannel = 'turuq';
+    let noActionOnly = true;
+
+    function setPrimaryView(view) {
+      currentView = view;
+      const panelAll = document.getElementById('panel-all');
+      const panelStale = document.getElementById('panel-stale');
+      const btnAll = document.getElementById('view-btn-all');
+      const btnStale = document.getElementById('view-btn-stale');
+      const navOrders = document.getElementById('nav-orders');
+      const navStale = document.getElementById('nav-stale');
+
+      if (view === 'all') {
+        panelAll.classList.remove('hidden');
+        panelStale.classList.add('hidden');
+
+        btnAll.className = 'px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider bg-white text-accent shadow-md flex items-center gap-2 transition-all';
+        btnStale.className = 'px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider text-white/90 hover:text-white flex items-center gap-2 transition-all';
+
+        navOrders.className = 'flex items-center justify-between px-3 py-2 rounded-xl text-xs font-black text-white bg-accent shadow-sm border border-secondary_accent/40 uppercase tracking-wider';
+        navStale.className = 'flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider';
+
+        document.getElementById('channel-label-turuq').textContent = 'TURUQ ORDERS';
+        document.getElementById('channel-count-turuq').textContent = '130';
+        document.getElementById('channel-label-integration').textContent = 'INTEGRATION ORDERS';
+        document.getElementById('channel-count-integration').textContent = '70';
+        applyAllOrdersFilters();
+      } else {
+        panelAll.classList.add('hidden');
+        panelStale.classList.remove('hidden');
+
+        btnStale.className = 'px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider bg-white text-accent shadow-md flex items-center gap-2 transition-all';
+        btnAll.className = 'px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider text-white/90 hover:text-white flex items-center gap-2 transition-all';
+
+        navStale.className = 'flex items-center justify-between px-3 py-2 rounded-xl text-xs font-black text-white bg-accent shadow-sm border border-secondary_accent/40 uppercase tracking-wider';
+        navOrders.className = 'flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase tracking-wider';
+
+        document.getElementById('channel-label-turuq').textContent = 'TURUQ';
+        document.getElementById('channel-count-turuq').textContent = '42';
+        document.getElementById('channel-label-integration').textContent = 'INTEGRATION';
+        document.getElementById('channel-count-integration').textContent = '0';
+        applyStaleFilters();
+      }
+    }
+
+    function setChannelTab(channel) {
+      currentChannel = channel;
+      document.querySelectorAll('.channel-btn').forEach(btn => {
+        const isActive = btn.dataset.channel === channel;
+        if (isActive) {
+          btn.className = 'channel-btn px-3.5 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider bg-secondary_accent text-primary-950 shadow-md flex items-center gap-1.5 transition-all';
+        } else {
+          btn.className = 'channel-btn px-3.5 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider text-white/90 hover:text-white transition-all flex items-center gap-1.5';
+        }
+      });
+      if (currentView === 'all') {
+        applyAllOrdersFilters();
+      } else {
+        applyStaleFilters();
+      }
+    }
+
+    function runHeaderOrderLookup(e) {
+      e.preventDefault();
+      const val = document.getElementById('header-order-lookup').value.trim().toUpperCase();
+      if (!val) return;
+      setPrimaryView('all');
+      document.getElementById('all-search').value = val;
+      applyAllOrdersFilters();
+      showLookupFeedback('ORDER QUICK LOOKUP: ' + val);
+    }
+
+    function runHeaderCustomerLookup(e) {
+      e.preventDefault();
+      const val = document.getElementById('header-customer-lookup').value.trim().toUpperCase();
+      if (!val) return;
+      setPrimaryView('all');
+      document.getElementById('all-search').value = val;
+      applyAllOrdersFilters();
+      showLookupFeedback('CUSTOMER QUICK LOOKUP: ' + val);
+    }
+
+    function showLookupFeedback(msg) {
+      const box = document.getElementById('lookup-feedback');
+      document.getElementById('lookup-feedback-text').textContent = msg;
+      box.classList.remove('hidden');
+    }
+
+    function clearQuickLookup() {
+      document.getElementById('header-order-lookup').value = '';
+      document.getElementById('header-customer-lookup').value = '';
+      document.getElementById('all-search').value = '';
+      document.getElementById('lookup-feedback').classList.add('hidden');
+      applyAllOrdersFilters();
+    }
+
+    function reviewWaitingOrders() {
+      setPrimaryView('all');
+      document.getElementById('all-flags').value = 'ANY OPEN';
+      applyAllOrdersFilters();
+    }
+
+    function applyAllOrdersFilters() {
+      const search = document.getElementById('all-search').value.trim().toUpperCase();
+      const status = document.getElementById('all-status').value;
+      const courier = document.getElementById('all-courier').value;
+      const brand = document.getElementById('all-brand').value;
+      const flag = document.getElementById('all-flags').value;
+      const special = document.getElementById('all-special').value;
+      const scheme = document.getElementById('all-scheme').value;
+      const gov = document.getElementById('all-governorate').value;
+
+      const rows = document.querySelectorAll('.all-row');
+      let visible = 0;
+
+      rows.forEach(row => {
+        const matchTab = row.dataset.tab === currentChannel;
+        const matchSearch = !search ||
+          row.dataset.order.includes(search) ||
+          row.dataset.customer.includes(search) ||
+          row.dataset.brand.includes(search);
+        const matchStatus = !status || row.dataset.status === status;
+        const matchCourier = !courier || row.dataset.courier === courier;
+        const matchBrand = !brand || row.dataset.brand === brand;
+        const matchFlag = !flag || (flag === 'ANY OPEN' ? row.dataset.flag !== '—' : row.dataset.flag === flag);
+        const matchSpecial = !special || row.dataset.special.includes(special);
+        const matchScheme = !scheme || row.dataset.scheme === scheme;
+        const matchGov = !gov || row.dataset.gov === gov;
+
+        if (matchTab && matchSearch && matchStatus && matchCourier && matchBrand && matchFlag && matchSpecial && matchScheme && matchGov) {
+          row.classList.remove('hidden');
+          visible++;
+        } else {
+          row.classList.add('hidden');
+        }
+      });
+
+      document.getElementById('all-empty-state').classList.toggle('hidden', visible > 0);
+      document.getElementById('master-showing-badge').textContent = 'SHOWING: ' + visible + ' OF 130';
+      document.getElementById('all-pagination-text').textContent = 'SHOWING ' + visible + ' OF 130 ENTRIES';
+      document.getElementById('footer-summary').textContent = 'SHOWING ' + visible + ' OF 130 ENTRIES · TOTAL STALE: 42';
+    }
+
+    function resetAllOrdersFilters() {
+      document.getElementById('all-search').value = '';
+      document.getElementById('all-status').value = '';
+      document.getElementById('all-courier').value = '';
+      document.getElementById('all-brand').value = '';
+      document.getElementById('all-flags').value = '';
+      document.getElementById('all-special').value = '';
+      document.getElementById('all-scheme').value = '';
+      document.getElementById('all-governorate').value = '';
+      document.getElementById('lookup-feedback').classList.add('hidden');
+      applyAllOrdersFilters();
+    }
+
+    function toggleNoActionFilter() {
+      noActionOnly = !noActionOnly;
+      const btn = document.getElementById('no-action-btn');
+      if (noActionOnly) {
+        btn.className = 'px-3.5 py-2 rounded-xl border-2 border-accent bg-accent text-white text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-sm transition-all';
+      } else {
+        btn.className = 'px-3.5 py-2 rounded-xl border-2 border-surface-200 bg-white text-primary-950/80 hover:border-accent/50 text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-sm transition-all';
+      }
+      applyStaleFilters();
+    }
+
+    function setHoursPreset(val, btnEl) {
+      document.querySelectorAll('.hours-preset-btn').forEach(b => {
+        b.className = 'hours-preset-btn px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider text-primary-950/80 hover:bg-surface-100 transition-colors mono-num';
+      });
+      btnEl.className = 'hours-preset-btn px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider bg-accent text-white shadow-sm transition-colors mono-num';
+
+      const input = document.getElementById('hours-input');
+      if (val !== 'custom') {
+        input.value = val;
+      } else {
+        input.focus();
+      }
+      applyStaleFilters();
+    }
+
+    function onCustomHoursInput() {
+      document.querySelectorAll('.hours-preset-btn').forEach(b => {
+        if (b.dataset.hours === 'custom') {
+          b.className = 'hours-preset-btn px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider bg-accent text-white shadow-sm transition-colors';
+        } else {
+          b.className = 'hours-preset-btn px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider text-primary-950/80 hover:bg-surface-100 transition-colors mono-num';
+        }
+      });
+      applyStaleFilters();
+    }
+
+    function applyStaleFilters() {
+      const minHours = parseInt(document.getElementById('hours-input').value || '0', 10);
+      const brand = document.getElementById('stale-brand').value;
+      const status = document.getElementById('stale-status').value;
+      const courier = document.getElementById('stale-courier').value;
+
+      const rows = document.querySelectorAll('.stale-row');
+      let visible = 0;
+
+      rows.forEach(row => {
+        const rHours = parseInt(row.dataset.hours, 10);
+        const matchTab = row.dataset.tab === currentChannel;
+        const matchHours = rHours >= minHours;
+        const matchBrand = !brand || row.dataset.brand === brand;
+        const matchStatus = !status || row.dataset.status === status;
+        const matchCourier = !courier || row.dataset.courier === courier;
+        const matchFlag = !noActionOnly || row.dataset.flag === 'NO ACTION';
+
+        if (matchTab && matchHours && matchBrand && matchStatus && matchCourier && matchFlag) {
+          row.classList.remove('hidden');
+          visible++;
+        } else {
+          row.classList.add('hidden');
+        }
+      });
+
+      document.getElementById('stale-empty-state').classList.toggle('hidden', visible > 0);
+      document.getElementById('master-showing-badge').textContent = 'SHOWING: ' + visible + ' OF 42';
+      document.getElementById('footer-summary').textContent = 'TOTAL STALE: ' + visible + ' · NO ACTION TAKEN: 42';
+    }
+
+    function resetStaleFilters() {
+      document.getElementById('hours-input').value = 24;
+      document.getElementById('stale-brand').value = '';
+      document.getElementById('stale-status').value = '';
+      document.getElementById('stale-courier').value = '';
+      noActionOnly = true;
+      document.getElementById('no-action-btn').className = 'px-3.5 py-2 rounded-xl border-2 border-accent bg-accent text-white text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-sm transition-all';
+      const btn24 = document.querySelector('.hours-preset-btn[data-hours="24"]');
+      setHoursPreset(24, btn24);
+    }
+
+    renderAllOrdersRows();
+    renderStaleRows();
+  </script>
+
+
+
+</body></html>

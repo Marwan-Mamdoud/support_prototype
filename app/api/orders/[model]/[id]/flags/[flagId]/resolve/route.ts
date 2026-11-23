@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { orderModelFor } from "@/lib/models/Order";
-import { requireSession } from "@/lib/serverAuth";
+import { requireSession, loadOrderWithAccess } from "@/lib/serverAuth";
 import { writeAudit } from "@/lib/audit";
 
 export const dynamic = "force-dynamic";
@@ -13,8 +13,8 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ model: str
   const Model = orderModelFor(model);
   if (!Model) return NextResponse.json({ error: "Invalid model" }, { status: 400 });
   await connectDB();
-  const order = await Model.findById(id);
-  if (!order) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  const { order, error } = await loadOrderWithAccess(Model, id, session);
+  if (error) return error;
   const body = await req.json().catch(() => ({}));
   const flag = (order.issueFlags as any).id(flagId);
   if (!flag) return NextResponse.json({ error: "Flag not found" }, { status: 404 });

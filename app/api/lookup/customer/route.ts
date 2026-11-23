@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { TuruqOrder, IntegrationOrder } from "@/lib/models/Order";
 import { Client } from "@/lib/models";
-import { requireSession } from "@/lib/serverAuth";
+import { requireSession, getBrandFilter } from "@/lib/serverAuth";
 import { normalizePhone } from "@/lib/rules/phone";
 import { computeSuccessRate } from "@/lib/rules/successRate";
 
@@ -14,9 +14,10 @@ export async function GET(req: NextRequest) {
   await connectDB();
   const phone = req.nextUrl.searchParams.get("phone") || "";
   const norm = normalizePhone(phone);
+  const brandFilter = getBrandFilter(session);
   const [turuq, integration] = await Promise.all([
-    TuruqOrder.find({ customerPhoneNormalized: norm }).lean(),
-    IntegrationOrder.find({ customerPhoneNormalized: norm }).lean(),
+    TuruqOrder.find({ $and: [{ customerPhoneNormalized: norm }, brandFilter] }).lean(),
+    IntegrationOrder.find({ $and: [{ customerPhoneNormalized: norm }, brandFilter] }).lean(),
   ]);
   const names = new Set<string>();
   const addresses = new Set<string>();

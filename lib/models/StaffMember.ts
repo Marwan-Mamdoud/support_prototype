@@ -5,7 +5,8 @@ export interface IStaffMember extends Document {
   username: string;
   email: string;
   phone: string;
-  role: "SUPPORT" | "ADMIN";
+  role: "SUPER" | "SUPPORT";
+  assignedBrandIds: mongoose.Types.ObjectId[];
   active: boolean;
   passwordHash: string;
   createdAt: Date;
@@ -18,7 +19,8 @@ const StaffMemberSchema = new Schema<IStaffMember>(
     username: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     phone: { type: String, required: true },
-    role: { type: String, enum: ["SUPPORT", "ADMIN"], default: "SUPPORT" },
+    role: { type: String, enum: ["SUPER", "SUPPORT"], default: "SUPPORT" },
+    assignedBrandIds: [{ type: Schema.Types.ObjectId, ref: "Client", default: [] }],
     active: { type: Boolean, default: true },
     passwordHash: { type: String, required: true },
   },

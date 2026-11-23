@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { orderModelFor } from "@/lib/models/Order";
 import { Client, Courier } from "@/lib/models";
-import { requireSession } from "@/lib/serverAuth";
+import { requireSession, getBrandFilter } from "@/lib/serverAuth";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +31,17 @@ export async function GET(req: NextRequest) {
     const clients = await Client.find({ companyName: { $regex: brand, $options: "i" } }).select("_id");
     filter.clientId = { $in: clients.map((c: any) => c._id) };
   }
+
+  const brandFilter = getBrandFilter(session);
+  if (brandFilter.clientId) {
+    if (filter.clientId) {
+      filter.$and = [{ clientId: filter.clientId }, { clientId: brandFilter.clientId }];
+      delete filter.clientId;
+    } else {
+      filter.clientId = brandFilter.clientId;
+    }
+  }
+
   const status = sp.get("status");
   if (status) filter.status = status;
 
@@ -45,7 +56,11 @@ export async function GET(req: NextRequest) {
     if (couriers.length) filter.courierId = { $in: couriers.map((c: any) => c._id) };
   }
 
-  const items = await Model.find(filter).sort({ lastStatusChangedAt: 1 }).lean();
+  const page = Math.max(1, parseInt(sp.get("page") || "1"));
+  const limit = Math.min(100, Math.max(1, parseInt(sp.get("limit") || "12")));
+  const skip = (page - 1) * limit;
+  const items = await Model.find(filter).sort({ lastStatusChangedAt: 1 }).skip(skip).limit(limit).lean();
+  const total = await Model.countDocuments(filter);
   const clientIds = [...new Set(items.map((i: any) => String(i.clientId)))];
   const courierIds = [...new Set(items.map((i: any) => i.courierId ? String(i.courierId) : null).filter(Boolean))];
   const clients = await Client.find({ _id: { $in: clientIds } }).lean();
@@ -62,5 +77,5 @@ export async function GET(req: NextRequest) {
     hoursStale: Math.floor((now - new Date(it.lastStatusChangedAt).getTime()) / (1000 * 60 * 60)),
   }));
 
-  return NextResponse.json({ items: enriched, total: enriched.length });
+  return NextResponse.json({ items: enriched, total, page, limit, pages: Math.ceil(total / limit) });
 }

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { orderModelFor, IntegrationOrder } from "@/lib/models/Order";
-import { requireSession } from "@/lib/serverAuth";
+import { requireSession, getBrandFilter, canAccessBrand } from "@/lib/serverAuth";
 import { TuruqOrder, Client, Product } from "@/lib/models";
 import { normalizePhone, isValidPhone } from "@/lib/rules/phone";
 import { isAddressValid } from "@/lib/rules/address";
@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
   const limit = Math.min(100, Math.max(1, parseInt(sp.get("limit") || "25")));
   const skip = (page - 1) * limit;
 
-  const filter: any = {};
+  const filter: any = { ...getBrandFilter(session) };
   const brand = sp.get("brand");
   if (brand) {
     const clients = await Client.find({ companyName: { $regex: brand, $options: "i" } }).select("_id");
@@ -169,6 +169,7 @@ export async function POST(req: NextRequest) {
   const { clientId, customerName, customerPhone, customerGovernorate, customerAddress, products, paymentMethod, paymentStatus, shippingHandledBy, canOpenPackage, notes, subtotal: subIn, shippingFees: feeIn, type, specialHandling, source, provider, externalId } = body;
 
   if (!clientId) return NextResponse.json({ error: "Brand is required" }, { status: 400 });
+  if (!canAccessBrand(session, clientId)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const client = await Client.findById(clientId);
   if (!client) return NextResponse.json({ error: "Brand not found" }, { status: 404 });
@@ -182,7 +183,7 @@ export async function POST(req: NextRequest) {
   let total = computeTotal(subtotal, shippingFees, handler);
   if (paymentStatus === "PAID") total = 0;
 
-  const defaultLocation = client.serviceScheme === "WAREHOUSE" ? "warehouse" : "brand_storage";
+  const defaultLocation = (type === "REFUND") ? "with_customer" : (client.serviceScheme === "WAREHOUSE" ? "warehouse" : "brand_storage");
 
   const orderSource = source === "integration" ? "integration" : "turuq";
   const oid = `TQ-${Date.now().toString().slice(-6)}`;
@@ -250,6 +251,21 @@ export async function POST(req: NextRequest) {
   if (!isValidPhone(phoneNorm)) {
     flags.push({ type: "invalid_phone_number", note: "Phone failed validation", reportedByRole: "system", reportedByUser: "system", reportedAt: new Date(), state: "open" });
   }
+
+  // Stock check & deduct
+  const outOfStockExists = flags.some((f) => f.type === "outOfStock");
+  for (const p of products || []) {
+    const prod = await Product.findOne({ uid: p.uid });
+    if (prod) {
+      const available = prod.quantity;
+      if (p.quantity > available && !outOfStockExists) {
+        flags.push({ type: "outOfStock", note: `${p.name} ordered ${p.quantity} but only ${available} in stock`, reportedByRole: "system", reportedByUser: "system", reportedAt: new Date(), state: "open" });
+      }
+      prod.quantity -= p.quantity;
+      await prod.save();
+    }
+  }
+
   if (flags.length) {
     order.issueFlags = flags as any;
     order.hasOpenIssue = true;

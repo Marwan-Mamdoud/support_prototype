@@ -33,6 +33,7 @@
   --color-muted: var(--muted);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-secondary: var(--secondary);
+  --color-secondary-accent: #38cbfc;
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
   --color-surface-50: var(--surface-50);

@@ -4,12 +4,14 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { timeAgo, formatDate, humanize, humanizeUpper } from "@/lib/time";
 import { detectCarrier } from "@/lib/rules/carrier";
+import { ISSUE_FLAG_TYPES } from "@/lib/rules/constants";
 import { useBrandPreview } from "@/lib/brandPreview";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Check, Search } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { OrderCard } from "@/components/OrderCard";
+import { StaleOrdersPanel } from "@/components/StaleOrdersPanel";
 
 const STATUSES = ["pending","processing","packed","QC","pickedUp","droppedOff","outForDelivery","postponed","outOfStock","delivered","collected","returned","RTW","RTO","cancelled"];
 
@@ -27,6 +29,15 @@ function OrdersPageContent() {
   const [custAddr, setCustAddr] = useState("");
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<any>(null);
+  const [primaryView, setPrimaryView] = useState<"all" | "stale">(sp.get("view") === "stale" ? "stale" : "all");
+
+  // Stale orders state
+  const [staleModel, setStaleModel] = useState<"turuq" | "integration">("turuq");
+  const [staleHours, setStaleHours] = useState(24);
+  const [staleNoAction, setStaleNoAction] = useState(true);
+  const [staleBrand, setStaleBrand] = useState("");
+  const [staleStatus, setStaleStatus] = useState("");
+  const [staleCarrier, setStaleCarrier] = useState("");
 
   useEffect(() => {
     const saved = sp.get("saved");
@@ -62,6 +73,24 @@ function OrdersPageContent() {
     queryFn: async () => (await fetch(`/api/orders?${queryString}`)).json(),
   });
 
+  const staleQs = useMemo(() => {
+    const p = new URLSearchParams();
+    p.set("model", staleModel);
+    p.set("hours", String(staleHours));
+    if (staleNoAction) p.set("noAction", "true");
+    if (staleBrand) p.set("brand", staleBrand);
+    if (staleStatus) p.set("status", staleStatus);
+    if (staleCarrier) p.set("carrier", staleCarrier);
+    return p.toString();
+  }, [staleModel, staleHours, staleNoAction, staleBrand, staleStatus, staleCarrier]);
+
+  const { data: staleData, isLoading: staleLoading } = useQuery({
+    queryKey: ["stale", staleQs],
+    queryFn: async () => (await fetch(`/api/orders/stale?${staleQs}`)).json(),
+  });
+  const staleItems = staleData?.items || [];
+  const staleTotal = staleData?.total ?? 0;
+
   const items = data?.items || [];
   const total = data?.total ?? 0;
   const pages = data?.pages ?? 1;
@@ -85,22 +114,7 @@ function OrdersPageContent() {
   const newCount = countsData?.new ?? 0;
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50">
-      <header className="h-16 px-8 border-b-2 border-primary bg-white flex items-center justify-between flex-shrink-0">
-        <div className="flex items-center gap-4">
-          <h1 className="text-xl font-black uppercase tracking-wider text-primary flex items-center gap-2.5">
-            <span>ORDERS DISPATCH HUB</span>
-          </h1>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-extrabold uppercase text-slate-600 mono-num">{total} TOTAL SHIPMENTS</span>
-          <button onClick={() => router.push("/create-order")} className="px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-md hover:shadow-lg transition-all">
-            <span>+</span>
-            <span>CREATE ORDER</span>
-          </button>
-        </div>
-      </header>
-
+    <div className="flex flex-col flex-1 bg-slate-50">
       <div className="p-8 space-y-6 flex-1">
         {waitingCount > 0 && (
           <div className="bg-amber-50 border-2 border-amber-400 rounded-2xl p-5 flex items-center justify-between gap-6 shadow-sm">
@@ -143,28 +157,53 @@ function OrdersPageContent() {
         </div>
 
         <div className={selected ? "grid grid-cols-1 xl:grid-cols-[1fr_560px] gap-6" : ""}>
+          {/* Primary view switcher */}
           <div className="border-2 border-primary rounded-2xl bg-white overflow-hidden shadow-xl">
-            <div className="bg-primary text-white px-6 py-4 flex flex-wrap items-center justify-between gap-4 border-b border-primary/80">
-              <div className="flex items-center gap-3">
-                <span className="text-sm font-black uppercase tracking-wider">Consignment Master Register</span>
-                <span className="px-2.5 py-0.5 rounded bg-white text-[10px] font-black uppercase text-primary shadow-sm mono-num">Total: {total}</span>
-              </div>
-              <div className="inline-flex bg-primary/80 p-1 rounded-xl border border-white/20 shadow-inner">
+          <div className="bg-primary text-white px-5 py-3.5 flex flex-wrap items-center justify-between gap-4 border-b border-primary-950">
+            <div className="flex items-center gap-3">
+              <div className="inline-flex bg-primary-950 p-1 rounded-xl border border-secondary_accent/30 shadow-inner gap-1">
                 <button
-                  onClick={() => { setModel("turuq"); setPage(1); }}
-                  className={`px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition ${model === "turuq" ? "bg-white text-primary shadow-md" : "text-white/80 hover:text-white"}`}
+                  type="button"
+                  onClick={() => setPrimaryView("all")}
+                  className={`px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all ${primaryView === "all" ? "bg-white text-primary shadow-md" : "text-white/90 hover:text-white"}`}
                 >
-                  Turuq Orders <span className="px-1.5 py-0.2 rounded bg-primary/20 text-primary text-[10px] mono-num">{turuqCount}</span>
+                  <span>CONSIGNMENT MASTER</span>
+                  <span className="px-1.5 py-0.2 rounded bg-primary text-white text-[10px] mono-num">{total}</span>
                 </button>
                 <button
-                  onClick={() => { setModel("integration"); setPage(1); }}
-                  className={`px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition ${model === "integration" ? "bg-white text-primary shadow-md" : "text-white/80 hover:text-white"}`}
+                  type="button"
+                  onClick={() => setPrimaryView("stale")}
+                  className={`px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all ${primaryView === "stale" ? "bg-white text-primary shadow-md" : "text-white/90 hover:text-white"}`}
                 >
-                  Integration Orders <span className="px-1.5 py-0.2 rounded bg-primary/20 text-primary text-[10px] mono-num">{intCount}</span>
+                  <span>STALE ORDERS</span>
+                  <span className="px-1.5 py-0.2 rounded bg-rose-700 text-white text-[10px] mono-num">{staleTotal}</span>
                 </button>
               </div>
+              <span className="px-2.5 py-1 rounded bg-white/15 text-[10px] font-black uppercase text-white mono-num border border-white/20">
+                SHOWING: {primaryView === "all" ? `${items.length} OF ${total}` : `${staleItems.length} OF ${staleTotal}`}
+              </span>
             </div>
 
+            <div className="inline-flex bg-primary-950 p-1 rounded-xl border border-secondary_accent/30 shadow-inner">
+              <button
+                onClick={() => { setModel("turuq"); setStaleModel("turuq"); setPage(1); }}
+                className={`px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition-all ${model === "turuq" ? "bg-white text-primary shadow-md" : "text-white/90 hover:text-white"}`}
+              >
+                <span>TURUQ</span>
+                <span className={`px-1.5 py-0.2 rounded text-[10px] mono-num ${model === "turuq" ? "bg-primary/20 text-primary" : "bg-white/15 text-white"}`}>{turuqCount}</span>
+              </button>
+              <button
+                onClick={() => { setModel("integration"); setStaleModel("integration"); setPage(1); }}
+                className={`px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition-all ${model === "integration" ? "bg-white text-primary shadow-md" : "text-white/90 hover:text-white"}`}
+              >
+                <span>INTEGRATION</span>
+                <span className={`px-1.5 py-0.2 rounded text-[10px] mono-num ${model === "integration" ? "bg-primary/20 text-primary" : "bg-white/15 text-white"}`}>{intCount}</span>
+              </button>
+            </div>
+          </div>
+
+          {primaryView === "all" ? (
+            <>
             <div className="bg-slate-50 p-4 border-b border-slate-200 flex flex-wrap items-center gap-3">
               <div className="relative flex-1 min-w-[220px]">
                 <Search className="absolute left-3 top-2.5 text-slate-400 w-4 h-4 pointer-events-none" />
@@ -177,7 +216,7 @@ function OrdersPageContent() {
                 />
               </div>
               <select
-                className="appearance-none bg-white border border-slate-200 rounded-xl text-xs font-extrabold uppercase pl-3 pr-8 py-2 text-slate-900 focus:outline-none focus:border-primary shadow-sm cursor-pointer"
+                className="appearance-none bg-white border-2 border-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider pl-4 pr-10 py-2.5 text-slate-900 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer min-w-[140px]"
                 value={filters.status || ""}
                 onChange={(e) => setFilters({ ...filters, status: e.target.value })}
               >
@@ -185,7 +224,7 @@ function OrdersPageContent() {
                 {STATUSES.map((s) => <option key={s} value={s}>{s.toUpperCase().replace(/_/g, " ")}</option>)}
               </select>
               <select
-                className="appearance-none bg-white border border-slate-200 rounded-xl text-xs font-extrabold uppercase pl-3 pr-8 py-2 text-slate-900 focus:outline-none focus:border-primary shadow-sm cursor-pointer"
+                className="appearance-none bg-white border-2 border-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider pl-4 pr-10 py-2.5 text-slate-900 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer min-w-[140px]"
                 value={filters.carrier || ""}
                 onChange={(e) => setFilters({ ...filters, carrier: e.target.value })}
               >
@@ -195,7 +234,7 @@ function OrdersPageContent() {
                 <option value="shipblu">ShipBlu</option>
               </select>
               <Popover open={brandOpen} onOpenChange={setBrandOpen}>
-                <PopoverTrigger className="appearance-none bg-white border border-slate-200 rounded-xl text-xs font-extrabold uppercase pl-3 pr-8 py-2 text-slate-900 focus:outline-none focus:border-primary shadow-sm cursor-pointer min-w-[120px] text-left">
+                <PopoverTrigger className="appearance-none bg-white border-2 border-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider pl-4 pr-10 py-2.5 text-slate-900 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer min-w-[160px] text-left">
                   {filters.brand ? filters.brand : "Brand: All"}
                 </PopoverTrigger>
                 <PopoverContent className="p-0 w-64">
@@ -217,18 +256,18 @@ function OrdersPageContent() {
                 </PopoverContent>
               </Popover>
               <select
-                className="appearance-none bg-white border border-slate-200 rounded-xl text-xs font-extrabold uppercase pl-3 pr-8 py-2 text-slate-900 focus:outline-none focus:border-primary shadow-sm cursor-pointer"
+                className="appearance-none bg-white border-2 border-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider pl-4 pr-10 py-2.5 text-slate-900 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer min-w-[140px]"
                 value={filters.issueFlag || ""}
                 onChange={(e) => setFilters({ ...filters, issueFlag: e.target.value })}
               >
                 <option value="">Flags: All</option>
                 <option value="open">Any open</option>
-                {["ticket","return_missing_items","return_wrong_items","invalid_address","invalid_phone_number","delayed_shipment","defective_items","other"].map((t) => (
+                {ISSUE_FLAG_TYPES.map((t) => (
                   <option key={t} value={t}>{t.toUpperCase().replace(/_/g, " ")}</option>
                 ))}
               </select>
               <select
-                className="appearance-none bg-white border border-slate-200 rounded-xl text-xs font-extrabold uppercase pl-3 pr-8 py-2 text-slate-900 focus:outline-none focus:border-primary shadow-sm cursor-pointer"
+                className="appearance-none bg-white border-2 border-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider pl-4 pr-10 py-2.5 text-slate-900 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer min-w-[140px]"
                 value={filters.specialHandling || ""}
                 onChange={(e) => setFilters({ ...filters, specialHandling: e.target.value })}
               >
@@ -238,7 +277,7 @@ function OrdersPageContent() {
                 <option value="replacement">Replacement</option>
               </select>
               <select
-                className="appearance-none bg-white border border-slate-200 rounded-xl text-xs font-extrabold uppercase pl-3 pr-8 py-2 text-slate-900 focus:outline-none focus:border-primary shadow-sm cursor-pointer"
+                className="appearance-none bg-white border-2 border-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider pl-4 pr-10 py-2.5 text-slate-900 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer min-w-[140px]"
                 value={filters.serviceScheme || ""}
                 onChange={(e) => setFilters({ ...filters, serviceScheme: e.target.value })}
               >
@@ -247,7 +286,7 @@ function OrdersPageContent() {
                 <option value="PICKUP">Pickup</option>
               </select>
               <select
-                className="appearance-none bg-white border border-slate-200 rounded-xl text-xs font-extrabold uppercase pl-3 pr-8 py-2 text-slate-900 focus:outline-none focus:border-primary shadow-sm cursor-pointer"
+                className="appearance-none bg-white border-2 border-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider pl-4 pr-10 py-2.5 text-slate-900 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer min-w-[140px]"
                 value={filters.governorate || ""}
                 onChange={(e) => setFilters({ ...filters, governorate: e.target.value })}
               >
@@ -376,13 +415,46 @@ function OrdersPageContent() {
                 </button>
               </div>
             </div>
-          </div>
-
-          {selected && (
-            <div className="sticky top-20 self-start bg-white rounded-2xl border-2 border-slate-300 shadow-xl overflow-hidden max-h-[calc(100vh-60px)] overflow-y-auto">
-              <OrderCard order={selected} model={model} onClose={() => setSelected(null)} />
-            </div>
+            </>
+          ) : (
+            <StaleOrdersPanel
+              model={staleModel}
+              setModel={setStaleModel}
+              hours={staleHours}
+              setHours={setStaleHours}
+              noAction={staleNoAction}
+              setNoAction={setStaleNoAction}
+              brand={staleBrand}
+              setBrand={setStaleBrand}
+              status={staleStatus}
+              setStatus={setStaleStatus}
+              carrier={staleCarrier}
+              setCarrier={setStaleCarrier}
+              onSelect={setSelected}
+            />
           )}
+
+          {/* Master card footer */}
+          <div className="bg-surface-50 px-6 py-3.5 border-t border-surface-200 flex items-center justify-between text-xs font-bold uppercase text-primary-950/85">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-thumbnail"></span>
+              <span className="mono-num">
+                {primaryView === "all"
+                  ? `SHOWING ${items.length} OF ${total} ENTRIES · TOTAL STALE: ${staleTotal}`
+                  : `TOTAL STALE: ${staleTotal} · NO ACTION TAKEN: ${staleItems.filter((o: any) => !o.hasOpenIssue).length}`}
+              </span>
+            </div>
+            <div className="mono-num text-[11px] font-extrabold text-primary">
+              TURUQ SUPPORT DISPATCH
+            </div>
+          </div>
+        </div>
+
+        {selected && (
+          <div className="sticky top-20 self-start bg-white rounded-2xl border-2 border-slate-300 shadow-xl overflow-hidden max-h-[calc(100vh-60px)] overflow-y-auto">
+            <OrderCard order={selected} model={primaryView === "all" ? model : staleModel} onClose={() => setSelected(null)} />
+          </div>
+        )}
         </div>
       </div>
     </div>

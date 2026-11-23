@@ -5,8 +5,68 @@ import { useQuery } from "@tanstack/react-query";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, ArrowRight, Building2, BadgeCheck, Calendar, BarChart3, PieChart, Trophy, Package, Phone, Mail, CheckCircle2, TrendingUp } from "lucide-react";
-import { formatDate } from "@/lib/time";
+import {
+  ArrowLeft,
+  Building2,
+  BadgeCheck,
+  Calendar,
+  BarChart3,
+  PieChart,
+  Trophy,
+  Package,
+  TrendingUp,
+  AlertTriangle,
+  Clock,
+  User,
+  XCircle,
+  Zap,
+  Truck,
+  HeadsetIcon,
+} from "lucide-react";
+import { formatDate, humanize } from "@/lib/time";
+
+interface BrandStats {
+  id: string;
+  name: string;
+  serviceScheme: string;
+  active: boolean;
+  pendingCount: number;
+  processingCount: number;
+  backlogCount: number;
+  backlogDays: number;
+  usualDailyOrders: number;
+  onHoldCount: number;
+  openShipments: number;
+  oldestShipmentAgeHours: number;
+  deliveryRate30d: number;
+  deliveryTrend: number;
+  returnRate30d: number;
+  returnTrend: number;
+  openTickets: number;
+  oldestOpenIssueAgeHours: number;
+  unprocessedDropoffs: number;
+  restricted: boolean;
+  mostFrequentIssue: string;
+  mostFrequentIssueCount: number;
+  outOfStockOrders: number;
+  oldestOutOfStockAgeHours: number;
+  urgentVIPExchangeCount: number;
+  cancelledAfterShipment30d: number;
+  avgDeliveryTimeHours: number;
+  companyAvgDeliveryTimeHours: number;
+  volume30d: number;
+  volumePrev30d: number;
+  volumeTrend: number;
+  todayVolume: number;
+  yesterdayVolume: number;
+  todayTrend: number;
+  turuqCount: number;
+  integrationCount: number;
+  courierDistribution: { turuq: number; bosta: number; shipblu: number; other: number };
+  lastInteractionAt: string | null;
+  lastInteractionDays: number | null;
+  assignedSupportRep: { id: string; name: string } | null;
+}
 
 export default function ClientDetailsPage() {
   const params = useParams();
@@ -18,6 +78,11 @@ export default function ClientDetailsPage() {
     queryFn: async () => (await fetch(`/api/clients?id=${id}`)).json(),
   });
   const client = clientData?.client;
+
+  const { data: brand } = useQuery<BrandStats>({
+    queryKey: ["client-brand", id],
+    queryFn: async () => (await fetch(`/api/clients/${id}/stats/brand`)).json(),
+  });
 
   const { data: today } = useQuery({
     queryKey: ["client-today", id],
@@ -44,11 +109,50 @@ export default function ClientDetailsPage() {
     </div>
   );
 
-  const todayTotal = today?.today ?? 0;
-  const turuqToday = today?.bySource?.turuq ?? 0;
-  const intToday = today?.bySource?.integration ?? 0;
-  const turuqPct = todayTotal ? Math.round((turuqToday / todayTotal) * 100) : 0;
-  const intPct = todayTotal ? Math.round((intToday / todayTotal) * 100) : 0;
+  const SectionCard = ({ title, icon: Icon, children, action }: any) => (
+    <div className="border-2 border-primary rounded-2xl bg-white overflow-hidden shadow-sm">
+      <div className="bg-primary text-white px-5 py-3.5 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Icon className="w-5 h-5 text-secondary" />
+          <h2 className="text-xs font-black uppercase tracking-widest">{title}</h2>
+        </div>
+        {action}
+      </div>
+      <div className="p-5">{children}</div>
+    </div>
+  );
+
+  const ProgressBar = ({ label, value, total, color = "bg-primary" }: any) => {
+    const pct = total ? Math.round((value / total) * 100) : 0;
+    return (
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between text-xs font-black uppercase">
+          <span className="text-primary">{label}</span>
+          <span className="text-primary mono-num">{value} ({pct}%)</span>
+        </div>
+        <div className="w-full h-3 bg-surface-100 rounded-full overflow-hidden">
+          <div className={`h-full ${color} rounded-full`} style={{ width: `${pct}%` }} />
+        </div>
+      </div>
+    );
+  };
+
+  const TrendPill = ({ value }: { value: number }) => {
+    const color = value > 0 ? "text-thumbnail" : value < 0 ? "text-rose-600" : "text-primary/70";
+    return (
+      <span className={`text-xs font-black mono-num ${color}`}>
+        {value > 0 ? "+" : ""}{value}%
+      </span>
+    );
+  };
+
+  const todayVol = brand?.todayVolume ?? today?.today ?? 0;
+  const yesterdayVol = brand?.yesterdayVolume ?? today?.yesterday ?? 0;
+  const todayTrendVal = brand?.todayTrend ?? 0;
+  const turuqToday = brand?.turuqCount ?? today?.bySource?.turuq ?? 0;
+  const intToday = brand?.integrationCount ?? today?.bySource?.integration ?? 0;
+  const turuqPct = todayVol ? Math.round((turuqToday / todayVol) * 100) : 0;
+  const intPct = todayVol ? Math.round((intToday / todayVol) * 100) : 0;
 
   const statusColors: Record<string, string> = {
     delivered: "bg-thumbnail text-primary-950",
@@ -73,13 +177,18 @@ export default function ClientDetailsPage() {
   const outcome = perf?.outcome || { delivered: 0, returned: 0, cancelled: 0 };
   const maxOutcome = Math.max(1, outcome.delivered, outcome.returned, outcome.cancelled);
 
+  const totalSource = (brand?.turuqCount || 0) + (brand?.integrationCount || 0);
+  const courierTotal = brand
+    ? brand.courierDistribution.turuq + brand.courierDistribution.bosta + brand.courierDistribution.shipblu + brand.courierDistribution.other
+    : 0;
+
   if (clientLoading) return <div className="py-8 text-center text-primary/70 font-bold uppercase">Loading...</div>;
   if (!client) return <div className="py-8 text-center text-primary/70 font-bold uppercase">Client not found</div>;
 
   return (
-    <div className="space-y-6">
+    <div className="p-8 space-y-6 min-h-0">
       {/* Header */}
-      <header className="h-16 px-8 border-b-2 border-primary bg-white flex flex-wrap items-center justify-between gap-4 -mx-4 -mt-4 mb-6">
+      <header className="px-6 py-4 border-2 border-primary bg-white rounded-2xl flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <Button
             onClick={() => router.push("/clients")}
@@ -103,6 +212,11 @@ export default function ClientDetailsPage() {
                 <span className="px-2.5 py-0.5 rounded-md bg-secondary/25 text-secondary-950 border border-secondary-500/40 text-[10px] font-black uppercase tracking-wider">
                   {client.serviceScheme}
                 </span>
+                {brand?.restricted && (
+                  <span className="px-2.5 py-0.5 rounded-md bg-rose-100 text-rose-800 border border-rose-200 text-[10px] font-black uppercase tracking-wider">
+                    Restricted
+                  </span>
+                )}
               </div>
               <div className="text-[11px] font-extrabold uppercase tracking-wider text-primary/75 mt-0.5 mono-num">
                 {client.email} · {client.phone}
@@ -123,14 +237,7 @@ export default function ClientDetailsPage() {
             className="flex-initial px-5 h-[50px]! w-[150px]! cursor-pointer rounded-xl text-xs font-bold uppercase tracking-wider text-white/90 hover:text-white hover:bg-white/10 data-[active]:bg-secondary data-[active]:text-primary-950 data-[active]:font-black data-[active]:shadow-sm flex items-center gap-2 transition-all"
           >
             <BadgeCheck className="w-4 h-4" />
-            <span>Info</span>
-          </TabsTrigger>
-          <TabsTrigger
-            value="today"
-            className="flex-initial px-5 py-2.5 h-[50px]! w-[150px]! cursor-pointer rounded-xl text-xs font-bold uppercase tracking-wider text-white/90 hover:text-white hover:bg-white/10 data-[active]:bg-secondary data-[active]:text-primary-950 data-[active]:font-black data-[active]:shadow-sm flex items-center gap-2 transition-all"
-          >
-            <Calendar className="w-4 h-4" />
-            <span>Today Snapshot</span>
+            <span>Overview</span>
           </TabsTrigger>
           <TabsTrigger
             value="performance"
@@ -141,8 +248,8 @@ export default function ClientDetailsPage() {
           </TabsTrigger>
         </TabsList>
 
-        {/* Info tab */}
-        <TabsContent value="info" className="mt-6">
+        {/* Overview tab */}
+        <TabsContent value="info" className="mt-6 space-y-6">
           <div className="border-2 border-primary rounded-2xl bg-white overflow-hidden shadow-sm">
             <div className="bg-primary text-white px-6 py-4 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
@@ -159,19 +266,45 @@ export default function ClientDetailsPage() {
               <Tile label="PHONE" value={client.phone} color="text-primary" />
               <Tile label="EMAIL" value={client.email} color="text-primary-950" />
               <Tile label="SERVICE SCHEME" value={client.serviceScheme} badge="bg-primary text-white" />
-              <Tile label="ACTIVE" value={String(client.active).toUpperCase()} badge={client.active ? "bg-thumbnail text-primary-950" : "bg-rose-100 text-rose-800 border border-rose-200"} />
+              <Tile
+                label="ACTIVE"
+                value={String(client.active).toUpperCase()}
+                badge={client.active ? "bg-thumbnail text-primary-950" : "bg-rose-100 text-rose-800 border border-rose-200"}
+              />
             </div>
           </div>
-        </TabsContent>
 
-        {/* Today Snapshot tab */}
-        <TabsContent value="today" className="mt-6 space-y-6">
+          <SectionCard title="Key Metrics" icon={BarChart3}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+              <Tile label="Pending" value={brand?.pendingCount ?? 0} color="text-amber-600" />
+              <Tile label="Backlog" value={brand?.backlogCount ?? 0} color="text-primary-950" />
+              <Tile label="Open Tickets" value={brand?.openTickets ?? 0} color="text-rose-600" />
+              <Tile
+                label="Restricted"
+                value={brand?.restricted ? "YES" : "NO"}
+                badge={
+                  brand?.restricted
+                    ? "bg-rose-100 text-rose-800 border border-rose-200"
+                    : "bg-thumbnail text-primary-950"
+                }
+              />
+              <Tile
+                label="Assigned Support Rep"
+                value={brand?.assignedSupportRep?.name ?? "—"}
+                color={brand?.assignedSupportRep ? "text-primary-950" : "text-primary/70"}
+              />
+            </div>
+          </SectionCard>
+
+          {/* Today Snapshot */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="border-2 border-primary rounded-2xl bg-white p-5 shadow-sm flex items-center justify-between">
               <div>
                 <span className="text-[10px] font-black uppercase tracking-widest text-primary/75 block">ORDERS TODAY</span>
-                <span className="text-3xl font-black mono-num text-primary mt-1 block">{todayTotal}</span>
-                <span className="text-[11px] font-extrabold uppercase text-secondary-950 mt-1 block mono-num">VS YESTERDAY: {today?.yesterday ?? 0}</span>
+                <span className="text-3xl font-black mono-num text-primary mt-1 block">{todayVol}</span>
+                <span className="text-[11px] font-extrabold uppercase text-secondary-950 mt-1 block mono-num">
+                  VS YESTERDAY: {yesterdayVol} <TrendPill value={todayTrendVal} />
+                </span>
               </div>
               <div className="w-12 h-12 rounded-xl bg-primary text-secondary flex items-center justify-center">
                 <Package className="w-6 h-6" />
@@ -200,45 +333,15 @@ export default function ClientDetailsPage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="border-2 border-primary rounded-2xl bg-white overflow-hidden shadow-sm">
-              <div className="bg-primary text-white px-5 py-3.5 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-secondary" />
-                  <h2 className="text-xs font-black uppercase tracking-widest">BY SOURCE</h2>
-                </div>
-                <span className="text-[10px] font-black uppercase mono-num text-secondary">TOTAL: {todayTotal}</span>
+            <SectionCard title="BY SOURCE" icon={TrendingUp} action={<span className="text-[10px] font-black uppercase mono-num text-secondary">TOTAL: {todayVol}</span>}>
+              <div className="space-y-4">
+                <ProgressBar label="TURUQ" value={turuqToday} total={todayVol} color="bg-primary" />
+                <ProgressBar label="INTEGRATION" value={intToday} total={todayVol} color="bg-secondary-500" />
               </div>
-              <div className="p-5 space-y-4">
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between text-xs font-black uppercase">
-                    <span className="text-primary">TURUQ</span>
-                    <span className="text-primary mono-num">{turuqToday}</span>
-                  </div>
-                  <div className="w-full h-3 bg-surface-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-primary rounded-full" style={{ width: `${turuqPct}%` }} />
-                  </div>
-                </div>
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between text-xs font-black uppercase">
-                    <span className="text-primary">INTEGRATION</span>
-                    <span className="text-secondary-950 mono-num">{intToday}</span>
-                  </div>
-                  <div className="w-full h-3 bg-surface-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-secondary-500 rounded-full" style={{ width: `${intPct}%` }} />
-                  </div>
-                </div>
-              </div>
-            </div>
+            </SectionCard>
 
-            <div className="border-2 border-primary rounded-2xl bg-white overflow-hidden shadow-sm">
-              <div className="bg-primary text-white px-5 py-3.5 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <PieChart className="w-5 h-5 text-secondary" />
-                  <h2 className="text-xs font-black uppercase tracking-widest">BY STATUS</h2>
-                </div>
-                <span className="text-[10px] font-black uppercase mono-num text-secondary">TODAY</span>
-              </div>
-              <div className="p-5 space-y-2.5">
+            <SectionCard title="BY STATUS" icon={PieChart} action={<span className="text-[10px] font-black uppercase mono-num text-secondary">TODAY</span>}>
+              <div className="space-y-2.5">
                 {Object.entries(today?.byStatus || {}).length === 0 && (
                   <div className="text-xs font-black uppercase text-primary/70">No orders today</div>
                 )}
@@ -249,7 +352,7 @@ export default function ClientDetailsPage() {
                   </div>
                 ))}
               </div>
-            </div>
+            </SectionCard>
           </div>
         </TabsContent>
 
@@ -382,6 +485,135 @@ export default function ClientDetailsPage() {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Brand metrics sections */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            <SectionCard title="Most Frequent Issue" icon={AlertTriangle}>
+              <div className="space-y-3">
+                <Tile
+                  label="Issue Type"
+                  value={brand?.mostFrequentIssue ? humanize(brand.mostFrequentIssue) : "—"}
+                  color="text-primary-950"
+                />
+                <Tile label="Occurrences" value={brand?.mostFrequentIssueCount ?? 0} color="text-amber-600" />
+              </div>
+            </SectionCard>
+
+            <SectionCard title="Out of Stock" icon={Package}>
+              <div className="space-y-3">
+                <Tile label="Orders" value={brand?.outOfStockOrders ?? 0} color="text-rose-600" />
+                <Tile
+                  label="Oldest Age"
+                  value={brand?.oldestOutOfStockAgeHours ? `${Math.round(brand.oldestOutOfStockAgeHours)}h` : "—"}
+                  color="text-primary-950"
+                />
+              </div>
+            </SectionCard>
+
+            <SectionCard title="Urgent / VIP / Exchange" icon={Zap}>
+              <Tile label="Open Orders" value={brand?.urgentVIPExchangeCount ?? 0} color="text-thumbnail" />
+            </SectionCard>
+
+            <SectionCard title="Cancelled After Shipment" icon={XCircle}>
+              <Tile label="Last 30 Days" value={brand?.cancelledAfterShipment30d ?? 0} color="text-rose-600" />
+            </SectionCard>
+
+            <SectionCard title="Average Delivery Time" icon={Clock}>
+              <div className="space-y-3">
+                <Tile label="Brand Average" value={`${brand?.avgDeliveryTimeHours ?? 0}h`} color="text-primary-950" />
+                <Tile label="Company Average" value={`${brand?.companyAvgDeliveryTimeHours ?? 0}h`} color="text-primary/70" />
+                {brand && Math.max(brand.avgDeliveryTimeHours, brand.companyAvgDeliveryTimeHours) > 0 && (
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between text-xs font-black uppercase">
+                      <span className="text-primary">Brand vs Company</span>
+                    </div>
+                    <div className="w-full h-3 bg-surface-100 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-thumbnail rounded-full"
+                        style={{
+                          width: `${Math.min(
+                            100,
+                            Math.round(
+                              (brand.avgDeliveryTimeHours /
+                                Math.max(1, brand.companyAvgDeliveryTimeHours)) *
+                                100
+                            )
+                          )}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </SectionCard>
+
+            <SectionCard title="30-Day Volume" icon={BarChart3}>
+              <div className="space-y-3">
+                <Tile label="Current 30d" value={brand?.volume30d ?? 0} color="text-primary-950" />
+                <Tile label="Previous 30d" value={brand?.volumePrev30d ?? 0} color="text-primary/70" />
+                <div className="flex items-center gap-2 text-[11px] font-black uppercase text-primary/75">
+                  <span>Trend:</span>
+                  <TrendPill value={brand?.volumeTrend ?? 0} />
+                </div>
+              </div>
+            </SectionCard>
+
+            <SectionCard title="Today vs Yesterday" icon={Calendar}>
+              <div className="space-y-3">
+                <Tile label="Today" value={brand?.todayVolume ?? 0} color="text-primary-950" />
+                <Tile label="Yesterday" value={brand?.yesterdayVolume ?? 0} color="text-primary/70" />
+                <div className="flex items-center gap-2 text-[11px] font-black uppercase text-primary/75">
+                  <span>Trend:</span>
+                  <TrendPill value={brand?.todayTrend ?? 0} />
+                </div>
+              </div>
+            </SectionCard>
+
+            <SectionCard title="Order Source Split" icon={PieChart}>
+              <div className="space-y-4">
+                <ProgressBar label="TURUQ" value={brand?.turuqCount ?? 0} total={totalSource} color="bg-primary" />
+                <ProgressBar label="INTEGRATION" value={brand?.integrationCount ?? 0} total={totalSource} color="bg-secondary-500" />
+              </div>
+            </SectionCard>
+
+            <SectionCard title="Shipping Provider Distribution" icon={Truck}>
+              <div className="space-y-3">
+                <ProgressBar label="TURUQ" value={brand?.courierDistribution.turuq ?? 0} total={courierTotal} color="bg-primary" />
+                <ProgressBar label="BOSTA" value={brand?.courierDistribution.bosta ?? 0} total={courierTotal} color="bg-secondary-500" />
+                <ProgressBar label="SHIPBLU" value={brand?.courierDistribution.shipblu ?? 0} total={courierTotal} color="bg-thumbnail" />
+                <ProgressBar label="OTHER" value={brand?.courierDistribution.other ?? 0} total={courierTotal} color="bg-amber-500" />
+              </div>
+            </SectionCard>
+
+            <SectionCard title="Last Interaction" icon={Clock}>
+              <div className="space-y-3">
+                <Tile
+                  label="Date"
+                  value={brand?.lastInteractionAt ? formatDate(brand.lastInteractionAt) : "—"}
+                  color="text-primary-950"
+                />
+                <Tile
+                  label="Days Since"
+                  value={brand?.lastInteractionDays != null ? `${brand.lastInteractionDays}d` : "—"}
+                  color={brand && (brand.lastInteractionDays ?? 0) > 7 ? "text-rose-600" : "text-thumbnail"}
+                />
+              </div>
+            </SectionCard>
+
+            <SectionCard title="Assigned Support Rep" icon={HeadsetIcon}>
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-surface-50 border border-surface-200">
+                <div className="w-10 h-10 rounded-lg bg-primary text-white flex items-center justify-center font-black text-xs uppercase">
+                  <User className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-primary/75 block">Support Representative</span>
+                  <span className="text-sm font-black uppercase text-primary-950 block">
+                    {brand?.assignedSupportRep?.name ?? "—"}
+                  </span>
+                </div>
+              </div>
+            </SectionCard>
           </div>
         </TabsContent>
       </Tabs>

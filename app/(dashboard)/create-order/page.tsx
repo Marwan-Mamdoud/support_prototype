@@ -242,7 +242,7 @@ function CreateOrderContent() {
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full appearance-none bg-surface-50 border border-surface-200 rounded-xl text-xs font-extrabold uppercase pl-3.5 pr-8 py-2.5 text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus:border-primary cursor-pointer"
+        className="w-full appearance-none bg-white border-2 border-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider pl-4 pr-10 py-2.5 text-slate-900 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer"
       >
         {options.map((o) => <option key={o} value={o}>{o}</option>)}
       </select>
@@ -250,38 +250,27 @@ function CreateOrderContent() {
   );
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <header className="h-16 px-8 border-b-2 border-primary bg-white flex items-center justify-between -mx-4 -mt-4 mb-6">
-        <div className="flex items-center gap-4">
-          <h1 className="text-xl font-black uppercase tracking-wider text-primary flex items-center gap-2.5">
-            <Plus className="w-6 h-6 text-primary" />
-            <span>{isEdit ? "Update Order" : "Create Order"}</span>
-          </h1>
-          <span className="px-2.5 py-1 rounded-lg bg-surface-100 border border-surface-200 text-primary text-[11px] font-black uppercase tracking-wider">
-            {isEdit ? "EDIT CONSIGNMENT" : "NEW CONSIGNMENT"}
-          </span>
-        </div>
-        <div className="flex items-center gap-3">
-          {!isEdit && (
-            <Button
-              onClick={clearForm}
-              variant="outline"
-              className="px-4 py-2 rounded-xl border-surface-200 bg-surface-50 hover:bg-surface-100 text-primary text-xs font-black uppercase tracking-wider transition-colors"
-            >
-              CLEAR FORM
-            </Button>
-          )}
+    <div className="p-8 space-y-6">
+      {/* Page actions */}
+      <div className="px-6 py-4 border-2 border-primary bg-white rounded-2xl flex items-center justify-end gap-3">
+        {!isEdit && (
           <Button
-            onClick={submit}
-            disabled={!clientId || !customerPhone || products.length === 0}
-            className="px-5 py-2 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-md transition-all"
+            onClick={clearForm}
+            variant="outline"
+            className="px-4 py-2 rounded-xl border-surface-200 bg-surface-50 hover:bg-surface-100 text-primary text-xs font-black uppercase tracking-wider transition-colors"
           >
-            <CheckCircle className="w-4 h-4 text-secondary" />
-            <span>{isEdit ? "UPDATE ORDER" : "CREATE ORDER"}</span>
+            CLEAR FORM
           </Button>
-        </div>
-      </header>
+        )}
+        <Button
+          onClick={submit}
+          disabled={!clientId || !customerPhone || products.length === 0}
+          className="px-5 py-2 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-md transition-all"
+        >
+          <CheckCircle className="w-4 h-4 text-secondary" />
+          <span>{isEdit ? "UPDATE ORDER" : "CREATE ORDER"}</span>
+        </Button>
+      </div>
 
       <div className="grid grid-cols-12 gap-6 items-start">
         {/* Left column */}
@@ -297,7 +286,7 @@ function CreateOrderContent() {
                     value={clientId}
                     disabled={isEdit}
                     onChange={(e) => setClientId(e.target.value)}
-                    className="w-full appearance-none bg-surface-50 border border-surface-200 rounded-xl text-xs font-extrabold uppercase pl-3.5 pr-8 py-2.5 text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus:border-primary cursor-pointer disabled:cursor-not-allowed disabled:opacity-70"
+                    className="w-full appearance-none bg-white border-2 border-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider pl-4 pr-10 py-2.5 text-slate-900 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer disabled:cursor-not-allowed disabled:opacity-70"
                   >
                     <option value="">Select brand</option>
                     {clients.map((c: any) => <option key={c.id} value={c.id}>{c.companyName}</option>)}
@@ -310,7 +299,7 @@ function CreateOrderContent() {
                   value={source}
                   disabled={isEdit}
                   onChange={(e) => setSource(e.target.value as any)}
-                  className="w-full appearance-none bg-surface-50 border border-surface-200 rounded-xl text-xs font-extrabold uppercase pl-3.5 pr-8 py-2.5 text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus:border-primary cursor-pointer disabled:cursor-not-allowed disabled:opacity-70"
+                  className="w-full appearance-none bg-white border-2 border-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider pl-4 pr-10 py-2.5 text-slate-900 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   {["turuq", "integration"].map((o) => <option key={o} value={o}>{o}</option>)}
                 </select>
@@ -322,7 +311,7 @@ function CreateOrderContent() {
                     value={orderType}
                     disabled={isEdit}
                     onChange={(e) => setOrderType(e.target.value)}
-                    className="w-full appearance-none bg-surface-50 border border-surface-200 rounded-xl text-xs font-extrabold uppercase pl-3.5 pr-8 py-2.5 text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus:border-primary cursor-pointer disabled:cursor-not-allowed disabled:opacity-70"
+                    className="w-full appearance-none bg-white border-2 border-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider pl-4 pr-10 py-2.5 text-slate-900 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer disabled:cursor-not-allowed disabled:opacity-70"
                   >
                     {["NORMAL", "EXCHANGE", "REFUND", "PROMOTIONAL"].map((o) => <option key={o} value={o}>{o}</option>)}
                   </select>
@@ -354,7 +343,7 @@ function CreateOrderContent() {
                     <select
                       value={customerGovernorate}
                       onChange={(e) => setCustomerGovernorate(e.target.value)}
-                      className="w-full appearance-none bg-surface-50 border border-surface-200 rounded-xl text-xs font-extrabold uppercase pl-3.5 pr-8 py-2.5 text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus:border-primary cursor-pointer"
+                      className="w-full appearance-none bg-white border-2 border-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider pl-4 pr-10 py-2.5 text-slate-900 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer"
                     >
                       <option value="">Select governorate</option>
                       {Object.keys(GOVERNORATE_DEFAULT_SHIPPING).map((g) => (
@@ -414,7 +403,7 @@ function CreateOrderContent() {
                         const pr = availProducts.find((p: any) => p.uid === uid);
                         if (pr) setProductPrice(pr.unitPrice);
                       }}
-                      className="w-full appearance-none bg-white border border-surface-200 rounded-xl text-xs font-extrabold uppercase pl-3 pr-8 py-2 text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus:border-primary cursor-pointer"
+                      className="w-full appearance-none bg-white border-2 border-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider pl-4 pr-10 py-2.5 text-slate-900 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer"
                     >
                       <option value="">Select product</option>
                       {availProducts.map((p: any) => (

@@ -4,7 +4,30 @@ import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, RefreshCw, Plus, ArrowRight, Building2 } from "lucide-react";
+import { Search, RefreshCw, Plus, ArrowRight, Building2, ArrowUp, ArrowDown, Minus } from "lucide-react";
+
+type Brand = {
+  id: string;
+  name: string;
+  serviceScheme: string;
+  active: boolean;
+  pendingCount: number;
+  processingCount: number;
+  backlogCount: number;
+  backlogDays: number;
+  usualDailyOrders: number;
+  onHoldCount: number;
+  openShipments: number;
+  oldestShipmentAgeHours: number;
+  deliveryRate30d: number;
+  deliveryTrend: number;
+  returnRate30d: number;
+  returnTrend: number;
+  openTickets: number;
+  oldestOpenIssueAgeHours: number;
+  unprocessedDropoffs: number;
+  restricted: boolean;
+};
 
 export default function ClientsPage() {
   const router = useRouter();
@@ -13,36 +36,41 @@ export default function ClientsPage() {
   const [active, setActive] = useState("");
 
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ["clients", q, scheme, active],
-    queryFn: async () => (await fetch(`/api/clients?q=${encodeURIComponent(q)}&scheme=${scheme}&active=${active}`)).json(),
+    queryKey: ["clients", "metrics", q, scheme, active],
+    queryFn: async () =>
+      (await (
+        await fetch(`/api/clients/metrics?q=${encodeURIComponent(q)}&scheme=${scheme}&active=${active}`)
+      ).json()) as {
+        brands: Brand[];
+      },
   });
-  const items = data?.items || [];
+  const items = data?.brands || [];
 
-  const reset = () => { setQ(""); setScheme(""); setActive(""); };
+  const { data: me } = useQuery({ queryKey: ["me"], queryFn: async () => (await fetch("/api/me")).json() });
+  const isSuper = me?.role === "SUPER";
 
-  const initials = (name: string) => name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
+  const reset = () => {
+    setQ("");
+    setScheme("");
+    setActive("");
+  };
+
+  const Trend = ({ value }: { value: number }) => {
+    if (value > 0) return <ArrowUp className="w-3.5 h-3.5 text-emerald-600" />;
+    if (value < 0) return <ArrowDown className="w-3.5 h-3.5 text-rose-600" />;
+    return <Minus className="w-3.5 h-3.5 text-primary/40" />;
+  };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <header className="h-16 px-8 border-b-2 border-primary bg-white flex items-center justify-between -mx-4 -mt-4 mb-6">
-        <div className="flex items-center gap-4">
-          <h1 className="text-xl font-black uppercase tracking-wider text-primary flex items-center gap-2.5">
-            <Building2 className="w-6 h-6 text-primary" />
-            <span>Clients</span>
-          </h1>
-          <span className="px-2.5 py-1 rounded-lg bg-surface-100 border border-surface-200 text-primary text-[11px] font-black uppercase tracking-wider mono-num">
-            {items.length} BRANDS
-          </span>
-        </div>
-        <Button className="px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-md hover:shadow-lg transition-all">
-          <Plus className="w-4 h-4 text-secondary" />
-          <span>Add Client</span>
-        </Button>
-      </header>
-
+    <div className="p-8 space-y-6">
       {/* Filter strip */}
       <div className="bg-white border-2 border-primary rounded-2xl p-4 shadow-sm flex flex-wrap items-center gap-3">
+        {isSuper && (
+          <Button className="px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-md hover:shadow-lg transition-all ml-auto">
+            <Plus className="w-4 h-4 text-secondary" />
+            <span>Add Client</span>
+          </Button>
+        )}
         <div className="relative flex-1 min-w-[240px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/70" />
           <Input
@@ -57,7 +85,7 @@ export default function ClientsPage() {
           <select
             value={scheme}
             onChange={(e) => setScheme(e.target.value)}
-            className="appearance-none bg-surface-50 border border-surface-200 rounded-xl text-xs font-extrabold uppercase pl-3.5 pr-9 py-2.5 text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus:border-primary cursor-pointer hover:border-primary/60 transition-colors h-10"
+            className="appearance-none bg-white border-2 border-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider pl-4 pr-10 py-2.5 text-slate-900 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer hover:border-primary/60 transition-colors h-11"
           >
             <option value="">SCHEME: ALL</option>
             <option value="PICKUP">PICKUP</option>
@@ -68,7 +96,7 @@ export default function ClientsPage() {
           <select
             value={active}
             onChange={(e) => setActive(e.target.value)}
-            className="appearance-none bg-surface-50 border border-surface-200 rounded-xl text-xs font-extrabold uppercase pl-3.5 pr-9 py-2.5 text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus:border-primary cursor-pointer hover:border-primary/60 transition-colors h-10"
+            className="appearance-none bg-white border-2 border-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider pl-4 pr-10 py-2.5 text-slate-900 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer hover:border-primary/60 transition-colors h-11"
           >
             <option value="">STATUS: ALL</option>
             <option value="true">ACTIVE: TRUE</option>
@@ -96,62 +124,114 @@ export default function ClientsPage() {
       )}
 
       {/* Cards grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {items.map((c: any) => (
-          <div
-            key={c.id}
-            className="client-card border-2 border-primary rounded-2xl bg-white overflow-hidden shadow-sm hover:shadow-lg transition-all flex flex-col"
-          >
-            <div className="bg-primary text-white px-5 py-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-white text-primary flex items-center justify-center font-black text-sm tracking-wider shadow-sm">
-                  {initials(c.companyName || c.name)}
-                </div>
-                <div>
-                  <h2 className="text-sm font-black uppercase tracking-wider text-white">{c.companyName}</h2>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-secondary">{c.serviceScheme} SCHEME</span>
-                </div>
-              </div>
-              <span className="px-2 py-0.5 rounded bg-thumbnail text-primary-950 text-[10px] font-black uppercase tracking-wider">
-                {c.active ? "ACTIVE" : "INACTIVE"}
-              </span>
-            </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        {items.map((c) => {
+          const backlogTotal = c.pendingCount + c.processingCount;
+          const trackPct = Math.min(100, Math.max(0, (c.backlogDays / 3) * 100));
+          const tickPct = Math.min(100, (1 / 3) * 100);
+          const isBacklogHigh = c.backlogDays > 1;
+          const issueAgeDays = Math.floor(c.oldestOpenIssueAgeHours / 24);
 
-            <div className="p-5 space-y-3 flex-1">
-              <div className="bg-surface-50 p-3 rounded-xl border border-surface-200 flex items-center justify-between">
-                <span className="text-[10px] font-black uppercase tracking-widest text-primary/75">PHONE</span>
-                <span className="text-xs font-black uppercase text-primary mono-num">{c.phone}</span>
-              </div>
-              <div className="bg-surface-50 p-3 rounded-xl border border-surface-200 flex items-center justify-between gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-primary/75">EMAIL</span>
-                <span className="text-[11px] font-black uppercase text-primary truncate">{c.email}</span>
-              </div>
-              <div className="grid grid-cols-2 gap-3 pt-1">
-                <div className="bg-surface-50 p-3 rounded-xl border border-surface-200 text-center">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-primary/75 block">ORDERS TODAY</span>
-                  <span className="text-lg font-black mono-num text-primary mt-0.5 block">{c.stats?.todayOrders ?? 0}</span>
+          return (
+            <div
+              key={c.id}
+              className="client-card border-2 border-primary rounded-2xl bg-white overflow-hidden shadow-sm hover:shadow-lg transition-all flex flex-col"
+            >
+              <div className="p-5 flex-1">
+                {/* Header */}
+                <div className="flex items-center gap-2.5 mb-4">
+                  <span
+                    className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+                      c.active ? "bg-emerald-500" : "bg-rose-500"
+                    }`}
+                  />
+                  <h2 className="text-sm font-black uppercase tracking-wider text-primary truncate">{c.name}</h2>
                 </div>
-                <div className="bg-surface-50 p-3 rounded-xl border border-surface-200 text-center">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-primary/75 block">TOTAL ORDERS</span>
-                  <span className="text-lg font-black mono-num text-primary-950 mt-0.5 block">{c.stats?.totalOrders ?? 0}</span>
-                </div>
-              </div>
-            </div>
 
-            <div className="px-5 py-3.5 bg-surface-50 border-t border-surface-200 flex items-center justify-between">
-              <span className="text-[10px] font-black uppercase tracking-wider text-primary/75">
-                TURUQ: {c.stats?.turuq?.today ?? 0} · INT: {c.stats?.integration?.today ?? 0}
-              </span>
-              <Button
-                onClick={() => router.push(`/clients/${c.id}`)}
-                className="px-3.5 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-white text-[10px] font-black uppercase tracking-wider flex items-center gap-1 transition-colors"
-              >
-                <span>VIEW DETAILS</span>
-                <ArrowRight className="w-3.5 h-3.5 text-secondary" />
-              </Button>
+                {/* Big pending + processing */}
+                <div className="flex items-baseline justify-between mb-1">
+                  <span className="text-3xl font-black mono-num text-primary">{backlogTotal}</span>
+                  <span className="text-xs font-bold uppercase text-primary/60">
+                    Pending {c.pendingCount} + Processing {c.processingCount}
+                  </span>
+                </div>
+
+                {/* Track bar */}
+                <div className="relative h-2 bg-surface-100 rounded-full mt-3 mb-1.5 overflow-hidden">
+                  <div
+                    className={`h-full rounded-full ${isBacklogHigh ? "bg-rose-500" : "bg-emerald-500"}`}
+                    style={{ width: `${trackPct}%` }}
+                  />
+                  <div
+                    className="absolute top-[-2px] w-px h-3 bg-primary/60"
+                    style={{ left: `${tickPct}%` }}
+                  />
+                </div>
+                <div className="flex justify-between text-[10px] font-black uppercase text-primary/50 mb-4">
+                  <span>0</span>
+                  <span>usual day ({c.usualDailyOrders})</span>
+                  <span>3x</span>
+                </div>
+
+                {/* Backlog days */}
+                <div className="flex justify-between items-center text-xs mb-4">
+                  <span className="font-bold uppercase text-primary/75">Backlog vs usual</span>
+                  <span className={`font-black mono-num ${isBacklogHigh ? "text-rose-600" : "text-emerald-600"}`}>
+                    {c.backlogDays} days of work
+                  </span>
+                </div>
+
+                <div className="border-t border-surface-200 my-3" />
+
+                {/* Metrics rows */}
+                <div className="space-y-2">
+                  <div className="flex justify-between text-xs">
+                    <span className="font-bold uppercase text-primary/60">Stuck orders</span>
+                    <span className="font-black mono-num text-primary">{c.openShipments}</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="font-bold uppercase text-primary/60">Open issues</span>
+                    <span className="font-black mono-num text-primary">
+                      {c.openTickets}
+                      {c.openTickets > 0 && <span className="text-primary/50 font-bold ml-1">(oldest {issueAgeDays}d)</span>}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="font-bold uppercase text-primary/60">Delivery rate 30d</span>
+                    <span className="font-black mono-num text-primary flex items-center gap-1">
+                      {c.deliveryRate30d}%
+                      <Trend value={c.deliveryTrend} />
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="font-bold uppercase text-primary/60">Returned rate 30d</span>
+                    <span className="font-black mono-num text-primary flex items-center gap-1">
+                      {c.returnRate30d}%
+                      <Trend value={c.returnTrend} />
+                    </span>
+                  </div>
+                </div>
+
+                {c.restricted && (
+                  <div className="bg-rose-50 border border-rose-200 rounded-xl px-3 py-2 text-center mt-4">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-rose-700">RESTRICTED</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="px-5 py-3 bg-surface-50 border-t border-surface-200 flex items-center justify-between">
+                <span className="text-[10px] font-black uppercase tracking-wider text-primary/50">{c.serviceScheme} SCHEME</span>
+                <Button
+                  onClick={() => router.push(`/clients/${c.id}`)}
+                  className="px-3 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-white text-[10px] font-black uppercase tracking-wider flex items-center gap-1 transition-colors"
+                >
+                  <span>View Details</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-secondary" />
+                </Button>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

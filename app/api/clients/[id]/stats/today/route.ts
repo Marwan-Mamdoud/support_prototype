@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { TuruqOrder, IntegrationOrder } from "@/lib/models/Order";
-import { requireSession } from "@/lib/serverAuth";
+import { requireSession, canAccessBrand } from "@/lib/serverAuth";
 
 export const dynamic = "force-dynamic";
 
@@ -9,6 +9,9 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string 
   const { session, response } = await requireSession();
   if (response) return response;
   const { id } = await ctx.params;
+  if (!canAccessBrand(session, id)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
   await connectDB();
   const now = new Date();
   const startToday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));

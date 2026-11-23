@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { orderModelFor } from "@/lib/models/Order";
 import { Alert } from "@/lib/models/Alert";
-import { requireSession } from "@/lib/serverAuth";
+import { requireSession, loadOrderWithAccess } from "@/lib/serverAuth";
 import { writeAudit } from "@/lib/audit";
 
 export const dynamic = "force-dynamic";
@@ -15,8 +15,8 @@ export async function POST(req: NextRequest) {
   const { model, orderId, reporterRole, type, note } = body;
   const Model = orderModelFor(model);
   if (!Model) return NextResponse.json({ error: "Invalid model" }, { status: 400 });
-  const order = await Model.findById(orderId);
-  if (!order) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  const { order, error } = await loadOrderWithAccess(Model, orderId, session);
+  if (error) return error;
   const flag: any = {
     type: type || "other",
     note: note || "",

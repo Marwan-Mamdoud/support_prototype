@@ -39,6 +39,10 @@ export const ISSUE_FLAG_TYPES = [
   "invalid_phone_number",
   "delayed_shipment",
   "defective_items",
+  "outOfStock",
+  "address_update_required",
+  "courier_finance_alert",
+  "reprint_bill_of_lading",
   "other",
 ] as const;
 export type IssueFlagType = (typeof ISSUE_FLAG_TYPES)[number];

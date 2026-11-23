@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { formatDate } from "@/lib/time";
-import { StickyNote, Search, Plus, Check, Pencil, Trash2, User } from "lucide-react";
+import { StickyNote, Search, Plus, Check, Pencil, Trash2 } from "lucide-react";
 
 export default function NotesPage() {
   const qc = useQueryClient();
@@ -73,24 +73,7 @@ export default function NotesPage() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <header className="h-16 px-8 border-b-2 border-primary bg-white flex items-center justify-between -mx-4 -mt-4 mb-6">
-        <div className="flex items-center gap-4">
-          <h1 className="text-xl font-black uppercase tracking-wider text-primary flex items-center gap-2.5">
-            <StickyNote className="w-6 h-6 text-primary" />
-            <span>My Notes</span>
-          </h1>
-          <span className="px-2.5 py-1 rounded-lg bg-surface-100 border border-surface-200 text-primary text-[11px] font-black uppercase tracking-wider mono-num">
-            {items.length} NOTES
-          </span>
-        </div>
-        <div className="flex items-center gap-2 text-xs font-extrabold uppercase text-primary/80">
-          <User className="w-4 h-4" />
-          <span>{userName}</span>
-        </div>
-      </header>
-
+    <div className="p-8 space-y-6">
       {/* Composer */}
       <div className="border-2 border-primary rounded-2xl bg-white p-5 shadow-sm space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">

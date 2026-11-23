@@ -48,12 +48,7 @@ function CustomerLookupContent() {
   });
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <h1 className="text-2xl font-black uppercase tracking-tight text-primary">Customer Lookup</h1>
-      </div>
-
+    <div className="p-8 space-y-6">
       {/* Search */}
       <div className="flex gap-3">
         <div className="relative flex-1">

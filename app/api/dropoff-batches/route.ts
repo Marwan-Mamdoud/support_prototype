@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { DropoffBatch } from "@/lib/models/Batch";
 import { Client, Courier } from "@/lib/models";
-import { requireSession } from "@/lib/serverAuth";
+import { requireSession, getBrandFilter } from "@/lib/serverAuth";
 
 export const dynamic = "force-dynamic";
 
@@ -10,7 +10,8 @@ export async function GET(req: NextRequest) {
   const { session, response } = await requireSession();
   if (response) return response;
   await connectDB();
-  const items = await DropoffBatch.find().sort({ startDate: -1 }).lean();
+  const brandFilter = getBrandFilter(session);
+  const items = await DropoffBatch.find(brandFilter).sort({ startDate: -1 }).lean();
   const courierIds = [...new Set(items.map((i: any) => String(i.courierId)))];
   const clientIds = [...new Set(items.map((i: any) => i.clientId ? String(i.clientId) : null).filter(Boolean))];
   const couriers = await Courier.find({ _id: { $in: courierIds } }).lean();

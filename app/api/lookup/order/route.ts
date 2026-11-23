@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { TuruqOrder, IntegrationOrder, Client, Courier } from "@/lib/models";
-import { requireSession } from "@/lib/serverAuth";
+import { requireSession, getBrandFilter } from "@/lib/serverAuth";
 import { detectCarrier } from "@/lib/rules/carrier";
 
 export const dynamic = "force-dynamic";
@@ -14,9 +14,10 @@ export async function GET(req: NextRequest) {
   if (!q) return NextResponse.json({ results: [] });
 
   const rx = { $regex: q, $options: "i" };
+  const brandFilter = getBrandFilter(session);
   const [turuq, integration] = await Promise.all([
-    TuruqOrder.find({ $or: [{ oid: rx }, { customerPhone: rx }, { trackingNumber: rx }] }).lean(),
-    IntegrationOrder.find({ $or: [{ oid: rx }, { customerPhone: rx }, { trackingNumber: rx }] }).lean(),
+    TuruqOrder.find({ $and: [{ $or: [{ oid: rx }, { customerPhone: rx }, { trackingNumber: rx }] }, brandFilter] }).lean(),
+    IntegrationOrder.find({ $and: [{ $or: [{ oid: rx }, { customerPhone: rx }, { trackingNumber: rx }] }, brandFilter] }).lean(),
   ]);
 
   async function enrich(list: any[], model: string) {

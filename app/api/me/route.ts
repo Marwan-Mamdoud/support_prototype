@@ -16,6 +16,7 @@ export async function GET() {
     email: staff.email,
     phone: staff.phone,
     role: staff.role,
+    assignedBrandIds: (staff.assignedBrandIds || []).map((id: any) => String(id)),
     active: staff.active,
   });
 }

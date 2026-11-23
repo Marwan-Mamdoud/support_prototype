@@ -19,6 +19,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ client: { ...c, id: String((c as any)._id) } });
   }
   const filter: any = {};
+  if (session.role === "SUPPORT") {
+    filter._id = { $in: session.assignedBrandIds };
+  }
   if (q) filter.$or = [
     { name: { $regex: q, $options: "i" } },
     { companyName: { $regex: q, $options: "i" } },
