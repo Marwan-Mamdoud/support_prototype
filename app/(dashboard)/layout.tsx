@@ -31,6 +31,7 @@ const navGroups = [
       { href: "/simulator", label: "Prototype Simulator", icon: "science" },
       { href: "/staff-management", label: "Staff Management", icon: "admin_panel_settings" },
       { href: "/my-account", label: "My Account", icon: "account_circle" },
+      { label: "TICKETS", icon: "confirmation_number", disabled: true },
     ],
   },
 ];
@@ -125,12 +126,24 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             <div key={group.label}>
               <div className="px-3 mb-2 text-[10px] font-black uppercase tracking-widest text-secondary_accent">{group.label}</div>
               <nav className="space-y-1">
-                {group.items.map((item) => {
+                {group.items.map((item, idx) => {
+                  if ((item as any).disabled) {
+                    return (
+                      <div
+                        key={`disabled-${idx}`}
+                        className="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-black uppercase tracking-widest text-white/80 cursor-not-allowed select-none"
+                        aria-disabled="true"
+                      >
+                        <span className="material-symbols-outlined text-lg">{item.icon}</span>
+                        <span>{item.label}</span>
+                      </div>
+                    );
+                  }
                   const active = pathname === item.href;
                   return (
                     <Link
                       key={item.href}
-                      href={item.href}
+                      href={(item as any).href}
                       className={`flex items-center ${(item as any).badge ? "justify-between" : "gap-3"} px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors ${
                         active ? "text-white bg-primary shadow-sm border border-secondary_accent/40" : "text-white/85 hover:text-white hover:bg-white/10"
                       }`}
