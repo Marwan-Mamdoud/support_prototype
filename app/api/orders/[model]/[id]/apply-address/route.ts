@@ -24,9 +24,26 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ model: str
   order.customerAddress = body.address;
   if (body.governorate) order.customerGovernorate = String(body.governorate).toUpperCase();
 
-  const { isAddressValid } = await import("@/lib/rules/address");
-  const newFlags: any[] = [];
+  // Address triggers
+  const status = order.status;
+  const trigFlags: string[] = [];
+  if (["packed", "pickedUp", "processing", "postponed"].includes(status)) {
+    trigFlags.push("reprint_bill_of_lading");
+  }
+  if (status === "outForDelivery") {
+    if (!trigFlags.includes("reprint_bill_of_lading")) trigFlags.push("reprint_bill_of_lading");
+    trigFlags.push("courier_address_alert");
+  }
   const hasOpenFlag = (t: string) => (order.issueFlags || []).some((f: any) => f.type === t && f.state === "open");
+  const newTrig: any[] = [];
+  for (const ft of trigFlags) {
+    if (!hasOpenFlag(ft)) {
+      newTrig.push({ type: ft, note: ft === "courier_address_alert" ? "Update courier with new address" : "Address updated", reportedByRole: "system", reportedByUser: "system", reportedAt: new Date(), state: "open" });
+    }
+  }
+
+  const { isAddressValid } = await import("@/lib/rules/address");
+  const newFlags: any[] = [...newTrig];
   if (!isAddressValid(body.address || "") && !hasOpenFlag("invalid_address")) {
     newFlags.push({ type: "invalid_address", note: "Address failed validation", reportedByRole: "system", reportedByUser: "system", reportedAt: new Date(), state: "open" });
   }

@@ -4,6 +4,8 @@ import { orderModelFor, orderCollectionName } from "@/lib/models/Order";
 import { Client, Courier, Product } from "@/lib/models";
 import { requireSession, loadOrderWithAccess, canAccessBrand } from "@/lib/serverAuth";
 import { canEditData } from "@/lib/rules/editRules";
+import { computeTotal, computeSubtotal } from "@/lib/rules/shipping";
+import { defaultShippingFee } from "@/lib/rules/constants";
 import { writeAudit } from "@/lib/audit";
 import { Alert } from "@/lib/models/Alert";
 import { normalizePhone, isValidPhone } from "@/lib/rules/phone";
@@ -44,7 +46,8 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ model: st
   const { order, error } = await loadOrderWithAccess(Model, id, session);
   if (error) return error;
 
-  if (!canEditData(order.status)) {
+  const { FINAL_STATUSES } = await import("@/lib/rules/constants");
+  if (FINAL_STATUSES.has(order.status as any)) {
     return NextResponse.json({ error: "This order is read-only" }, { status: 403 });
   }
 
@@ -65,11 +68,44 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ model: st
     "shippingHandledBy",
     "specialHandling",
     "notes",
+    "refundAmount",
+    "exchangeAmount",
   ]);
 
   const rejected = Object.keys(body).filter((f) => !editableFields.has(f));
   if (rejected.length) {
     return NextResponse.json({ error: `Cannot edit fields: ${rejected.join(", ")}` }, { status: 400 });
+  }
+
+  // Per-field validation statuses
+  const status = order.status;
+  const type = order.type || "NORMAL";
+  const TOTAL_STATUSES = new Set(["pending", "processing", "packed", "pickedUp", "outOfStock", "outForDelivery", "postponed"]);
+  const PRODUCTS_NORMAL = new Set(["pending", "outOfStock"]);
+  const PRODUCTS_REFUND_EXTRA = new Set(["processing", "outForDelivery", "postponed"]);
+  const PHONE_STATUSES = new Set(["pending", "packed", "pickedUp", "processing", "outOfStock", "outForDelivery", "postponed"]);
+  const ADDRESS_STATUSES = new Set(["pending", "packed", "pickedUp", "processing", "outForDelivery", "postponed", "outOfStock"]);
+  const OTHER_STATUSES = new Set(["pending", "processing", "postponed", "outOfStock"]);
+
+  function fieldAllowed(f: string): boolean {
+    if (f === "products") {
+      if (PRODUCTS_NORMAL.has(status)) return true;
+      if (type === "REFUND" && PRODUCTS_REFUND_EXTRA.has(status)) return true;
+      return false;
+    }
+    if (["subtotal", "total", "shippingFees", "shippingHandledBy", "paymentMethod", "paymentStatus", "refundAmount", "exchangeAmount"].includes(f)) {
+      return TOTAL_STATUSES.has(status);
+    }
+    if (f === "customerPhone") return PHONE_STATUSES.has(status);
+    if (f === "customerAddress" || f === "customerGovernorate") return ADDRESS_STATUSES.has(status);
+    if (f === "customerName" || f === "customerFirstName" || f === "customerLastName") return true;
+    return OTHER_STATUSES.has(status);
+  }
+
+  for (const f of Object.keys(body)) {
+    if (!fieldAllowed(f)) {
+      return NextResponse.json({ error: `Cannot edit ${f} in current status` }, { status: 400 });
+    }
   }
 
   if (body.clientId !== undefined && !canAccessBrand(session, body.clientId)) {
@@ -126,12 +162,6 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ model: st
     newFlags.push({ type: "courier_finance_alert", note: "Finance updated while order with courier", reportedByRole: "system", reportedByUser: "system", reportedAt: new Date(), state: "open" });
   }
 
-  // reprint_bill_of_lading: phone or address changed while status=processing & location=distribution_center
-  const contactChanged = body.customerPhone !== undefined || body.customerAddress !== undefined;
-  if (contactChanged && (order as any).status === "processing" && (order as any).currentLocation === "distribution_center" && !hasOpenFlag("reprint_bill_of_lading")) {
-    newFlags.push({ type: "reprint_bill_of_lading", note: "Phone/address updated while processing at distribution center", reportedByRole: "system", reportedByUser: "system", reportedAt: new Date(), state: "open" });
-  }
-
   // Auto-resolve: if address updated now, resolve open address_update_required flags
   if (addrChanged) {
     for (const f of order.issueFlags || []) {
@@ -167,9 +197,94 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ model: st
     }
   }
 
+  // Trigger flags based on changed fields & status
+  const trigProductsChanged = changedFields.some((c) => c.field === "products");
+  const trigPhoneChanged = changedFields.some((c) => c.field === "customerPhone");
+  const trigAddrChanged = changedFields.some((c) => c.field === "customerAddress");
+  const trigGovChanged = changedFields.some((c) => c.field === "customerGovernorate");
+  const trigAddress = trigAddrChanged || trigGovChanged;
+
+  const hasOpenFlagTrig = (t: string) => (order.issueFlags || []).some((f: any) => f.type === t && f.state === "open") || newFlags.some((f: any) => f.type === t && f.state === "open");
+  function pushTrig(flagType: string, note: string) {
+    if (!hasOpenFlagTrig(flagType)) {
+      newFlags.push({ type: flagType, note, reportedByRole: "system", reportedByUser: "system", reportedAt: new Date(), state: "open" });
+    }
+  }
+
+  // Products triggers
+  if (trigProductsChanged && type === "REFUND") {
+    if (status === "processing" || status === "postponed") {
+      pushTrig("reprint_bill_of_lading", "Products updated (refund) at " + status);
+    }
+    if (status === "outForDelivery") {
+      pushTrig("reprint_bill_of_lading", "Products updated (refund) at out for delivery");
+      pushTrig("courier_products_alert", "Update courier with new products");
+    }
+  }
+
+  // Phone triggers
+  if (trigPhoneChanged) {
+    if (["packed", "pickedUp", "processing", "postponed"].includes(status)) {
+      pushTrig("reprint_bill_of_lading", "Phone updated");
+    }
+    if (status === "outForDelivery") {
+      pushTrig("reprint_bill_of_lading", "Phone updated at out for delivery");
+      pushTrig("courier_phone_alert", "Update courier with new phone number");
+    }
+  }
+
+  // Address triggers
+  if (trigAddress) {
+    if (["packed", "pickedUp", "processing", "postponed"].includes(status)) {
+      pushTrig("reprint_bill_of_lading", "Address updated");
+    }
+    if (status === "outForDelivery") {
+      pushTrig("reprint_bill_of_lading", "Address updated at out for delivery");
+      pushTrig("courier_address_alert", "Update courier with new address");
+    }
+  }
+
   if (newFlags.length) {
     order.issueFlags.push(...newFlags);
     order.hasOpenIssue = true;
+  }
+
+  // Recompute totals when products/governorate/handler/paymentStatus change
+  const productsChanged = body.products !== undefined;
+  const govChanged2 = body.customerGovernorate !== undefined;
+  const handlerChanged = body.shippingHandledBy !== undefined;
+  const paymentChanged = body.paymentStatus !== undefined;
+  if (productsChanged || govChanged2 || handlerChanged || paymentChanged) {
+    const type = (order as any).type || "NORMAL";
+    let productSum: number;
+    if (type === "REFUND") {
+      const amt = body.refundAmount !== undefined ? body.refundAmount : (order as any).refundAmount;
+      productSum = Number(amt || 0);
+    } else if (type === "EXCHANGE") {
+      const amt = body.exchangeAmount !== undefined ? body.exchangeAmount : (order as any).exchangeAmount;
+      productSum = Number(amt || 0);
+    } else {
+      const newProducts = body.products !== undefined ? body.products : (order as any).products;
+      productSum = (newProducts || []).reduce((s: number, p: any) => s + (p.price || 0) * (p.quantity || 0), 0);
+    }
+    const handler = body.shippingHandledBy !== undefined ? body.shippingHandledBy : (order as any).shippingHandledBy;
+    const gov = body.customerGovernorate !== undefined ? String(body.customerGovernorate).toUpperCase() : (order as any).customerGovernorate;
+    let shippingFees: number;
+    if (body.shippingFees !== undefined) {
+      shippingFees = Number(body.shippingFees);
+    } else {
+      if (handler === "TURUQ") shippingFees = 0;
+      else shippingFees = defaultShippingFee(gov);
+    }
+    const paymentStatus = body.paymentStatus !== undefined ? body.paymentStatus : (order as any).paymentStatus;
+    const effectivePaymentStatus = paymentStatus || "UNPAID";
+    if (handler === "TURUQ") shippingFees = 0;
+    (order as any).shippingFees = shippingFees;
+    if (body.refundAmount !== undefined) (order as any).refundAmount = Number(body.refundAmount);
+    if (body.exchangeAmount !== undefined) (order as any).exchangeAmount = Number(body.exchangeAmount);
+    (order as any).subtotal = computeSubtotal(type, productSum, shippingFees, handler, effectivePaymentStatus);
+    (order as any).total = computeTotal(type, productSum, shippingFees, handler, effectivePaymentStatus);
+    if (effectivePaymentStatus === "PAID") (order as any).total = 0;
   }
 
   order.markModified("issueFlags");

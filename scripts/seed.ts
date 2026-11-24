@@ -11,7 +11,7 @@ import {
 } from "../lib/models";
 import { normalizePhone, isValidPhone } from "../lib/rules/phone";
 import { isAddressValid } from "../lib/rules/address";
-import { computeTotal } from "../lib/rules/shipping";
+import { computeTotal, computeSubtotal } from "../lib/rules/shipping";
 import { defaultShippingFee } from "../lib/rules/constants";
 import { FINAL_STATUSES, ISSUE_FLAG_TYPES } from "../lib/rules/constants";
 
@@ -139,11 +139,10 @@ const statusDistribution: Record<string, number> = {
   pickedUp: 10,
   processing: 14,
   postponed: 6,
-  unreachable: 5,
-  invalidAddress: 4,
   outOfStock: 6,
   returned: 10,
   RTW: 6,
+  RTO: 9,
   cancelled: 17,
   packed: 3,
   QC: 3,
@@ -191,14 +190,8 @@ function buildStatusPath(status: string, serviceScheme: string, isRefund: boolea
     return { path, location };
   }
 
-  if (["postponed", "unreachable"].includes(status)) {
+  if (status === "postponed") {
     path.push(status);
-    location = "distribution_center";
-    return { path, location };
-  }
-
-  if (status === "invalidAddress") {
-    path.push("invalidAddress");
     location = "distribution_center";
     return { path, location };
   }
@@ -410,7 +403,7 @@ async function main() {
     const orderType = orderSpecs[i].type;
     // REFUND orders follow the refund lifecycle
     if (orderType === "REFUND") {
-      status = rnd(["pending", "processing", "outForDelivery", "delivered", "RTW", "RTO"]);
+      status = rnd(["processing", "outForDelivery", "delivered", "QC", "droppedOff", "RTO", "RTW", "RTW"]);
     }
     orderSpecs[i].status = status;
   }
@@ -449,8 +442,8 @@ async function main() {
     let courierId: any = null;
     let trackingNumber: string | null = null;
 
-    const hasBeenWithCourier = ["pickedUp", "processing", "outForDelivery", "droppedOff", "delivered", "collected", "postponed", "unreachable", "invalidAddress", "returned", "RTW", "cancelled"].includes(status);
-    const reachedOutForDelivery = history["outForDelivery"] || ["outForDelivery", "droppedOff", "delivered", "collected", "postponed", "unreachable", "returned", "RTW", "cancelled"].includes(status);
+    const hasBeenWithCourier = ["pickedUp", "processing", "outForDelivery", "droppedOff", "delivered", "collected", "postponed", "returned", "RTW", "cancelled"].includes(status);
+    const reachedOutForDelivery = history["outForDelivery"] || ["outForDelivery", "droppedOff", "delivered", "collected", "postponed", "returned", "RTW", "cancelled"].includes(status);
 
     if (hasBeenWithCourier) {
       const useOutsourced = reachedOutForDelivery && Math.random() < 0.45;
@@ -465,10 +458,14 @@ async function main() {
 
     // Shipping handler
     let shippingHandledBy = "CUSTOMER";
-    if (i < 3) {
-      shippingHandledBy = "TURUQ";
-    } else if (Math.random() < 0.12) {
-      shippingHandledBy = "BRAND";
+    if (orderType === "PROMOTIONAL") {
+      shippingHandledBy = Math.random() < 0.5 ? "TURUQ" : "BRAND";
+    } else {
+      if (i < 3) {
+        shippingHandledBy = "TURUQ";
+      } else if (Math.random() < 0.12) {
+        shippingHandledBy = "BRAND";
+      }
     }
 
     // Build products for this order
@@ -483,10 +480,16 @@ async function main() {
       if (Math.random() < 0.15 && available >= qty) qty = available + rndInt(1, 3);
       orderProducts.push({ uid: pr.uid, name: pr.itemDescription, variant: `${pr.color}/${pr.size}`, quantity: qty, price: pr.unitPrice });
     }
-    const subtotal = orderProducts.reduce((s, p) => s + p.price * p.quantity, 0);
+    const productSum = orderProducts.reduce((s, p) => s + p.price * p.quantity, 0);
     const gov = (customer.gov || "").toUpperCase();
     let shippingFees = shippingHandledBy === "TURUQ" ? 0 : defaultShippingFee(gov);
-    const total = shippingHandledBy === "CUSTOMER" ? subtotal + shippingFees : subtotal;
+    const paymentStatus = Math.random() < 0.35 ? "PAID" : "UNPAID";
+    const isExchange = orderType === "EXCHANGE";
+    const refundAmount = orderType === "REFUND" ? productSum : 0;
+    const exchangeAmount = isExchange ? (Math.random() < 0.5 ? productSum : -productSum) : 0;
+    const amountSum = orderType === "REFUND" ? refundAmount : (isExchange ? exchangeAmount : productSum);
+    const subtotal = computeSubtotal(orderType, amountSum, shippingFees, shippingHandledBy, paymentStatus);
+    const total = computeTotal(orderType, amountSum, shippingFees, shippingHandledBy, paymentStatus);
 
     const address = rnd(customer.addresses);
     const phoneNorm = customer.normalized;
@@ -527,9 +530,11 @@ async function main() {
       subtotal,
       total,
       shippingFees,
+      refundAmount,
+      exchangeAmount,
       shippingHandledBy,
       paymentMethod: rnd(["CASH", "INSTAPAY", "VISA", "FLASH"]),
-      paymentStatus: Math.random() < 0.35 ? "PAID" : "UNPAID",
+      paymentStatus: paymentStatus,
       canOpenPackage: Math.random() < 0.3,
       notes: Math.random() < 0.25 ? "Handle with care" : "",
       courierId,

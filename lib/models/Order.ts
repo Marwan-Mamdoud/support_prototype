@@ -93,6 +93,8 @@ const commonFields: Record<string, any> = {
   customerAddress: { type: String, default: "" },
   customerGovernorate: { type: String, default: "" },
   products: { type: [productSchema], default: [] },
+  refundAmount: { type: Number, default: 0 },
+  exchangeAmount: { type: Number, default: 0 },
   subtotal: { type: Number, default: 0 },
   total: { type: Number, default: 0 },
   shippingFees: { type: Number, default: 0 },

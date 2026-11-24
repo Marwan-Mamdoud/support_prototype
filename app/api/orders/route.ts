@@ -5,7 +5,7 @@ import { requireSession, getBrandFilter, canAccessBrand } from "@/lib/serverAuth
 import { TuruqOrder, Client, Product } from "@/lib/models";
 import { normalizePhone, isValidPhone } from "@/lib/rules/phone";
 import { isAddressValid } from "@/lib/rules/address";
-import { computeTotal } from "@/lib/rules/shipping";
+import { computeTotal, computeSubtotal } from "@/lib/rules/shipping";
 import { defaultShippingFee } from "@/lib/rules/constants";
 import { writeAudit } from "@/lib/audit";
 import { Alert } from "@/lib/models/Alert";
@@ -166,7 +166,7 @@ export async function POST(req: NextRequest) {
   if (response) return response;
   await connectDB();
   const body = await req.json();
-  const { clientId, customerName, customerPhone, customerGovernorate, customerAddress, products, paymentMethod, paymentStatus, shippingHandledBy, canOpenPackage, notes, subtotal: subIn, shippingFees: feeIn, type, specialHandling, source, provider, externalId } = body;
+  const { clientId, customerName, customerPhone, customerGovernorate, customerAddress, products, paymentMethod, paymentStatus, shippingHandledBy, canOpenPackage, notes, subtotal: subIn, shippingFees: feeIn, type, specialHandling, source, provider, externalId, refundAmount, exchangeAmount } = body;
 
   if (!clientId) return NextResponse.json({ error: "Brand is required" }, { status: 400 });
   if (!canAccessBrand(session, clientId)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -175,13 +175,18 @@ export async function POST(req: NextRequest) {
   if (!client) return NextResponse.json({ error: "Brand not found" }, { status: 404 });
 
   const phoneNorm = normalizePhone(customerPhone || "");
-  const subtotal = Number(subIn ?? (products?.reduce((s: number, p: any) => s + p.price * p.quantity, 0) ?? 0));
+  const orderType = type || "NORMAL";
+  let productSum = (products || []).reduce((s: number, p: any) => s + (p.price || 0) * (p.quantity || 0), 0);
+  if (orderType === "REFUND") productSum = Number(refundAmount || 0);
+  else if (orderType === "EXCHANGE") productSum = Number(exchangeAmount || 0);
   const handler = shippingHandledBy || "CUSTOMER";
+  const effectivePaymentStatus = paymentStatus || "UNPAID";
   let shippingFees = feeIn;
   if (handler === "TURUQ") shippingFees = 0;
   if (shippingFees == null) shippingFees = defaultShippingFee(customerGovernorate);
-  let total = computeTotal(subtotal, shippingFees, handler);
-  if (paymentStatus === "PAID") total = 0;
+  const subtotal = computeSubtotal(orderType, productSum, shippingFees, handler, effectivePaymentStatus);
+  let total = computeTotal(orderType, productSum, shippingFees, handler, effectivePaymentStatus);
+  if (effectivePaymentStatus === "PAID") total = 0;
 
   const defaultLocation = (type === "REFUND") ? "with_customer" : (client.serviceScheme === "WAREHOUSE" ? "warehouse" : "brand_storage");
 
@@ -214,6 +219,8 @@ export async function POST(req: NextRequest) {
     trackingNumber: null,
     currentLocation: defaultLocation,
     specialHandling: specialHandling || "none",
+    refundAmount: Number(refundAmount || 0),
+    exchangeAmount: Number(exchangeAmount || 0),
     hasOpenIssue: false,
     issueFlags: [],
     cancellationReason: null,

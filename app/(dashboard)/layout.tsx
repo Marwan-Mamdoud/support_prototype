@@ -14,6 +14,7 @@ const navGroups = [
       { href: "/", label: "Dashboard", icon: "dashboard" },
       { href: "/orders", label: "Orders", icon: "local_shipping", badge: "orders" },
       { href: "/clients", label: "Clients", icon: "corporate_fare" },
+      { href: "/products", label: "Products", icon: "inventory_2" },
     ],
   },
   // {

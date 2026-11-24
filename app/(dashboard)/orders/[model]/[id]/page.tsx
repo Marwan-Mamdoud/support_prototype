@@ -593,7 +593,7 @@ export default function OrderDetailsPage() {
                 <Select value={newStatus} onValueChange={(v) => setNewStatus(v ?? "")}>
                   <SelectTrigger className="bg-surface-50 border-surface-200"><SelectValue placeholder="Select status" /></SelectTrigger>
                   <SelectContent>
-                    {allowedNextStatuses(order.status).map((s) => <SelectItem key={s} value={s}>{humanize(s)}</SelectItem>)}
+                    {allowedNextStatuses(order.status, (order as any).type || "NORMAL").map((s) => <SelectItem key={s} value={s}>{humanize(s)}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>

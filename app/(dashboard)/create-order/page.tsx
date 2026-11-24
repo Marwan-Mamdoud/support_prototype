@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { computeTotal } from "@/lib/rules/shipping";
+import { computeTotal, computeSubtotal } from "@/lib/rules/shipping";
+import { editableFieldsForStatus } from "@/lib/rules/editRules";
 import { defaultShippingFee, GOVERNORATE_DEFAULT_SHIPPING } from "@/lib/rules/constants";
 import {
   Plus,
@@ -39,6 +40,10 @@ function CreateOrderContent() {
   const [source, setSource] = useState<"turuq" | "integration">("turuq");
   const [clientId, setClientId] = useState("");
   const [orderType, setOrderType] = useState("NORMAL");
+  const [orderStatus, setOrderStatus] = useState("pending");
+  const allowedFields = useMemo(() => isEdit ? editableFieldsForStatus(orderStatus, orderType) : new Set(["customerName","customerFirstName","customerLastName","customerPhone","customerAddress","customerGovernorate","products","refundAmount","exchangeAmount","paymentMethod","paymentStatus","shippingHandledBy","notes","specialHandling","canOpenPackage","subtotal","shippingFees","total"]), [isEdit, orderStatus, orderType]);
+  const [refundAmount, setRefundAmount] = useState(0);
+  const [exchangeAmount, setExchangeAmount] = useState(0);
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerGovernorate, setCustomerGovernorate] = useState("");
@@ -94,27 +99,41 @@ function CreateOrderContent() {
       setCanOpenPackage(!!o.canOpenPackage);
       setNotes(o.notes || "");
       setSpecialHandling(o.specialHandling || "none");
+      setOrderType(o.type || "NORMAL");
+      setOrderStatus(o.status || "pending");
+      setRefundAmount(o.refundAmount || 0);
+      setExchangeAmount(o.exchangeAmount || 0);
       if (mode === "same" || mode === "edit") {
         setProducts((o.products || []).map((p: any) => ({ uid: p.uid, name: p.name, variant: p.variant, quantity: p.quantity, price: p.price })));
       } else if (mode === "exchange") {
         setProducts([]);
       }
+      const loadedType = o.type || "NORMAL";
       const loadedProducts = (o.products || []).map((p: any) => ({ uid: p.uid, name: p.name, variant: p.variant, quantity: p.quantity, price: p.price }));
-      const loadedSubtotal = loadedProducts.reduce((s: number, p: any) => s + p.price * p.quantity, 0);
+      let loadedSubtotal = loadedProducts.reduce((s: number, p: any) => s + p.price * p.quantity, 0);
+      if (loadedType === "REFUND") loadedSubtotal = o.refundAmount || 0;
+      else if (loadedType === "EXCHANGE") loadedSubtotal = o.exchangeAmount || 0;
       const loadedHandler = (o.shippingHandledBy || "CUSTOMER");
       const loadedShipping = loadedHandler === "TURUQ" ? 0 : (o.shippingFees ?? defaultShippingFee(o.customerGovernorate || ""));
-      const loadedTotal = (o.paymentStatus || "UNPAID") === "PAID" ? 0 : computeTotal(loadedSubtotal, loadedShipping, loadedHandler);
+      const loadedPaymentStatus = (o.paymentStatus || "UNPAID");
+      const loadedTotal = computeTotal(loadedType, loadedSubtotal, loadedShipping, loadedHandler, loadedPaymentStatus);
       setTotalInput(String(loadedTotal));
       setTotalEdited(false);
     });
   }, [from, mode]);
 
-  const subtotal = useMemo(() => products.reduce((s, p) => s + p.price * p.quantity, 0), [products]);
+  const productSum = useMemo(() => {
+    if (orderType === "REFUND") return refundAmount;
+    if (orderType === "EXCHANGE") return exchangeAmount;
+    return products.reduce((s, p) => s + p.price * p.quantity, 0);
+  }, [orderType, refundAmount, exchangeAmount, products]);
   const shippingFees = useMemo(() => {
     if (shippingHandledBy === "TURUQ") return 0;
     return defaultShippingFee(customerGovernorate);
   }, [shippingHandledBy, customerGovernorate]);
-  const computedTotal = useMemo(() => (paymentStatus === "PAID" ? 0 : computeTotal(subtotal, shippingFees, shippingHandledBy)), [subtotal, shippingFees, shippingHandledBy, paymentStatus]);
+  const effectivePaymentStatus = paymentStatus;
+  const subtotal = useMemo(() => computeSubtotal(orderType, productSum, shippingFees, shippingHandledBy, effectivePaymentStatus), [orderType, productSum, shippingFees, shippingHandledBy, effectivePaymentStatus]);
+  const computedTotal = useMemo(() => computeTotal(orderType, productSum, shippingFees, shippingHandledBy, effectivePaymentStatus), [orderType, productSum, shippingFees, shippingHandledBy, effectivePaymentStatus]);
   const total = isEdit ? (totalInput === "" ? 0 : Number(totalInput)) : computedTotal;
 
   useEffect(() => {
@@ -168,7 +187,7 @@ function CreateOrderContent() {
   async function submit() {
     if (isEdit && from) {
       const [editModel, editId] = from.split("/");
-      const body: any = {
+      const fullBody: any = {
         customerPhone,
         customerGovernorate,
         customerAddress,
@@ -181,12 +200,20 @@ function CreateOrderContent() {
         shippingFees,
         total,
         specialHandling,
+        refundAmount,
+        exchangeAmount,
       };
-      if (editModel === "turuq") body.customerName = customerName;
+      if (editModel === "turuq") fullBody.customerName = customerName;
       else {
         const parts = customerName.split(" ");
-        body.customerFirstName = parts[0] || "";
-        body.customerLastName = parts.slice(1).join(" ") || "";
+        fullBody.customerFirstName = parts[0] || "";
+        fullBody.customerLastName = parts.slice(1).join(" ") || "";
+      }
+      // Only send fields editable for this order's status
+      const allowed = editableFieldsForStatus(orderStatus, orderType);
+      const body: any = {};
+      for (const k of Object.keys(fullBody)) {
+        if (allowed.has(k)) body[k] = fullBody[k];
       }
       const res = await fetch(`/api/orders/${editModel}/${editId}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       const data = await res.json();
@@ -211,6 +238,8 @@ function CreateOrderContent() {
       shippingFees,
       total,
       type: orderType,
+      refundAmount,
+      exchangeAmount,
       source,
       specialHandling: from ? "replacement" : specialHandling,
     };
@@ -237,11 +266,12 @@ function CreateOrderContent() {
     <label className="text-[10px] font-black uppercase tracking-widest text-primary/80 block mb-1.5">{children}</label>
   );
 
-  const StyledSelect = ({ value, onChange, options }: { value: string; onChange: (v: string) => void; options: string[] }) => (
+  const StyledSelect = ({ value, onChange, options, disabled }: { value: string; onChange: (v: string) => void; options: string[]; disabled?: boolean }) => (
     <div className="relative">
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        disabled={disabled}
         className="w-full appearance-none bg-white border-2 border-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider pl-4 pr-10 py-2.5 text-slate-900 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer"
       >
         {options.map((o) => <option key={o} value={o}>{o}</option>)}
@@ -327,15 +357,15 @@ function CreateOrderContent() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <FieldLabel>CUSTOMER NAME</FieldLabel>
-                  <Input value={customerName} onChange={(e: any) => setCustomerName(e.target.value)} className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-black text-primary focus-visible:ring-primary focus:border-primary focus:bg-white" />
+                  <Input value={customerName} onChange={(e: any) => setCustomerName(e.target.value)} disabled={isEdit && !allowedFields.has("customerName")} className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-black text-primary focus-visible:ring-primary focus:border-primary focus:bg-white disabled:cursor-not-allowed disabled:opacity-60" />
                 </div>
                 <div>
                   <FieldLabel>PHONE NUMBER</FieldLabel>
-                  <Input value={customerPhone} onChange={(e: any) => setCustomerPhone(e.target.value)} className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-black text-primary focus-visible:ring-primary focus:border-primary focus:bg-white mono-num text-primary" />
+                  <Input value={customerPhone} onChange={(e: any) => setCustomerPhone(e.target.value)} disabled={isEdit && !allowedFields.has("customerPhone")} className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-black text-primary focus-visible:ring-primary focus:border-primary focus:bg-white mono-num text-primary disabled:cursor-not-allowed disabled:opacity-60" />
                 </div>
                 <div>
                   <FieldLabel>STREET ADDRESS</FieldLabel>
-                  <Input value={customerAddress} onChange={(e: any) => setCustomerAddress(e.target.value)} className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-black text-primary focus-visible:ring-primary focus:border-primary focus:bg-white" />
+                  <Input value={customerAddress} onChange={(e: any) => setCustomerAddress(e.target.value)} disabled={isEdit && !allowedFields.has("customerAddress")} className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-black text-primary focus-visible:ring-primary focus:border-primary focus:bg-white disabled:cursor-not-allowed disabled:opacity-60" />
                 </div>
                 <div>
                   <FieldLabel>GOVERNORATE</FieldLabel>
@@ -343,7 +373,8 @@ function CreateOrderContent() {
                     <select
                       value={customerGovernorate}
                       onChange={(e) => setCustomerGovernorate(e.target.value)}
-                      className="w-full appearance-none bg-white border-2 border-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider pl-4 pr-10 py-2.5 text-slate-900 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer"
+                      disabled={isEdit && !allowedFields.has("customerGovernorate")}
+                      className="w-full appearance-none bg-white border-2 border-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider pl-4 pr-10 py-2.5 text-slate-900 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       <option value="">Select governorate</option>
                       {Object.keys(GOVERNORATE_DEFAULT_SHIPPING).map((g) => (
@@ -435,7 +466,7 @@ function CreateOrderContent() {
                 <div className="col-span-4 md:col-span-2">
                   <Button
                     onClick={addProduct}
-                    disabled={!selectedProductUid}
+                    disabled={!selectedProductUid || (isEdit && !allowedFields.has("products"))}
                     className="w-full py-2 px-3 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1 shadow-sm transition-colors"
                   >
                     <Plus className="w-4 h-4 text-secondary" />
@@ -458,20 +489,23 @@ function CreateOrderContent() {
                           min={1}
                           value={p.quantity}
                           onChange={(e) => updateProductQty(i, parseInt(e.target.value) || 1)}
-                          className="w-16 px-2 py-1.5 bg-white border border-surface-200 rounded-xl text-xs font-black mono-num text-primary text-center"
+                          disabled={isEdit && !allowedFields.has("products")}
+                          className="w-16 px-2 py-1.5 bg-white border border-surface-200 rounded-xl text-xs font-black mono-num text-primary text-center disabled:cursor-not-allowed disabled:opacity-60"
                         />
                         <Input
                           type="number"
                           min={0}
                           value={p.price}
                           onChange={(e) => updateProductPrice(i, parseFloat(e.target.value) || 0)}
-                          className="w-20 px-2 py-1.5 bg-white border border-surface-200 rounded-xl text-xs font-black mono-num text-primary text-center"
+                          disabled={isEdit && !allowedFields.has("products")}
+                          className="w-20 px-2 py-1.5 bg-white border border-surface-200 rounded-xl text-xs font-black mono-num text-primary text-center disabled:cursor-not-allowed disabled:opacity-60"
                         />
                         <span className="text-sm font-black mono-num text-primary w-16 text-right">{p.price * p.quantity}</span>
                         <button
                           type="button"
                           onClick={() => removeProduct(i)}
-                          className="text-rose-700 hover:text-rose-900 p-1"
+                          disabled={isEdit && !allowedFields.has("products")}
+                          className="text-rose-700 hover:text-rose-900 p-1 disabled:opacity-40 disabled:cursor-not-allowed"
                           aria-label="Remove product"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -483,7 +517,8 @@ function CreateOrderContent() {
                         <button
                           type="button"
                           onClick={() => removeProduct(i)}
-                          className="text-rose-700 hover:text-rose-900 p-1"
+                          disabled={isEdit && !allowedFields.has("products")}
+                          className="text-rose-700 hover:text-rose-900 p-1 disabled:opacity-40 disabled:cursor-not-allowed"
                           aria-label="Remove product"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -506,17 +541,29 @@ function CreateOrderContent() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <FieldLabel>PAYMENT METHOD</FieldLabel>
-                  <StyledSelect value={paymentMethod} onChange={setPaymentMethod} options={["CASH", "INSTAPAY", "VISA", "FLASH"]} />
+                  <StyledSelect value={paymentMethod} onChange={setPaymentMethod} options={["CASH", "INSTAPAY", "VISA", "FLASH"]} disabled={isEdit && !allowedFields.has("paymentMethod")} />
                 </div>
                 <div>
                   <FieldLabel>PAYMENT STATUS</FieldLabel>
-                  <StyledSelect value={paymentStatus} onChange={setPaymentStatus} options={["UNPAID", "PAID"]} />
+                  <StyledSelect value={paymentStatus} onChange={setPaymentStatus} options={["UNPAID", "PAID"]} disabled={isEdit && !allowedFields.has("paymentStatus")} />
                 </div>
               </div>
+              {orderType === "REFUND" && (
+                <div>
+                  <FieldLabel>REFUND AMOUNT (positive)</FieldLabel>
+                  <Input type="number" min={0} value={refundAmount} onChange={(e) => setRefundAmount(Number(e.target.value))} disabled={isEdit && !allowedFields.has("refundAmount")} className="w-full px-3.5 py-2.5 bg-white border border-surface-200 rounded-xl text-xs font-black mono-num text-primary focus:outline-none disabled:cursor-not-allowed disabled:opacity-60" />
+                </div>
+              )}
+              {orderType === "EXCHANGE" && (
+                <div>
+                  <FieldLabel>EXCHANGE AMOUNT (+/-)</FieldLabel>
+                  <Input type="number" value={exchangeAmount} onChange={(e) => setExchangeAmount(Number(e.target.value))} disabled={isEdit && !allowedFields.has("exchangeAmount")} className="w-full px-3.5 py-2.5 bg-white border border-surface-200 rounded-xl text-xs font-black mono-num text-primary focus:outline-none disabled:cursor-not-allowed disabled:opacity-60" />
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <FieldLabel>SHIPPING HANDLER</FieldLabel>
-                  <StyledSelect value={shippingHandledBy} onChange={setShippingHandledBy} options={["CUSTOMER", "BRAND", "TURUQ"]} />
+                  <StyledSelect value={shippingHandledBy} onChange={setShippingHandledBy} options={orderType === "PROMOTIONAL" ? ["BRAND", "TURUQ"] : ["CUSTOMER", "BRAND", "TURUQ"]} disabled={isEdit && !allowedFields.has("shippingHandledBy")} />
                 </div>
                 <div>
                   <FieldLabel>SHIPPING FEE</FieldLabel>
@@ -543,7 +590,7 @@ function CreateOrderContent() {
               </label>
               <div>
                 <FieldLabel>SPECIAL HANDLING</FieldLabel>
-                <StyledSelect value={specialHandling} onChange={setSpecialHandling} options={["none", "VIP", "replacement", "urgent"]} />
+                <StyledSelect value={specialHandling} onChange={setSpecialHandling} options={["none", "VIP", "replacement", "urgent"]} disabled={isEdit && !allowedFields.has("specialHandling")} />
               </div>
               <div>
                 <FieldLabel>NOTE</FieldLabel>
@@ -551,8 +598,9 @@ function CreateOrderContent() {
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   rows={3}
+                  disabled={isEdit && !allowedFields.has("notes")}
                   placeholder="Add delivery instructions or order notes..."
-                  className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-semibold placeholder:text-primary/50 text-primary focus-visible:ring-primary focus:border-primary focus:bg-white resize-y"
+                  className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-semibold placeholder:text-primary/50 text-primary focus-visible:ring-primary focus:border-primary focus:bg-white resize-y disabled:cursor-not-allowed disabled:opacity-60"
                 />
               </div>
             </div>
@@ -581,7 +629,8 @@ function CreateOrderContent() {
                     type="number"
                     value={totalInput}
                     onChange={(e) => { setTotalInput(e.target.value); setTotalEdited(true); }}
-                    className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-sm font-black mono-num text-primary focus-visible:ring-primary focus:border-primary"
+                    disabled={isEdit && !allowedFields.has("total")}
+                    className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-sm font-black mono-num text-primary focus-visible:ring-primary focus:border-primary disabled:cursor-not-allowed disabled:opacity-60"
                   />
                 </div>
                 <Button

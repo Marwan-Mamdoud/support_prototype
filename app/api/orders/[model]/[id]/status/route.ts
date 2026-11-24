@@ -30,9 +30,15 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ model: str
     return NextResponse.json({ error: "Invalid status" }, { status: 400 });
   }
 
-  const allowed = allowedNextStatuses(order.status);
+  // incoming rule: only Pending can become Out of stock
+  if (newStatus === "outOfStock" && order.status !== "pending") {
+    return NextResponse.json({ error: "Only pending orders can become out of stock" }, { status: 400 });
+  }
+
+  // transition validation
+  const allowed = allowedNextStatuses(order.status, order.type || "NORMAL");
   if (!allowed.includes(newStatus)) {
-    return NextResponse.json({ error: `Cannot change status to ${newStatus}` }, { status: 400 });
+    return NextResponse.json({ error: `Cannot transition from ${order.status} to ${newStatus}` }, { status: 400 });
   }
 
   const oldStatus = order.status;
@@ -85,6 +91,21 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ model: str
     for (const f of order.issueFlags || []) {
       if (f.type === "courier_finance_alert" && f.state === "open") {
         f.state = "resolved"; f.resolvedBy = "system"; f.resolvedAt = new Date(); f.resolveNote = "Location left courier";
+        resolved = true;
+      }
+    }
+    if (resolved) {
+      order.markModified("issueFlags");
+      order.hasOpenIssue = (order.issueFlags || []).some((f: any) => f.state === "open");
+    }
+  }
+
+  // auto-resolve reprint_bill_of_lading and courier_*_alert on status change
+  {
+    let resolved = false;
+    for (const f of order.issueFlags || []) {
+      if ((f.type === "reprint_bill_of_lading" || f.type === "courier_products_alert" || f.type === "courier_phone_alert" || f.type === "courier_address_alert") && f.state === "open") {
+        f.state = "resolved"; f.resolvedBy = "system"; f.resolvedAt = new Date(); f.resolveNote = "Status changed";
         resolved = true;
       }
     }

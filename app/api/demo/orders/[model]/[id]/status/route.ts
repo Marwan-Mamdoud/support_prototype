@@ -4,6 +4,7 @@ import { orderModelFor } from "@/lib/models/Order";
 import { Alert } from "@/lib/models/Alert";
 import { requireSession, loadOrderWithAccess } from "@/lib/serverAuth";
 import { writeAudit } from "@/lib/audit";
+import { allowedNextStatuses } from "@/lib/rules/editRules";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +19,17 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ model: str
   if (error) return error;
   const body = await req.json();
   const newStatus = body.status;
+
+  // incoming rule: only Pending can become Out of stock
+  if (newStatus === "outOfStock" && order.status !== "pending") {
+    return NextResponse.json({ error: "Only pending orders can become out of stock" }, { status: 400 });
+  }
+  // transition validation
+  const allowed = allowedNextStatuses(order.status, order.type || "NORMAL");
+  if (allowed.length === 0 || !allowed.includes(newStatus)) {
+    return NextResponse.json({ error: `Cannot transition from ${order.status} to ${newStatus}` }, { status: 400 });
+  }
+
   const reason = body.reason;
   if (newStatus === "pending" && order.status === "processing") {
     return NextResponse.json({ error: "Cannot move from processing back to pending" }, { status: 400 });
@@ -99,6 +111,21 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ model: str
     for (const f of order.issueFlags || []) {
       if (f.type === "courier_finance_alert" && f.state === "open") {
         f.state = "resolved"; f.resolvedBy = "system"; f.resolvedAt = new Date(); f.resolveNote = "Location left courier";
+        resolved = true;
+      }
+    }
+    if (resolved) {
+      order.markModified("issueFlags");
+      order.hasOpenIssue = (order.issueFlags || []).some((f: any) => f.state === "open");
+    }
+  }
+
+  // auto-resolve reprint_bill_of_lading and courier_*_alert on status change
+  {
+    let resolved = false;
+    for (const f of order.issueFlags || []) {
+      if ((f.type === "reprint_bill_of_lading" || f.type === "courier_products_alert" || f.type === "courier_phone_alert" || f.type === "courier_address_alert") && f.state === "open") {
+        f.state = "resolved"; f.resolvedBy = "system"; f.resolvedAt = new Date(); f.resolveNote = "Status changed";
         resolved = true;
       }
     }

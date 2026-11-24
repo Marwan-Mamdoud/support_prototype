@@ -43,6 +43,9 @@ export const ISSUE_FLAG_TYPES = [
   "address_update_required",
   "courier_finance_alert",
   "reprint_bill_of_lading",
+  "courier_products_alert",
+  "courier_phone_alert",
+  "courier_address_alert",
   "other",
 ] as const;
 export type IssueFlagType = (typeof ISSUE_FLAG_TYPES)[number];
