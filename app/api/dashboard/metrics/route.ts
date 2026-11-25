@@ -41,6 +41,8 @@ export async function GET(req: NextRequest) {
 
   const now = new Date();
   const hours24 = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  const hours36 = new Date(now.getTime() - 36 * 60 * 60 * 1000);
+  const hours48 = new Date(now.getTime() - 48 * 60 * 60 * 1000);
   const days7 = daysAgo(7, now);
   const days30 = daysAgo(30, now);
   const startToday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
@@ -88,8 +90,20 @@ export async function GET(req: NextRequest) {
   const outOfStockOver7Days = orders.filter((o) => o.status === "outOfStock" && toDate(o.lastStatusChangedAt) < days7).length;
 
   const overdueReturns = orders.filter(
-    (o) => ["returned", "RTW", "RTO"].includes(o.status) && o.dropoffBatchId && !dropoffs.find((d: any) => String(d._id) === String(o.dropoffBatchId) && d.status === "CLOSED")
+    (o) => o.status === "returned" && toDate(o.lastStatusChangedAt) < hours48
   ).length;
+
+  const processingOver2d = orders.filter((o) => o.status === "processing" && toDate(o.lastStatusChangedAt) < hours48).length;
+  const pendingOver36h = orders.filter((o) => o.status === "pending" && toDate(o.lastStatusChangedAt) < hours36).length;
+  const packedOver1d = orders.filter((o) => o.status === "packed" && toDate(o.lastStatusChangedAt) < hours24).length;
+  const pickedupOver1d = orders.filter((o) => o.status === "pickedUp" && toDate(o.lastStatusChangedAt) < hours24).length;
+
+  const outOfStockOrders = orders.filter((o) => o.status === "outOfStock");
+  const outOfStockUids = new Set<string>();
+  for (const o of outOfStockOrders) for (const pr of (o as any).products || []) if (pr?.uid) outOfStockUids.add(pr.uid);
+  const inStockProducts = await (await import("@/lib/models")).Product.find({ uid: { $in: [...outOfStockUids] }, quantity: { $gt: 0 } }).select("uid").lean();
+  const inStockUidSet = new Set(inStockProducts.map((p: any) => p.uid));
+  const outOfStockWithStock = outOfStockOrders.filter((o) => (o as any).products?.some((pr: any) => inStockUidSet.has(pr.uid))).length;
 
   const urgentVIPNotMoved = orders.filter(
     (o) => ["urgent", "vip", "replacement"].includes(o.specialHandling) && !FINAL_STATUSES.has(o.status as any) && toDate(o.lastStatusChangedAt) < hours24
@@ -221,6 +235,11 @@ export async function GET(req: NextRequest) {
       outOfStockOver7Days,
       overdueReturns,
       urgentVIPNotMoved,
+      outOfStockWithStock,
+      processingOver2d,
+      pendingOver36h,
+      packedOver1d,
+      pickedupOver1d,
     },
     actionRequired,
     heatmap,

@@ -4,46 +4,44 @@
 
 ## 1. Total & Payment Status & Shipping Handlers
 
-**Validation statuses (allowed to edit these fields):**
-- Pending, Processing, Picked (packed), Picked up (pickedUp), Out of stock, Out for delivery, Postponed
-
-**Fields:** `subtotal`, `total`, `shippingFees`, `shippingHandledBy`, `paymentMethod`, `paymentStatus`
-
-**Trigger:** none new (no flag; email-to-brand skipped per decision).
+**Blocked from update** (not editable in any status).
 
 ## 2. Products
 
-**Validation statuses:**
-- Normal type (any type except Refund, including Integration orders which have no type → treated as NORMAL): Pending, Out of stock
-- Refund type: Processing, Out for delivery, Postponed
+**Blocked from update** (not editable in any status).
 
-**Triggers:**
-- Status Processing or Postponed, and type Refund → create issue flag `reprint_bill_of_lading` (reprint bill of lading).
-- Status Out for delivery, and type Refund → create issue flag `reprint_bill_of_lading` (reprint bill of lading) AND `courier_products_alert` (update courier with new products).
+**Triggers:** none (products no longer editable).
 
 ## 3. Phone
 
 **Validation statuses:**
-- Pending, Picked up (pickedUp), Picked (packed), Processing, Out of stock, Out for delivery, Postponed
+- Pending, Picked up, Picked, Processing, Out of stock, Out for delivery, Postponed
 
 **Triggers:**
-- Picked, Picked up, Processing or Postponed → create issue flag `reprint_bill_of_lading` (reprint bill of lading).
-- Out for delivery → create issue flag `reprint_bill_of_lading` (reprint bill of lading) AND `courier_phone_alert` (update courier with the new phone number).
+- Picked, Picked up, Processing or Postponed: create an issue flag to reprint the bill of lading.
+- Out for delivery: create an issue flag to reprint the bill of lading, and an issue flag to update the courier with the new phone number.
 
 ## 4. Address & Governorate
 
 **Validation statuses:**
-- Pending, Picked (packed), Picked up (pickedUp), Processing, Out for delivery, Postponed, Out of stock
+- Packed
+- Picked up
+- Processing
+- Out for delivery
+- Postponed
 
 **Triggers:**
-- Picked, Picked up, Processing or Postponed → create issue flag `reprint_bill_of_lading` (reprint bill of lading).
-- Out for delivery → create issue flag `reprint_bill_of_lading` (reprint bill of lading) AND `courier_address_alert` (update courier with the new address).
+- Picked, Picked up, Processing or Postponed: create an issue flag to reprint the bill of lading.
+- Out for delivery: create an issue flag to reprint the bill of lading, and an issue flag to update the courier with the new address.
 
 ## Always blocked from update
 - Brand (`clientId`), Source, Type, Can open package (`canOpenPackage`).
+- Financial data (`subtotal`, `total`, `shippingFees`, `shippingHandledBy`, `paymentMethod`, `paymentStatus`, `refundAmount`, `exchangeAmount`).
+- Products (`products`, `refundAmount`, `exchangeAmount`).
 
 ## Other fields (notes, specialHandling, customerName, etc.)
-- Editable only in: Pending, Processing, Postponed, Out of stock (existing `canEditData`).
+- `customerName` / `customerFirstName` / `customerLastName`: always allowed (when order is editable).
+- `notes`, `specialHandling`: editable only in Pending, Processing, Postponed, Out of stock.
 
 ## Auto-resolve
 - `invalid_address` / `invalid_phone_number`: resolved when the field becomes valid.

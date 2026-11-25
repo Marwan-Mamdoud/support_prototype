@@ -59,17 +59,8 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ model: st
     "customerPhone",
     "customerAddress",
     "customerGovernorate",
-    "products",
-    "subtotal",
-    "shippingFees",
-    "total",
-    "paymentMethod",
-    "paymentStatus",
-    "shippingHandledBy",
     "specialHandling",
     "notes",
-    "refundAmount",
-    "exchangeAmount",
   ]);
 
   const rejected = Object.keys(body).filter((f) => !editableFields.has(f));
@@ -84,7 +75,7 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ model: st
   const PRODUCTS_NORMAL = new Set(["pending", "outOfStock"]);
   const PRODUCTS_REFUND_EXTRA = new Set(["processing", "outForDelivery", "postponed"]);
   const PHONE_STATUSES = new Set(["pending", "packed", "pickedUp", "processing", "outOfStock", "outForDelivery", "postponed"]);
-  const ADDRESS_STATUSES = new Set(["pending", "packed", "pickedUp", "processing", "outForDelivery", "postponed", "outOfStock"]);
+  const ADDRESS_STATUSES = new Set(["packed", "pickedUp", "processing", "outForDelivery", "postponed"]);
   const OTHER_STATUSES = new Set(["pending", "processing", "postponed", "outOfStock"]);
 
   function fieldAllowed(f: string): boolean {
@@ -208,17 +199,6 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ model: st
   function pushTrig(flagType: string, note: string) {
     if (!hasOpenFlagTrig(flagType)) {
       newFlags.push({ type: flagType, note, reportedByRole: "system", reportedByUser: "system", reportedAt: new Date(), state: "open" });
-    }
-  }
-
-  // Products triggers
-  if (trigProductsChanged && type === "REFUND") {
-    if (status === "processing" || status === "postponed") {
-      pushTrig("reprint_bill_of_lading", "Products updated (refund) at " + status);
-    }
-    if (status === "outForDelivery") {
-      pushTrig("reprint_bill_of_lading", "Products updated (refund) at out for delivery");
-      pushTrig("courier_products_alert", "Update courier with new products");
     }
   }
 

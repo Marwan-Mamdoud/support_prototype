@@ -30,23 +30,51 @@ export function canEditData(status: string): boolean {
 }
 
 export function canEditStatus(status: string): boolean {
-  return allowedNextStatuses(status).length > 0;
+  return STATUS_EDITABLE_STATUSES.has(status) && allowedNextStatuses(status).length > 0;
 }
 
-const ALL = ORDER_STATUSES.filter((s) => s !== undefined);
+export function editableFieldsForStatus(status: string, type: string): Set<string> {
+  const set = new Set<string>();
+  // Phone
+  if (["pending", "packed", "pickedUp", "processing", "outOfStock", "outForDelivery", "postponed"].includes(status)) {
+    set.add("customerPhone");
+  }
+  // Address & governorate: only Packed, Picked up, Processing, Out for delivery, Postponed
+  if (["packed", "pickedUp", "processing", "outForDelivery", "postponed"].includes(status)) {
+    set.add("customerAddress");
+    set.add("customerGovernorate");
+  }
+  // Customer name always allowed
+  set.add("customerName");
+  set.add("customerFirstName");
+  set.add("customerLastName");
+  // Other fields
+  if (["pending", "processing", "postponed", "outOfStock"].includes(status)) {
+    set.add("notes");
+    set.add("specialHandling");
+  }
+  return set;
+}
 
-function normalTransitions(s: string): string[] {
-  switch (s) {
+export function allowedNextStatuses(currentStatus: string, type?: string): string[] {
+  const isRefund = type === "REFUND";
+  if (isRefund && currentStatus === "processing") {
+    return ["outForDelivery", "delivered", "QC", "postponed", "droppedOff", "RTW", "RTO"];
+  }
+  if (isRefund && currentStatus === "outForDelivery") {
+    return ["delivered", "QC", "postponed", "droppedOff", "RTW", "RTO"];
+  }
+  switch (currentStatus) {
     case "pending":
-      return ORDER_STATUSES.filter((x) => x !== "pending");
+      return ["processing", "packed", "QC", "pickedUp", "droppedOff", "outForDelivery", "postponed", "outOfStock", "delivered", "collected", "returned", "RTW", "RTO", "cancelled"];
     case "outOfStock":
       return ["pending"];
     case "packed":
-      return ORDER_STATUSES.filter((x) => x !== "packed" && x !== "pending" && x !== "outOfStock");
+      return ["processing", "QC", "pickedUp", "droppedOff", "outForDelivery", "postponed", "delivered", "collected", "returned", "RTW", "RTO", "cancelled"];
     case "pickedUp":
-      return ORDER_STATUSES.filter((x) => x !== "pickedUp" && x !== "pending" && x !== "packed" && x !== "outOfStock");
+      return ["processing", "QC", "droppedOff", "outForDelivery", "postponed", "delivered", "collected", "returned", "RTW", "RTO", "cancelled"];
     case "processing":
-      return ORDER_STATUSES.filter((x) => x !== "processing" && x !== "pending" && x !== "packed" && x !== "pickedUp" && x !== "outOfStock");
+      return ["QC", "droppedOff", "outForDelivery", "postponed", "delivered", "collected", "returned", "RTW", "RTO", "cancelled"];
     case "outForDelivery":
       return ["delivered", "cancelled", "postponed"];
     case "delivered":
@@ -68,53 +96,6 @@ function normalTransitions(s: string): string[] {
     default:
       return [];
   }
-}
-
-export function allowedNextStatuses(currentStatus: string, type?: string): string[] {
-  const isRefund = type === "REFUND";
-  if (isRefund && currentStatus === "processing") {
-    return ["outForDelivery", "delivered", "QC", "postponed", "droppedOff", "RTW", "RTO"];
-  }
-  if (isRefund && currentStatus === "outForDelivery") {
-    return ["delivered", "QC", "postponed", "droppedOff", "RTW", "RTO"];
-  }
-  return normalTransitions(currentStatus);
-}
-
-export function editableFieldsForStatus(status: string, type: string): Set<string> {
-  const isRefund = type === "REFUND";
-  const set = new Set<string>();
-  if (["pending", "processing", "packed", "pickedUp", "outOfStock", "outForDelivery", "postponed"].includes(status)) {
-    set.add("subtotal");
-    set.add("total");
-    set.add("shippingFees");
-    set.add("shippingHandledBy");
-    set.add("paymentMethod");
-    set.add("paymentStatus");
-    set.add("refundAmount");
-    set.add("exchangeAmount");
-  }
-  if (["pending", "outOfStock"].includes(status)) {
-    set.add("products");
-  }
-  if (isRefund && ["processing", "outForDelivery", "postponed"].includes(status)) {
-    set.add("products");
-  }
-  if (["pending", "packed", "pickedUp", "processing", "outOfStock", "outForDelivery", "postponed"].includes(status)) {
-    set.add("customerPhone");
-  }
-  if (["pending", "packed", "pickedUp", "processing", "outForDelivery", "postponed", "outOfStock"].includes(status)) {
-    set.add("customerAddress");
-    set.add("customerGovernorate");
-  }
-  set.add("customerName");
-  set.add("customerFirstName");
-  set.add("customerLastName");
-  if (["pending", "processing", "postponed", "outOfStock"].includes(status)) {
-    set.add("notes");
-    set.add("specialHandling");
-  }
-  return set;
 }
 
 export function isFinalStatus(status: string): boolean {

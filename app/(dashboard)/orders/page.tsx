@@ -103,7 +103,7 @@ function OrdersPageContent() {
   const { data: countsData } = useQuery({
     queryKey: ["orders", "counts", model],
     queryFn: async () => {
-      const keys = ["waiting_decision", "successful", "in_progress", "new"];
+      const keys = ["waiting_decision", "successful", "in_progress", "new", "overdue_returns", "out_of_stock_with_stock", "processing_over_2d", "pending_over_36h", "packed_over_1d", "pickedup_over_1d"];
       const results = await Promise.all(keys.map((k) => fetch(`/api/orders?model=${model}&card=${k}&limit=1`).then((r) => r.json())));
       return keys.reduce((acc: any, k, i) => { acc[k] = results[i]?.total ?? 0; return acc; }, {});
     },
@@ -112,6 +112,12 @@ function OrdersPageContent() {
   const successCount = countsData?.successful ?? 0;
   const inProgressCount = countsData?.in_progress ?? 0;
   const newCount = countsData?.new ?? 0;
+  const overdueReturnsCount = countsData?.overdue_returns ?? 0;
+  const outOfStockWithStockCount = countsData?.out_of_stock_with_stock ?? 0;
+  const processingOver2dCount = countsData?.processing_over_2d ?? 0;
+  const pendingOver36hCount = countsData?.pending_over_36h ?? 0;
+  const packedOver1dCount = countsData?.packed_over_1d ?? 0;
+  const pickedupOver1dCount = countsData?.pickedup_over_1d ?? 0;
 
   return (
     <div className="flex flex-col flex-1 bg-slate-50">
@@ -154,6 +160,31 @@ function OrdersPageContent() {
             <span className="text-[10px] font-black uppercase tracking-widest text-rose-600 block">Issues / Cancelled</span>
             <span className="text-2xl font-black text-rose-600 mt-1 block">{waitingCount}</span>
           </button>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          {[
+            { key: "overdue_returns", label: "Overdue Returns", value: overdueReturnsCount, color: "rose", tooltip: "Orders in Returned/RTW/RTO whose status hasn't changed in over 48 hours." },
+            { key: "out_of_stock_with_stock", label: "Out of Stock (stock left)", value: outOfStockWithStockCount, color: "amber", tooltip: "Orders marked Out of Stock, but the ordered products still have quantity > 0 in inventory." },
+            { key: "processing_over_2d", label: "Processing > 2d", value: processingOver2dCount, color: "blue", tooltip: "Orders in Processing status for more than 2 days (48 hours)." },
+            { key: "pending_over_36h", label: "Pending > 36h", value: pendingOver36hCount, color: "amber", tooltip: "Orders in Pending status for more than 36 hours." },
+            { key: "packed_over_1d", label: "Packed > 1d", value: packedOver1dCount, color: "indigo", tooltip: "Orders in Packed status for more than 1 day (24 hours)." },
+            { key: "pickedup_over_1d", label: "Picked Up > 1d", value: pickedupOver1dCount, color: "purple", tooltip: "Orders in Picked Up status for more than 1 day (24 hours)." },
+          ].map((c) => (
+            <button
+              key={c.key}
+              onClick={() => setCardFilter(cardFilter === c.key ? "" : c.key)}
+              className={`bg-white p-3 rounded-xl border shadow-sm text-left transition ${cardFilter === c.key ? "border-primary ring-2 ring-primary/20" : "border-slate-200 hover:border-primary/40"}`}
+            >
+              <div className="flex items-center justify-between gap-1">
+                <span className={`text-[9px] font-black uppercase tracking-widest block text-${c.color}-600`}>{c.label}</span>
+                <span className="text-[9px] font-black text-slate-400 cursor-help relative group" title={c.tooltip}>?
+                  <span className="hidden group-hover:block absolute z-10 bottom-full right-0 mb-1 w-48 p-2 bg-slate-900 text-white text-[10px] font-medium rounded-lg shadow-lg normal-case">{c.tooltip}</span>
+                </span>
+              </div>
+              <span className={`text-xl font-black mt-1 block text-${c.color}-600`}>{c.value}</span>
+            </button>
+          ))}
         </div>
 
         <div className={selected ? "grid grid-cols-1 xl:grid-cols-[1fr_560px] gap-6" : ""}>

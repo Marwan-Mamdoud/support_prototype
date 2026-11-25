@@ -61,6 +61,11 @@ interface DashboardData {
     outOfStockOver7Days: number;
     overdueReturns: number;
     urgentVIPNotMoved: number;
+    outOfStockWithStock: number;
+    processingOver2d: number;
+    pendingOver36h: number;
+    packedOver1d: number;
+    pickedupOver1d: number;
   };
   actionRequired: {
     missingFlag: number;
@@ -207,27 +212,25 @@ export default function DashboardPage() {
         </div>
 
         {/* Key metrics cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          <div className="border-2 border-primary rounded-2xl bg-white p-5 shadow-sm">
-            <span className="text-[10px] font-black uppercase tracking-widest text-primary/75 block">Total Pending</span>
-            <span className="text-3xl font-black mono-num text-primary mt-1 block">{problematicPending.totalPending}</span>
-          </div>
-          <div className="border-2 border-amber-400 rounded-2xl bg-white p-5 shadow-sm">
-            <span className="text-[10px] font-black uppercase tracking-widest text-amber-700 block">Pending Without Flag</span>
-            <span className="text-3xl font-black mono-num text-amber-700 mt-1 block">{problematicPending.pendingWithoutFlag}</span>
-          </div>
-          <div className="border-2 border-rose-500 rounded-2xl bg-white p-5 shadow-sm">
-            <span className="text-[10px] font-black uppercase tracking-widest text-rose-700 block">Out of Stock &gt;7 Days</span>
-            <span className="text-3xl font-black mono-num text-rose-700 mt-1 block">{problematicPending.outOfStockOver7Days}</span>
-          </div>
-          <div className="border-2 border-purple-500 rounded-2xl bg-white p-5 shadow-sm">
-            <span className="text-[10px] font-black uppercase tracking-widest text-purple-700 block">Overdue Returns</span>
-            <span className="text-3xl font-black mono-num text-purple-700 mt-1 block">{problematicPending.overdueReturns}</span>
-          </div>
-          <div className="border-2 border-teal-500 rounded-2xl bg-white p-5 shadow-sm">
-            <span className="text-[10px] font-black uppercase tracking-widest text-teal-700 block">Urgent / VIP Not Moved</span>
-            <span className="text-3xl font-black mono-num text-teal-700 mt-1 block">{problematicPending.urgentVIPNotMoved}</span>
-          </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          {[
+            { label: "Overdue Returns", value: problematicPending.overdueReturns, color: "purple", tooltip: "Orders in Returned/RTW/RTO whose status hasn't changed in over 2 days (48 hours)." },
+            { label: "Out of Stock (stock left)", value: problematicPending.outOfStockWithStock, color: "amber", tooltip: "Orders marked Out of Stock, but the ordered products still have quantity > 0 in inventory." },
+            { label: "Processing > 2d", value: problematicPending.processingOver2d, color: "blue", tooltip: "Orders in Processing status for more than 2 days (48 hours)." },
+            { label: "Pending > 36h", value: problematicPending.pendingOver36h, color: "amber", tooltip: "Orders in Pending status for more than 36 hours." },
+            { label: "Packed > 1d", value: problematicPending.packedOver1d, color: "indigo", tooltip: "Orders in Packed status for more than 1 day (24 hours)." },
+            { label: "Picked Up > 1d", value: problematicPending.pickedupOver1d, color: "purple", tooltip: "Orders in Picked Up status for more than 1 day (24 hours)." },
+          ].map((c) => (
+            <div key={c.label} className={`border-2 border-${c.color}-500 rounded-2xl bg-white p-5 shadow-sm`}>
+              <div className="flex items-center justify-between gap-1">
+                <span className={`text-[10px] font-black uppercase tracking-widest text-${c.color}-700 block`}>{c.label}</span>
+                <span className="text-[10px] font-black text-slate-400 cursor-help relative group" title={c.tooltip}>?
+                  <span className="hidden group-hover:block absolute z-10 bottom-full right-0 mb-1 w-48 p-2 bg-slate-900 text-white text-[10px] font-medium rounded-lg shadow-lg normal-case">{c.tooltip}</span>
+                </span>
+              </div>
+              <span className={`text-3xl font-black mono-num text-${c.color}-700 mt-1 block`}>{c.value}</span>
+            </div>
+          ))}
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">

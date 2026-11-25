@@ -117,6 +117,19 @@ export async function GET(req: NextRequest) {
   if (card === "heading_to_you") filter.status = { $in: ["returned", "RTW", "RTO"] };
   if (card === "new") filter.status = "pending";
   if (card === "urgent" || card === "vip" || card === "replacement") filter.specialHandling = card;
+  const now = Date.now();
+  const hoursAgo = (h: number) => new Date(now - h * 60 * 60 * 1000);
+  if (card === "processing_over_2d") { filter.status = "processing"; filter.lastStatusChangedAt = { $lt: hoursAgo(48) }; }
+  if (card === "pending_over_36h") { filter.status = "pending"; filter.lastStatusChangedAt = { $lt: hoursAgo(36) }; }
+  if (card === "packed_over_1d") { filter.status = "packed"; filter.lastStatusChangedAt = { $lt: hoursAgo(24) }; }
+  if (card === "pickedup_over_1d") { filter.status = "pickedUp"; filter.lastStatusChangedAt = { $lt: hoursAgo(24) }; }
+  if (card === "overdue_returns") { filter.status = "returned"; filter.lastStatusChangedAt = { $lt: hoursAgo(48) }; }
+  if (card === "out_of_stock_with_stock") {
+    filter.status = "outOfStock";
+    const { Product } = await import("@/lib/models");
+    const inStock = await Product.find({ quantity: { $gt: 0 } }).select("uid").lean();
+    filter["products.uid"] = { $in: inStock.map((p: any) => p.uid) };
+  }
   if (saved === "cancelledBeforeDelivery") {
     filter.status = "cancelled";
     const ors = [{ "statusHistory.processing": { $exists: true } }, { "statusHistory.pickedUp": { $exists: true } }];
