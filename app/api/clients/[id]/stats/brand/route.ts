@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { Client, TuruqOrder, IntegrationOrder, DropoffBatch, Courier, StaffMember, AuditLog, SupportNote, Alert } from "@/lib/models";
-import { requireSession, canAccessBrand } from "@/lib/serverAuth";
+import { requireSession, canAccessBrand, getBrandFilter } from "@/lib/serverAuth";
 import { computeBrandMetrics, MinimalOrder, MinimalInteraction } from "@/lib/brandMetrics";
 
 export const dynamic = "force-dynamic";
@@ -16,7 +16,8 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
   await connectDB();
 
   const now = new Date();
-  const [client, turuq, integration, dropoffs, couriers, staff, auditLogs, notes, alerts] = await Promise.all([
+  const brandFilter = getBrandFilter(session);
+  const [client, turuq, integration, dropoffs, couriers, staff, auditLogs, notes, alerts, allTuruq, allIntegration] = await Promise.all([
     Client.findById(id).lean(),
     TuruqOrder.find({ clientId: id }).lean(),
     IntegrationOrder.find({ clientId: id }).lean(),
@@ -26,6 +27,8 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
     AuditLog.find({}).lean(),
     SupportNote.find({}).lean(),
     Alert.find({}).lean(),
+    TuruqOrder.find(brandFilter).lean(),
+    IntegrationOrder.find(brandFilter).lean(),
   ]);
 
   if (!client) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -33,6 +36,11 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
   const orders: MinimalOrder[] = [
     ...turuq.map((o: any) => ({ ...o, model: "turuq" as const, _id: String(o._id), clientId: String(o.clientId) })),
     ...integration.map((o: any) => ({ ...o, model: "integration" as const, _id: String(o._id), clientId: String(o.clientId) })),
+  ];
+
+  const allOrders: MinimalOrder[] = [
+    ...allTuruq.map((o: any) => ({ ...o, model: "turuq" as const, _id: String(o._id), clientId: String(o.clientId) })),
+    ...allIntegration.map((o: any) => ({ ...o, model: "integration" as const, _id: String(o._id), clientId: String(o.clientId) })),
   ];
 
   const orderIds = new Set(orders.map((o) => String(o._id)));
@@ -48,7 +56,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
     client.serviceScheme,
     client.active,
     orders,
-    orders,
+    allOrders,
     dropoffs.map((d: any) => ({ ...d, _id: String(d._id), clientId: d.clientId ? String(d.clientId) : null })),
     couriers.map((x: any) => ({ _id: String(x._id), name: x.name, outsourced: x.outsourced })),
     staff.map((s: any) => ({ _id: String(s._id), name: s.name, role: s.role, assignedBrandIds: (s.assignedBrandIds || []).map((id: any) => String(id)) })),

@@ -38,9 +38,6 @@ export async function GET(req: NextRequest) {
   const status = sp.get("status");
   if (status) filter.status = status;
 
-  const specialHandling = sp.get("specialHandling");
-  if (specialHandling) filter.specialHandling = specialHandling;
-
   const currentLocation = sp.get("currentLocation");
   if (currentLocation) filter.currentLocation = currentLocation;
 
@@ -116,19 +113,55 @@ export async function GET(req: NextRequest) {
   if (card === "waiting_decision") { filter.hasOpenIssue = true; filter.status = { $nin: ["delivered", "collected", "cancelled", "returned", "RTW", "RTO"] }; }
   if (card === "heading_to_you") filter.status = { $in: ["returned", "RTW", "RTO"] };
   if (card === "new") filter.status = "pending";
-  if (card === "urgent" || card === "vip" || card === "replacement") filter.specialHandling = card;
   const now = Date.now();
   const hoursAgo = (h: number) => new Date(now - h * 60 * 60 * 1000);
+  if (card === "open_issues") { filter.hasOpenIssue = true; }
   if (card === "processing_over_2d") { filter.status = "processing"; filter.lastStatusChangedAt = { $lt: hoursAgo(48) }; }
   if (card === "pending_over_36h") { filter.status = "pending"; filter.lastStatusChangedAt = { $lt: hoursAgo(36) }; }
   if (card === "packed_over_1d") { filter.status = "packed"; filter.lastStatusChangedAt = { $lt: hoursAgo(24) }; }
   if (card === "pickedup_over_1d") { filter.status = "pickedUp"; filter.lastStatusChangedAt = { $lt: hoursAgo(24) }; }
-  if (card === "overdue_returns") { filter.status = "returned"; filter.lastStatusChangedAt = { $lt: hoursAgo(48) }; }
+  if (card === "cancelled_over_2d") { filter.status = "cancelled"; filter.lastStatusChangedAt = { $lt: hoursAgo(48) }; }
+  if (card === "returned_over_2d") { filter.status = "returned"; filter.lastStatusChangedAt = { $lt: hoursAgo(48) }; }
+  if (card === "out_for_delivery_over_2d") { filter.status = "outForDelivery"; filter.lastStatusChangedAt = { $lt: hoursAgo(48) }; }
+  if (card === "status_pending") { filter.status = "pending"; }
+  if (card === "status_processing") { filter.status = "processing"; }
+  if (card === "status_out_for_delivery") { filter.status = "outForDelivery"; }
+  if (card === "status_cancelled") { filter.status = "cancelled"; }
+  if (card === "status_returned") { filter.status = "returned"; }
+  if (card === "status_postponed") { filter.status = "postponed"; }
+  if (card === "status_QC") { filter.status = "QC"; }
+  if (card === "status_RTW") { filter.status = "RTW"; }
+  if (card === "status_RTO") { filter.status = "RTO"; }
+  if (card === "cancelled_received") {
+    filter.status = "cancelled";
+    filter.$or = [
+      { "statusHistory.processing": { $exists: true } },
+      { "statusHistory.packed": { $exists: true } },
+      { "statusHistory.pickedUp": { $exists: true } },
+      { "statusHistory.droppedOff": { $exists: true } },
+      { "statusHistory.QC": { $exists: true } },
+      { "statusHistory.outForDelivery": { $exists: true } },
+      { "statusHistory.delivered": { $exists: true } },
+      { "statusHistory.returned": { $exists: true } },
+      { "statusHistory.RTW": { $exists: true } },
+      { "statusHistory.RTO": { $exists: true } },
+    ];
+  }
+  if (card === "cancelled_not_received") {
+    filter.status = "cancelled";
+    for (const st of ["processing", "packed", "pickedUp", "droppedOff", "QC", "outForDelivery", "delivered", "returned", "RTW", "RTO"]) {
+      filter[`statusHistory.${st}`] = { $exists: false };
+    }
+  }
   if (card === "out_of_stock_with_stock") {
-    filter.status = "outOfStock";
     const { Product } = await import("@/lib/models");
-    const inStock = await Product.find({ quantity: { $gt: 0 } }).select("uid").lean();
-    filter["products.uid"] = { $in: inStock.map((p: any) => p.uid) };
+    const candidates = await Model.find({ ...filter, status: "outOfStock" }).select("_id products").lean();
+    const uids = [...new Set(candidates.flatMap((o: any) => (o.products || []).map((p: any) => p.uid)))];
+    const prods = await Product.find({ uid: { $in: uids } }).select("uid quantity").lean();
+    const qmap = new Map(prods.map((p: any) => [p.uid, p.quantity]));
+    const ids = candidates.filter((o: any) => (o.products || []).some((pr: any) => (qmap.get(pr.uid) ?? 0) >= pr.quantity)).map((o: any) => o._id);
+    filter.status = "outOfStock";
+    filter._id = { $in: ids };
   }
   if (saved === "cancelledBeforeDelivery") {
     filter.status = "cancelled";
@@ -143,8 +176,7 @@ export async function GET(req: NextRequest) {
   const pipeline = [
     { $match: filter },
     { $addFields: {
-      _finished: { $cond: [{ $in: ["$status", finishedStatuses] }, 0, 1] },
-      _prio: { $cond: [{ $eq: ["$specialHandling", "urgent"] }, 0, 1 ] }
+      _finished: { $cond: [{ $in: ["$status", finishedStatuses] }, 0, 1] }
     } },
     { $sort: { _finished: 1, _prio: 1, createdAt: -1 } },
     { $skip: skip },
@@ -179,7 +211,7 @@ export async function POST(req: NextRequest) {
   if (response) return response;
   await connectDB();
   const body = await req.json();
-  const { clientId, customerName, customerPhone, customerGovernorate, customerAddress, products, paymentMethod, paymentStatus, shippingHandledBy, canOpenPackage, notes, subtotal: subIn, shippingFees: feeIn, type, specialHandling, source, provider, externalId, refundAmount, exchangeAmount } = body;
+  const { clientId, customerName, customerPhone, customerGovernorate, customerAddress, products, paymentMethod, paymentStatus, shippingHandledBy, canOpenPackage, notes, subtotal: subIn, shippingFees: feeIn, type, source, provider, externalId, refundAmount, exchangeAmount } = body;
 
   if (!clientId) return NextResponse.json({ error: "Brand is required" }, { status: 400 });
   if (!canAccessBrand(session, clientId)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -231,7 +263,6 @@ export async function POST(req: NextRequest) {
     deliveryAttemptTimestamps: {},
     trackingNumber: null,
     currentLocation: defaultLocation,
-    specialHandling: specialHandling || "none",
     refundAmount: Number(refundAmount || 0),
     exchangeAmount: Number(exchangeAmount || 0),
     hasOpenIssue: false,
@@ -273,12 +304,11 @@ export async function POST(req: NextRequest) {
   }
 
   // Stock check & deduct
-  const outOfStockExists = flags.some((f) => f.type === "outOfStock");
   for (const p of products || []) {
     const prod = await Product.findOne({ uid: p.uid });
     if (prod) {
       const available = prod.quantity;
-      if (p.quantity > available && !outOfStockExists) {
+      if (p.quantity > available) {
         flags.push({ type: "outOfStock", note: `${p.name} ordered ${p.quantity} but only ${available} in stock`, reportedByRole: "system", reportedByUser: "system", reportedAt: new Date(), state: "open" });
       }
       prod.quantity -= p.quantity;

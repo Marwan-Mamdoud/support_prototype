@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -7,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { timeAgo } from "@/lib/time";
 
 export default function AlertsPage() {
+  const { t } = useLanguage();
   const [handled, setHandled] = useState("false");
   const qc = useQueryClient();
   const { data } = useQuery({
@@ -25,34 +27,34 @@ export default function AlertsPage() {
 
   return (
     <div className="space-y-3">
-      <h1 className="text-2xl font-bold text-primary">Alerts</h1>
+      <h1 className="text-2xl font-bold text-primary">{t("alerts.title")}</h1>
       <Select value={handled} onValueChange={(v) => setHandled(v ?? '')}>
         <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
         <SelectContent>
-          <SelectItem value="false">Unhandled</SelectItem>
-          <SelectItem value="true">Handled</SelectItem>
+          <SelectItem value="false">{t("alerts.unhandled")}</SelectItem>
+          <SelectItem value="true">{t("alerts.handled")}</SelectItem>
         </SelectContent>
       </Select>
       <div className="bg-white rounded-lg border border-slate-200 overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Type</TableHead>
-              <TableHead>Order</TableHead>
-              <TableHead>Created</TableHead>
-              <TableHead>Action</TableHead>
+              <TableHead>{t("alerts.type")}</TableHead>
+              <TableHead>{t("alerts.order")}</TableHead>
+              <TableHead>{t("alerts.created")}</TableHead>
+              <TableHead>{t("alerts.action")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {items.length === 0 && <TableRow><TableCell colSpan={4}>No alerts</TableCell></TableRow>}
+            {items.length === 0 && <TableRow><TableCell colSpan={4}>{t("alerts.noAlerts")}</TableCell></TableRow>}
             {items.map((a: any) => (
               <TableRow key={a._id}>
                 <TableCell>{a.type}</TableCell>
                 <TableCell>{a.orderModel}/{String(a.orderId)}</TableCell>
                 <TableCell>{timeAgo(a.createdAt)}</TableCell>
                 <TableCell>
-                  {!a.handled && <Button size="sm" onClick={() => mark.mutate(a._id)}>Handled</Button>}
-                  {a.handled && <span className="text-xs text-slate-500">by {a.handledBy}</span>}
+                  {!a.handled && <Button size="sm" onClick={() => mark.mutate(a._id)}>{t("alerts.handledBtn")}</Button>}
+                  {a.handled && <span className="text-xs text-slate-500">{t("alerts.by")} {a.handledBy}</span>}
                 </TableCell>
               </TableRow>
             ))}

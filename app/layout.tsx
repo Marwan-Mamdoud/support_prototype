@@ -3,6 +3,7 @@ import { Inter, Noto_Sans_Arabic } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { BrandPreviewProvider } from "@/lib/brandPreview";
+import { LanguageProvider } from "@/lib/i18n/LanguageContext";
 
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"], display: "swap" });
 const notoArabic = Noto_Sans_Arabic({ variable: "--font-noto-arabic", subsets: ["arabic"], display: "swap", weight: ["400", "500", "600", "700"] });
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="ar" dir="rtl">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -24,7 +25,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className={`${inter.variable} ${notoArabic.variable} antialiased`}>
         <Providers>
-          <BrandPreviewProvider>{children}</BrandPreviewProvider>
+          <LanguageProvider>
+            <BrandPreviewProvider>{children}</BrandPreviewProvider>
+          </LanguageProvider>
         </Providers>
       </body>
     </html>

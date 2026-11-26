@@ -1,4 +1,5 @@
 "use client";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -24,6 +25,7 @@ const goodFinished = ["delivered", "collected"];
 const badFinished = ["returned", "RTW", "RTO", "cancelled"];
 
 function CustomerLookupContent() {
+  const { t } = useLanguage();
   const router = useRouter();
   const sp = useSearchParams();
   const [phone, setPhone] = useState(sp.get("phone") || "");
@@ -83,7 +85,7 @@ function CustomerLookupContent() {
                 <h3 className="text-xs font-black uppercase tracking-widest">Names</h3>
               </div>
               <div className="p-5 space-y-3">
-                {(data.names || []).length === 0 && <Tile label="Names" value="—" />}
+                {(data.names || []).length === 0 && <Tile label={t("customerLookup.names")} value="—" />}
                 {(data.names || []).map((n: string, i: number) => (
                   <Tile key={i} label={`Name ${i + 1}`} value={n} />
                 ))}
@@ -97,7 +99,7 @@ function CustomerLookupContent() {
                 <h3 className="text-xs font-black uppercase tracking-widest">Addresses</h3>
               </div>
               <div className="p-5 space-y-3">
-                {(data.addresses || []).length === 0 && <Tile label="Addresses" value="—" />}
+                {(data.addresses || []).length === 0 && <Tile label={t("customerLookup.addresses")} value="—" />}
                 {(data.addresses || []).map((a: string, i: number) => (
                   <Tile key={i} label={`Address ${i + 1}`} value={a} />
                 ))}
@@ -113,12 +115,12 @@ function CustomerLookupContent() {
               <div className="p-5 space-y-3.5">
                 {data.successRate?.rate != null ? (
                   <>
-                    <Tile label="Rate" value={`${data.successRate.rate.toFixed(0)}%`} color={data.successRate.rate >= 70 ? "text-emerald-700" : data.successRate.rate >= 40 ? "text-secondary-950" : "text-rose-800"} />
-                    <Tile label="Successful" value={data.successRate.success} color="text-emerald-700" />
-                    <Tile label="Total finished" value={data.successRate.total} color="text-primary" />
+                    <Tile label={t("customerLookup.rate")} value={`${data.successRate.rate.toFixed(0)}%`} color={data.successRate.rate >= 70 ? "text-emerald-700" : data.successRate.rate >= 40 ? "text-secondary-950" : "text-rose-800"} />
+                    <Tile label={t("customerLookup.successful")} value={data.successRate.success} color="text-emerald-700" />
+                    <Tile label={t("customerLookup.totalFinished")} value={data.successRate.total} color="text-primary" />
                   </>
                 ) : (
-                  <Tile label="Rate" value="No finished orders" color="text-primary/70" />
+                  <Tile label={t("customerLookup.rate")} value="No finished orders" color="text-primary/70" />
                 )}
               </div>
             </div>
@@ -195,6 +197,7 @@ function CustomerLookupContent() {
 }
 
 export default function CustomerLookupPage() {
+  const { t } = useLanguage();
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <CustomerLookupContent />

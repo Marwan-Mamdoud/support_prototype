@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { SupportNote } from "@/lib/models";
 import { requireSession } from "@/lib/serverAuth";
+import { StaffMember } from "@/lib/models";
 
 export const dynamic = "force-dynamic";
 
@@ -16,10 +17,20 @@ export async function GET(req: NextRequest) {
   await connectDB();
   const Note = await getNoteModel();
   const q = req.nextUrl.searchParams.get("q");
-  const filter: any = { staffId: session.staffId };
+  const isSuper = session.role === "SUPER";
+  const filter: any = isSuper ? {} : { staffId: session.staffId };
   if (q) filter.text = { $regex: q, $options: "i" };
   const items = await Note.find(filter).sort({ createdAt: -1 }).lean();
-  return NextResponse.json({ items: items.map((i: any) => ({ ...i, id: String(i._id) })) });
+  const staffIds = Array.from(new Set(items.map((i: any) => String(i.staffId))));
+  const staff = await StaffMember.find({ _id: { $in: staffIds } }).select("name").lean();
+  const nameMap = new Map(staff.map((s: any) => [String(s._id), s.name]));
+  return NextResponse.json({
+    items: items.map((i: any) => ({
+      ...i,
+      id: String(i._id),
+      staffName: nameMap.get(String(i.staffId)) || "",
+    })),
+  });
 }
 
 export async function POST(req: NextRequest) {

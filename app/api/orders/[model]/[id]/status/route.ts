@@ -36,7 +36,8 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ model: str
   }
 
   // transition validation
-  const allowed = allowedNextStatuses(order.status, order.type || "NORMAL");
+  const isSuper = session.role === "SUPER";
+  const allowed = allowedNextStatuses(order.status, order.type || "NORMAL", isSuper);
   if (!allowed.includes(newStatus)) {
     return NextResponse.json({ error: `Cannot transition from ${order.status} to ${newStatus}` }, { status: 400 });
   }

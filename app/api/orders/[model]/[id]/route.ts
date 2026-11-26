@@ -59,7 +59,6 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ model: st
     "customerPhone",
     "customerAddress",
     "customerGovernorate",
-    "specialHandling",
     "notes",
   ]);
 
@@ -175,15 +174,29 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ model: st
         await prod.save();
       }
     }
+    let addedOutOfStock = false;
     for (const p of newProducts) {
       const prod = await Product.findOne({ uid: p.uid });
       if (prod) {
         const available = prod.quantity;
-        if (p.quantity > available && !hasOpenFlag("outOfStock")) {
+        if (p.quantity > available && !hasOpenFlag("outOfStock") && !addedOutOfStock) {
           newFlags.push({ type: "outOfStock", note: `${p.name} ordered ${p.quantity} but only ${available} in stock`, reportedByRole: "system", reportedByUser: "system", reportedAt: new Date(), state: "open" });
+          addedOutOfStock = true;
         }
         prod.quantity -= p.quantity;
         await prod.save();
+      }
+    }
+    // Auto-resolve outOfStock flags if all new products are in stock
+    const anyOutOfStock = newFlags.some((f: any) => f.type === "outOfStock");
+    if (!anyOutOfStock) {
+      for (const f of order.issueFlags || []) {
+        if (f.type === "outOfStock" && f.state === "open") {
+          f.state = "resolved";
+          f.resolvedBy = "system";
+          f.resolvedAt = new Date();
+          f.resolveNote = "Stock corrected";
+        }
       }
     }
   }

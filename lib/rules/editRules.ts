@@ -30,7 +30,7 @@ export function canEditData(status: string): boolean {
 }
 
 export function canEditStatus(status: string): boolean {
-  return STATUS_EDITABLE_STATUSES.has(status) && allowedNextStatuses(status).length > 0;
+  return allowedNextStatuses(status, undefined, false).length > 0;
 }
 
 export function editableFieldsForStatus(status: string, type: string): Set<string> {
@@ -51,51 +51,22 @@ export function editableFieldsForStatus(status: string, type: string): Set<strin
   // Other fields
   if (["pending", "processing", "postponed", "outOfStock"].includes(status)) {
     set.add("notes");
-    set.add("specialHandling");
   }
   return set;
 }
 
-export function allowedNextStatuses(currentStatus: string, type?: string): string[] {
-  const isRefund = type === "REFUND";
-  if (isRefund && currentStatus === "processing") {
-    return ["outForDelivery", "delivered", "QC", "postponed", "droppedOff", "RTW", "RTO"];
-  }
-  if (isRefund && currentStatus === "outForDelivery") {
-    return ["delivered", "QC", "postponed", "droppedOff", "RTW", "RTO"];
-  }
-  switch (currentStatus) {
-    case "pending":
-      return ["processing", "packed", "QC", "pickedUp", "droppedOff", "outForDelivery", "postponed", "outOfStock", "delivered", "collected", "returned", "RTW", "RTO", "cancelled"];
-    case "outOfStock":
-      return ["pending"];
-    case "packed":
-      return ["processing", "QC", "pickedUp", "droppedOff", "outForDelivery", "postponed", "delivered", "collected", "returned", "RTW", "RTO", "cancelled"];
-    case "pickedUp":
-      return ["processing", "QC", "droppedOff", "outForDelivery", "postponed", "delivered", "collected", "returned", "RTW", "RTO", "cancelled"];
-    case "processing":
-      return ["QC", "droppedOff", "outForDelivery", "postponed", "delivered", "collected", "returned", "RTW", "RTO", "cancelled"];
-    case "outForDelivery":
-      return ["delivered", "cancelled", "postponed"];
-    case "delivered":
-      return ["collected"];
-    case "cancelled":
-      return ["returned", "QC", "droppedOff", "RTO", "RTW"];
-    case "QC":
-      return ["droppedOff", "RTO", "RTW"];
-    case "postponed":
-      return ["processing", "outForDelivery"];
-    case "returned":
-      return ["processing", "QC", "RTO", "RTW"];
-    case "droppedOff":
-      return ["RTW", "RTO"];
-    case "collected":
-    case "RTW":
-    case "RTO":
-      return [];
-    default:
-      return [];
-  }
+export function allowedNextStatuses(currentStatus: string, type?: string, isSuper: boolean = false): string[] {
+  // End statuses: no outgoing transitions
+  if (currentStatus === "collected" || currentStatus === "RTW" || currentStatus === "RTO") return [];
+
+  const out: string[] = [];
+  // Rule 1: super can move any non-final order to pending
+  if (isSuper) out.push("pending");
+  // Rule 2: all accounts can cancel any non-final order
+  out.push("cancelled");
+
+  // dedup
+  return [...new Set(out)];
 }
 
 export function isFinalStatus(status: string): boolean {

@@ -1,4 +1,5 @@
 "use client";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense } from "react";
@@ -24,6 +25,7 @@ import {
 } from "lucide-react";
 
 function QuickLookupContent() {
+  const { t } = useLanguage();
   const sp = useSearchParams();
   const router = useRouter();
   const [q, setQ] = useState(sp.get("q") || "");
@@ -119,9 +121,9 @@ function QuickLookupContent() {
                   <h3 className="text-xs font-black uppercase tracking-widest">Courier</h3>
                 </div>
                 <div className="p-5 space-y-3.5">
-                  <Tile label="Carrier" value={carrier === "Turuq" ? "Turuq courier" : carrier} />
-                  <Tile label="Courier" value={order.courier ? `${order.courier.name} ${order.courier.phone}` : "No courier assigned"} color="text-primary" />
-                  <Tile label="Tracking" value={order.trackingNumber || "—"} color="text-secondary-950" />
+                  <Tile label={t("quickLookup.tiles.carrier")} value={carrier === "Turuq" ? "Turuq courier" : carrier} />
+                  <Tile label={t("quickLookup.tiles.courier")} value={order.courier ? `${order.courier.name} ${order.courier.phone}` : "No courier assigned"} color="text-primary" />
+                  <Tile label={t("quickLookup.tiles.tracking")} value={order.trackingNumber || "—"} color="text-secondary-950" />
                   {trackingUrl && (
                     <a href={trackingUrl} target="_blank" rel="noreferrer" className="w-full py-2.5 px-4 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition-colors">
                       <span>Open on carrier</span>
@@ -138,11 +140,11 @@ function QuickLookupContent() {
                   <h3 className="text-xs font-black uppercase tracking-widest">Brand</h3>
                 </div>
                 <div className="p-5 space-y-3.5">
-                  <Tile label="Brand" value={order.client?.companyName} />
-                  <Tile label="Source" value={model.toUpperCase()} />
-                  {model === "turuq" && <Tile label="Type" value={order.type} />}
-                  {model === "integration" && <Tile label="External ID" value={order.externalId} color="text-primary" />}
-                  <Tile label="Location" value={humanize(order.currentLocation)} color="text-secondary-950" />
+                  <Tile label={t("quickLookup.tiles.brand")} value={order.client?.companyName} />
+                  <Tile label={t("quickLookup.tiles.source")} value={model.toUpperCase()} />
+                  {model === "turuq" && <Tile label={t("quickLookup.tiles.type")} value={order.type} />}
+                  {model === "integration" && <Tile label={t("quickLookup.tiles.external_id")} value={order.externalId} color="text-primary" />}
+                  <Tile label={t("quickLookup.tiles.location")} value={humanize(order.currentLocation)} color="text-secondary-950" />
                 </div>
               </div>
 
@@ -153,10 +155,10 @@ function QuickLookupContent() {
                   <h3 className="text-xs font-black uppercase tracking-widest">Customer</h3>
                 </div>
                 <div className="p-5 space-y-3.5">
-                  <Tile label="Name" value={model === "turuq" ? order.customerName : `${order.customerFirstName} ${order.customerLastName}`} />
-                  <Tile label="Phone" value={order.customerPhone} color="text-primary" />
-                  <Tile label="Address" value={order.customerAddress} color="text-primary" />
-                  <Tile label="Governorate" value={order.customerGovernorate} color="text-primary" />
+                  <Tile label={t("quickLookup.tiles.name")} value={model === "turuq" ? order.customerName : `${order.customerFirstName} ${order.customerLastName}`} />
+                  <Tile label={t("quickLookup.tiles.phone")} value={order.customerPhone} color="text-primary" />
+                  <Tile label={t("quickLookup.tiles.address")} value={order.customerAddress} color="text-primary" />
+                  <Tile label={t("quickLookup.tiles.governorate")} value={order.customerGovernorate} color="text-primary" />
                 </div>
               </div>
             </div>
@@ -197,18 +199,18 @@ function QuickLookupContent() {
                         </span>
                       </div>
                       <div className="p-5 grid grid-cols-2 gap-4">
-                        <Tile label="Status" value={humanize(order.status)} />
-                        <Tile label="Payment" value={`${String(order.paymentMethod || "").toUpperCase()} · ${String(order.paymentStatus || "").toUpperCase()}`} color={order.paymentStatus === "PAID" ? "text-emerald-700" : "text-rose-800"} />
-                        <Tile label="Brand" value={order.client?.companyName} color="text-primary" />
-                        <Tile label="Source" value={model.toUpperCase()} color="text-primary" />
-                        {model === "turuq" && <Tile label="Type" value={order.type} />}
-                        {model === "integration" && <Tile label="External ID" value={order.externalId} color="text-primary" />}
-                        <Tile label="Location" value={humanize(order.currentLocation)} color="text-secondary-950" />
-                        <Tile label="Created" value={formatDate(order.createdAt)} color="text-primary" />
-                        <Tile label="Last change" value={formatDate(order.lastStatusChangedAt)} color="text-primary" />
-                        <Tile label="Can open package" value={String(order.canOpenPackage).toUpperCase()} color={order.canOpenPackage ? "text-primary" : "text-rose-800"} />
-                        <Tile label="Special handling" value={humanize(order.specialHandling)} color="text-primary" />
-                        {order.notes && <Tile label="Notes" value={order.notes} color="text-primary" />}
+                        <Tile label={t("quickLookup.tiles.status")} value={humanize(order.status)} />
+                        <Tile label={t("quickLookup.tiles.payment")} value={`${String(order.paymentMethod || "").toUpperCase()} · ${String(order.paymentStatus || "").toUpperCase()}`} color={order.paymentStatus === "PAID" ? "text-emerald-700" : "text-rose-800"} />
+                        <Tile label={t("quickLookup.tiles.brand")} value={order.client?.companyName} color="text-primary" />
+                        <Tile label={t("quickLookup.tiles.source")} value={model.toUpperCase()} color="text-primary" />
+                        {model === "turuq" && <Tile label={t("quickLookup.tiles.type")} value={order.type} />}
+                        {model === "integration" && <Tile label={t("quickLookup.tiles.external_id")} value={order.externalId} color="text-primary" />}
+                        <Tile label={t("quickLookup.tiles.location")} value={humanize(order.currentLocation)} color="text-secondary-950" />
+                        <Tile label={t("quickLookup.tiles.created")} value={formatDate(order.createdAt)} color="text-primary" />
+                        <Tile label={t("quickLookup.tiles.last_change")} value={formatDate(order.lastStatusChangedAt)} color="text-primary" />
+                        <Tile label={t("quickLookup.tiles.can_open_package")} value={String(order.canOpenPackage).toUpperCase()} color={order.canOpenPackage ? "text-primary" : "text-rose-800"} />
+
+                        {order.notes && <Tile label={t("quickLookup.tiles.notes")} value={order.notes} color="text-primary" />}
                       </div>
                     </div>
                   </div>
@@ -269,12 +271,12 @@ function QuickLookupContent() {
                       <h3 className="text-xs font-black uppercase tracking-widest">Shipping</h3>
                     </div>
                     <div className="p-5 space-y-3.5">
-                      <Tile label="Carrier" value={carrier === "Turuq" ? "Turuq courier" : carrier} />
-                      <Tile label="Courier" value={order.courier ? `${order.courier.name} ${order.courier.phone}` : "No courier assigned"} color="text-primary" />
-                      {order.courierNotes && <Tile label="Courier notes" value={order.courierNotes} color="text-primary" />}
-                      <Tile label="Tracking" value={order.trackingNumber || "—"} color="text-secondary-950" />
-                      {order.deliveryAttempts > 0 && <Tile label="Delivery attempts" value={order.deliveryAttempts} color="text-primary" />}
-                      {order.courierAssignedAt && <Tile label="Courier assigned at" value={formatDate(order.courierAssignedAt)} color="text-primary" />}
+                      <Tile label={t("quickLookup.tiles.carrier")} value={carrier === "Turuq" ? "Turuq courier" : carrier} />
+                      <Tile label={t("quickLookup.tiles.courier")} value={order.courier ? `${order.courier.name} ${order.courier.phone}` : "No courier assigned"} color="text-primary" />
+                      {order.courierNotes && <Tile label={t("quickLookup.tiles.courier_notes")} value={order.courierNotes} color="text-primary" />}
+                      <Tile label={t("quickLookup.tiles.tracking")} value={order.trackingNumber || "—"} color="text-secondary-950" />
+                      {order.deliveryAttempts > 0 && <Tile label={t("quickLookup.tiles.delivery_attempts")} value={order.deliveryAttempts} color="text-primary" />}
+                      {order.courierAssignedAt && <Tile label={t("quickLookup.tiles.courier_assigned_at")} value={formatDate(order.courierAssignedAt)} color="text-primary" />}
                       {trackingUrl && (
                         <a href={trackingUrl} target="_blank" rel="noreferrer" className="w-full py-2.5 px-4 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition-colors">
                           <span>Open on carrier</span>
@@ -290,9 +292,9 @@ function QuickLookupContent() {
                       <h3 className="text-xs font-black uppercase tracking-widest">Current location</h3>
                     </div>
                     <div className="p-5 space-y-3.5">
-                      <Tile label="Location" value={humanize(order.currentLocation)} />
-                      <Tile label="Special handling" value={humanize(order.specialHandling)} color="text-primary" />
-                      <Tile label="Issue flags" value={order.hasOpenIssue ? "Open flag" : "No flags"} color={order.hasOpenIssue ? "text-rose-800" : "text-primary"} />
+                      <Tile label={t("quickLookup.tiles.location")} value={humanize(order.currentLocation)} />
+
+                      <Tile label={t("quickLookup.tiles.issue_flags")} value={order.hasOpenIssue ? "Open flag" : "No flags"} color={order.hasOpenIssue ? "text-rose-800" : "text-primary"} />
                     </div>
                   </div>
 
@@ -302,10 +304,10 @@ function QuickLookupContent() {
                       <h3 className="text-xs font-black uppercase tracking-widest">Cancellation &amp; Payout</h3>
                     </div>
                     <div className="p-5 space-y-3.5">
-                      <Tile label="Cancellation reason" value={order.cancellationReason ? (getCancellationReason(order.cancellationReason)?.label || order.cancellationReason) : "—"} color="text-primary/70" />
-                      <Tile label="Cancelled by" value={order.cancelledBy || "—"} color="text-primary/70" />
-                      <Tile label="Review" value={order.cancellationReviewStatus || "None"} color="text-primary" />
-                      <Tile label="Courier payment" value={(order.statusHistory?.outForDelivery && getCancellationReason(order.cancellationReason)?.courierPayableIfShipped) ? "Eligible" : "Not eligible"} color="text-rose-800" />
+                      <Tile label={t("quickLookup.tiles.cancellation_reason")} value={order.cancellationReason ? (getCancellationReason(order.cancellationReason)?.label || order.cancellationReason) : "—"} color="text-primary/70" />
+                      <Tile label={t("quickLookup.tiles.cancelled_by")} value={order.cancelledBy || "—"} color="text-primary/70" />
+                      <Tile label={t("quickLookup.tiles.review")} value={order.cancellationReviewStatus || "None"} color="text-primary" />
+                      <Tile label={t("quickLookup.tiles.courier_payment")} value={(order.statusHistory?.outForDelivery && getCancellationReason(order.cancellationReason)?.courierPayableIfShipped) ? "Eligible" : "Not eligible"} color="text-rose-800" />
                     </div>
                   </div>
                 </div>
@@ -385,6 +387,7 @@ function QuickLookupContent() {
 }
 
 export default function QuickLookupPage() {
+  const { t } = useLanguage();
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <QuickLookupContent />

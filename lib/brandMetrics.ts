@@ -1,4 +1,4 @@
-import { FINAL_STATUSES, SUCCESS_STATUSES, FAILED_STATUSES, ISSUE_FLAG_TYPES } from "./rules/constants";
+import { FINAL_STATUSES, SUCCESS_STATUSES, FAILED_STATUSES, ISSUE_FLAG_TYPES, ORDER_STATUSES } from "./rules/constants";
 
 export interface MinimalOrder {
   _id: string;
@@ -13,7 +13,7 @@ export interface MinimalOrder {
   createdAt: string | Date;
   issueFlags: any[];
   hasOpenIssue: boolean;
-  specialHandling: string;
+
   currentLocation?: string | null;
   courierId?: string | null;
   shippingHandledBy: string;
@@ -58,8 +58,15 @@ export interface BrandMetrics {
   name: string;
   serviceScheme: string;
   active: boolean;
+  statusCounts: Record<string, number>;
   pendingCount: number;
   processingCount: number;
+  outForDeliveryCount: number;
+  deliveredCount: number;
+  cancelledCount: number;
+  returnedCount: number;
+  companyDeliveredCount: number;
+  deliveredSharePct: number;
   backlogCount: number;
   backlogDays: number;
   usualDailyOrders: number;
@@ -78,7 +85,6 @@ export interface BrandMetrics {
   mostFrequentIssueCount: number;
   outOfStockOrders: number;
   oldestOutOfStockAgeHours: number;
-  urgentVIPExchangeCount: number;
   cancelledAfterShipment30d: number;
   avgDeliveryTimeHours: number;
   companyAvgDeliveryTimeHours: number;
@@ -162,6 +168,16 @@ export function computeBrandMetrics(
 
   const pendingCount = clientOrders.filter((o) => o.status === "pending").length;
   const processingCount = clientOrders.filter((o) => o.status === "processing").length;
+  const statusCounts: Record<string, number> = {};
+  for (const s of ORDER_STATUSES) {
+    statusCounts[s] = clientOrders.filter((o) => o.status === s).length;
+  }
+  const outForDeliveryCount = clientOrders.filter((o) => o.status === "outForDelivery").length;
+  const deliveredCount = clientOrders.filter((o) => o.status === "delivered").length;
+  const cancelledCount = clientOrders.filter((o) => o.status === "cancelled").length;
+  const returnedCount = clientOrders.filter((o) => o.status === "returned").length;
+  const companyDeliveredCount = allOrders.filter((o) => o.status === "delivered").length;
+  const deliveredSharePct = companyDeliveredCount ? Math.round((deliveredCount / companyDeliveredCount) * 100) : 0;
   const backlogCount = pendingCount + processingCount;
   const usualDailyOrders = Math.max(1, +(last30.length / 30).toFixed(1));
   const backlogDays = +((backlogCount / usualDailyOrders).toFixed(1));
@@ -214,10 +230,6 @@ export function computeBrandMetrics(
   const outOfStockAges = outOfStockOrders.map((o) => hoursAgo(o.lastStatusChangedAt, now));
   const oldestOutOfStockAgeHours = outOfStockAges.length ? Math.max(...outOfStockAges) : 0;
 
-  const urgentVIPExchangeCount = clientOrders.filter(
-    (o) => ["urgent", "vip", "replacement"].includes(o.specialHandling) && !FINAL_STATUSES.has(o.status as any)
-  ).length;
-
   const cancelledAfterShipment30d = clientOrders.filter(
     (o) =>
       o.status === "cancelled" &&
@@ -263,8 +275,15 @@ export function computeBrandMetrics(
     name: clientName,
     serviceScheme,
     active,
+    statusCounts,
     pendingCount,
     processingCount,
+    outForDeliveryCount,
+    deliveredCount,
+    cancelledCount,
+    returnedCount,
+    companyDeliveredCount,
+    deliveredSharePct,
     backlogCount,
     backlogDays,
     usualDailyOrders,
@@ -283,7 +302,6 @@ export function computeBrandMetrics(
     mostFrequentIssueCount,
     outOfStockOrders: outOfStockOrders.length,
     oldestOutOfStockAgeHours,
-    urgentVIPExchangeCount,
     cancelledAfterShipment30d,
     avgDeliveryTimeHours: avgDelivery ? Math.round(avgDelivery) : 0,
     companyAvgDeliveryTimeHours: companyAvgDelivery ? Math.round(companyAvgDelivery) : 0,

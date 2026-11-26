@@ -1,43 +1,20 @@
 # Status Transition Rules (Update Status)
 
-> Defines allowed `newStatus` values for `POST /api/orders/:model/:id/status` (and demo equivalent). `allowedNextStatuses(currentStatus, type)` returns the list. Final statuses (Collected, RTW, RTO) have no outgoing transitions.
+> Only two transition rules apply. No other transitions are allowed.
 
-## Normal orders
+## Rules
 
-| Current status | Can change to |
-|---|---|
-| Pending | Any status |
-| Out of stock | Pending only |
-| Picked (packed) | Any except Pending and Out of stock |
-| Picked up (pickedUp) | Any except Pending, Picked (packed), and Out of stock |
-| Processing | Any except Pending, Picked (packed), Picked up, and Out of stock |
-| Out for delivery | Delivered, Cancelled, or Postponed only |
-| Delivered | Collected only |
-| Cancelled | Returned, QC, Dropped off, RTO, or RTW |
-| QC | Dropped off, RTO, or RTW |
-| Postponed | Processing or Out for delivery |
-| Returned | Processing, QC, RTO, or RTW |
-| Dropped off | RTW or RTO |
-| Collected | (final — none) |
-| RTW | (final — none) |
-| RTO | (final — none) |
+1. **Super account → Pending**: a super user can move any non-final order back to `pending`.
+2. **All accounts → Cancelled**: any non-final order can be cancelled by any account.
 
-## Incoming rule
-- Only **Pending** can become **Out of stock**.
+## Final statuses (no outgoing transitions)
+- Collected
+- RTW
+- RTO
 
-## Refund orders
-Refund orders follow special rules for these two statuses; all other statuses follow the normal rules.
-
-### Processing (refund)
-Can change to: Out for delivery, Delivered, QC, Postponed, Dropped off, RTW, or RTO.
-
-### Out for delivery (refund)
-Can change to: Delivered, QC, Postponed, Dropped off, RTW, or RTO.
-
-### Refund statuses (Delivered, QC, Postponed, Dropped off under refund)
-Follow the normal-order rules (no special override).
+All other statuses are non-final and follow the two rules above (plus the existing per-field update validation in `UPDATE_FLOW_RULES.md`).
 
 ## Notes
-- "Picked" maps to the `packed` status.
-- Final statuses: Collected, RTW, RTO (end states, no further transitions).
-- `canEditStatus(s)` returns true iff `allowedNextStatuses(s)` is non-empty.
+- `canEditStatus(s)` returns true for any non-final status (at least `cancelled` is available).
+- `allowedNextStatuses(currentStatus, type, isSuper)` returns the list above.
+- "Out for delivery" is no longer a settable target via Update Status.

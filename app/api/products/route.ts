@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
   const stock = sp.get("stock");
   if (stock === "in") filter.quantity = { $gt: 0 };
   else if (stock === "out") filter.quantity = { $lte: 0 };
-  else if (stock === "low") filter.quantity = { $gt: 0, $lte: 5 };
+  else if (stock === "low") filter.quantity = { $gt: 0, $lte: 20 };
 
   const page = Math.max(1, parseInt(sp.get("page") || "1"));
   const limit = Math.min(100, Math.max(1, parseInt(sp.get("limit") || "12")));

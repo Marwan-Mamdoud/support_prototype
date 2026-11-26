@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Check, X } from "lucide-react";
 
 export default function StaffManagementPage() {
+  const { t } = useLanguage();
   const router = useRouter();
   const qc = useQueryClient();
   const [editing, setEditing] = useState<string | null>(null);
@@ -37,8 +39,8 @@ export default function StaffManagementPage() {
     return (
       <div className="p-8">
         <div className="border-2 border-rose-200 bg-rose-50 rounded-2xl p-6 text-center">
-          <div className="text-sm font-black uppercase tracking-wider text-rose-800">Access Denied</div>
-          <p className="text-xs font-bold uppercase text-rose-600 mt-2">Only super accounts can manage staff assignments.</p>
+          <div className="text-sm font-black uppercase tracking-wider text-rose-800">{t("staffManagement.accessDenied")}</div>
+          <p className="text-xs font-bold uppercase text-rose-600 mt-2">{t("staffManagement.superOnly")}</p>
         </div>
       </div>
     );
@@ -50,17 +52,17 @@ export default function StaffManagementPage() {
   return (
     <div className="p-8 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-black uppercase tracking-wider text-primary">Staff & Brand Assignments</h1>
-        <Button onClick={() => router.push("/")} variant="outline" className="text-xs font-black uppercase">Back</Button>
+        <h1 className="text-xl font-black uppercase tracking-wider text-primary">{t("staffManagement.staffBrandAssignments")}</h1>
+        <Button onClick={() => router.push("/")} variant="outline" className="text-xs font-black uppercase">{t("staffManagement.back")}</Button>
       </div>
 
       <div className="border-2 border-primary rounded-2xl bg-white overflow-hidden shadow-sm">
         <div className="bg-primary text-white px-6 py-3.5 flex items-center justify-between">
-          <span className="text-xs font-black uppercase tracking-widest">Support Accounts</span>
-          <span className="text-[10px] font-black uppercase bg-white text-primary px-2 py-1 rounded">Assign brands to control data access</span>
+          <span className="text-xs font-black uppercase tracking-widest">{t("staffManagement.supportAccounts")}</span>
+          <span className="text-[10px] font-black uppercase bg-white text-primary px-2 py-1 rounded">{t("staffManagement.assignBrands")}</span>
         </div>
         <div className="divide-y divide-slate-200">
-          {isLoading && <div className="p-6 text-center text-slate-500">Loading...</div>}
+          {isLoading && <div className="p-6 text-center text-slate-500">{t("staffManagement.loading")}</div>}
           {staff.map((s: any) => (
             <div key={s.id} className="p-5">
               <div className="flex flex-wrap items-center justify-between gap-4 mb-3">
@@ -71,7 +73,7 @@ export default function StaffManagementPage() {
                 <div className="flex items-center gap-3">
                   <span className={`px-2.5 py-1 rounded text-[10px] font-black uppercase ${s.role === "SUPER" ? "bg-primary text-white" : "bg-slate-100 text-slate-700"}`}>{s.role}</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-black uppercase text-slate-500">Active</span>
+                    <span className="text-[10px] font-black uppercase text-slate-500">{t("staffManagement.active")}</span>
                     <Switch checked={s.active} onCheckedChange={(v) => update.mutate({ id: s.id, active: v })} disabled={s.role === "SUPER"} />
                   </div>
                 </div>

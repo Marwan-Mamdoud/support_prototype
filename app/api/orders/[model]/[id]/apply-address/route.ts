@@ -57,9 +57,10 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ model: str
     order.issueFlags.push(...newFlags);
     order.hasOpenIssue = true;
     await order.save();
-    for (const f of newFlags) {
+    const savedNewFlags = (order.issueFlags as any[]).slice(-newFlags.length);
+    for (let i = 0; i < newFlags.length; i++) {
       const { Alert } = await import("@/lib/models/Alert");
-      await Alert.create({ type: "NEW_FLAG", orderModel: model, orderId: order._id, flagId: (order.issueFlags as any[]).slice(-1)[0]._id, createdAt: new Date(), handled: false });
+      await Alert.create({ type: "NEW_FLAG", orderModel: model, orderId: order._id, flagId: savedNewFlags[i]._id, createdAt: new Date(), handled: false });
     }
   } else {
     order.hasOpenIssue = (order.issueFlags || []).some((f: any) => f.state === "open");

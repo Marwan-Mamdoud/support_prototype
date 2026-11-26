@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { computeTotal, computeSubtotal } from "@/lib/rules/shipping";
 import { editableFieldsForStatus } from "@/lib/rules/editRules";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { defaultShippingFee, GOVERNORATE_DEFAULT_SHIPPING } from "@/lib/rules/constants";
 import {
   Plus,
@@ -27,6 +28,7 @@ import {
 } from "lucide-react";
 
 function CreateOrderContent() {
+  const { t } = useLanguage();
   const sp = useSearchParams();
   const router = useRouter();
   const from = sp.get("from");
@@ -41,7 +43,7 @@ function CreateOrderContent() {
   const [clientId, setClientId] = useState("");
   const [orderType, setOrderType] = useState("NORMAL");
   const [orderStatus, setOrderStatus] = useState("pending");
-  const allowedFields = useMemo(() => isEdit ? editableFieldsForStatus(orderStatus, orderType) : new Set(["customerName","customerFirstName","customerLastName","customerPhone","customerAddress","customerGovernorate","products","refundAmount","exchangeAmount","paymentMethod","paymentStatus","shippingHandledBy","notes","specialHandling","canOpenPackage","subtotal","shippingFees","total"]), [isEdit, orderStatus, orderType]);
+  const allowedFields = useMemo(() => isEdit ? editableFieldsForStatus(orderStatus, orderType) : new Set(["customerName","customerFirstName","customerLastName","customerPhone","customerAddress","customerGovernorate","products","refundAmount","exchangeAmount","paymentMethod","paymentStatus","shippingHandledBy","notes","canOpenPackage","subtotal","shippingFees","total"]), [isEdit, orderStatus, orderType]);
   const [refundAmount, setRefundAmount] = useState(0);
   const [exchangeAmount, setExchangeAmount] = useState(0);
   const [customerName, setCustomerName] = useState("");
@@ -52,7 +54,6 @@ function CreateOrderContent() {
   const [paymentStatus, setPaymentStatus] = useState("UNPAID");
   const [shippingHandledBy, setShippingHandledBy] = useState("CUSTOMER");
   const [canOpenPackage, setCanOpenPackage] = useState(false);
-  const [specialHandling, setSpecialHandling] = useState("none");
   const [notes, setNotes] = useState("");
   const [products, setProducts] = useState<{ uid: string; name: string; variant: string; quantity: number; price: number }[]>([]);
   const [totalInput, setTotalInput] = useState("0");
@@ -98,7 +99,6 @@ function CreateOrderContent() {
       setShippingHandledBy(o.shippingHandledBy || "CUSTOMER");
       setCanOpenPackage(!!o.canOpenPackage);
       setNotes(o.notes || "");
-      setSpecialHandling(o.specialHandling || "none");
       setOrderType(o.type || "NORMAL");
       setOrderStatus(o.status || "pending");
       setRefundAmount(o.refundAmount || 0);
@@ -176,7 +176,6 @@ function CreateOrderContent() {
     setPaymentStatus("UNPAID");
     setShippingHandledBy("CUSTOMER");
     setCanOpenPackage(false);
-    setSpecialHandling("none");
     setNotes("");
     setProducts([]);
     setSelectedProductUid("");
@@ -199,7 +198,6 @@ function CreateOrderContent() {
         subtotal,
         shippingFees,
         total,
-        specialHandling,
         refundAmount,
         exchangeAmount,
       };
@@ -241,7 +239,6 @@ function CreateOrderContent() {
       refundAmount,
       exchangeAmount,
       source,
-      specialHandling: from ? "replacement" : specialHandling,
     };
     const res = await fetch("/api/orders", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     const data = await res.json();
@@ -253,7 +250,7 @@ function CreateOrderContent() {
   const selectedClient = clients.find((c: any) => c.id === clientId);
 
   const SectionHeader = ({ icon: Icon, title, badge }: any) => (
-    <div className="bg-primary text-white px-5 py-3.5 flex items-center justify-between">
+    <div className="bg-slate-100 text-slate-900 px-5 py-3.5 flex items-center justify-between">
       <div className="flex items-center gap-2">
         <Icon className="w-5 h-5 text-secondary" />
         <h2 className="text-xs font-black uppercase tracking-widest">{title}</h2>
@@ -263,7 +260,7 @@ function CreateOrderContent() {
   );
 
   const FieldLabel = ({ children }: { children: React.ReactNode }) => (
-    <label className="text-[10px] font-black uppercase tracking-widest text-primary/80 block mb-1.5">{children}</label>
+    <label className="text-[10px] font-black uppercase tracking-widest text-slate-600 block mb-1.5">{children}</label>
   );
 
   const StyledSelect = ({ value, onChange, options, disabled }: { value: string; onChange: (v: string) => void; options: string[]; disabled?: boolean }) => (
@@ -272,7 +269,7 @@ function CreateOrderContent() {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
-        className="w-full appearance-none bg-white border-2 border-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider pl-4 pr-10 py-2.5 text-slate-900 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer"
+        className="w-full appearance-none bg-white border-2 border-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider pl-4 pr-10 py-2.5 text-slate-900 focus:outline-none focus:border-slate-200 focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer"
       >
         {options.map((o) => <option key={o} value={o}>{o}</option>)}
       </select>
@@ -282,12 +279,12 @@ function CreateOrderContent() {
   return (
     <div className="p-8 space-y-6">
       {/* Page actions */}
-      <div className="px-6 py-4 border-2 border-primary bg-white rounded-2xl flex items-center justify-end gap-3">
+      <div className="px-6 py-4 border border-slate-200 bg-white rounded-2xl flex items-center justify-end gap-3">
         {!isEdit && (
           <Button
             onClick={clearForm}
             variant="outline"
-            className="px-4 py-2 rounded-xl border-surface-200 bg-surface-50 hover:bg-surface-100 text-primary text-xs font-black uppercase tracking-wider transition-colors"
+            className="px-4 py-2 rounded-xl border-surface-200 bg-surface-50 hover:bg-surface-100 text-slate-900 text-xs font-black uppercase tracking-wider transition-colors"
           >
             CLEAR FORM
           </Button>
@@ -295,10 +292,10 @@ function CreateOrderContent() {
         <Button
           onClick={submit}
           disabled={!clientId || !customerPhone || products.length === 0}
-          className="px-5 py-2 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-md transition-all"
+          className="px-5 py-2 rounded-xl bg-slate-100 hover:bg-primary/90 text-slate-900 text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-md transition-all"
         >
           <CheckCircle className="w-4 h-4 text-secondary" />
-          <span>{isEdit ? "UPDATE ORDER" : "CREATE ORDER"}</span>
+          <span>{isEdit ? t("createOrder.updateOrder") : t("createOrder.createOrder")}</span>
         </Button>
       </div>
 
@@ -306,7 +303,7 @@ function CreateOrderContent() {
         {/* Left column */}
         <div className="col-span-12 lg:col-span-7 space-y-6">
           {/* Brand */}
-          <section className={`border-2 border-primary rounded-2xl bg-white overflow-hidden shadow-sm ${isEdit ? "opacity-70" : ""}`}>
+          <section className={`border border-slate-200 rounded-2xl bg-white overflow-hidden shadow-sm ${isEdit ? "opacity-70" : ""}`}>
             <SectionHeader icon={Building2} title="Brand" />
             <div className="p-5 grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
@@ -316,7 +313,7 @@ function CreateOrderContent() {
                     value={clientId}
                     disabled={isEdit}
                     onChange={(e) => setClientId(e.target.value)}
-                    className="w-full appearance-none bg-white border-2 border-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider pl-4 pr-10 py-2.5 text-slate-900 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer disabled:cursor-not-allowed disabled:opacity-70"
+                    className="w-full appearance-none bg-white border-2 border-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider pl-4 pr-10 py-2.5 text-slate-900 focus:outline-none focus:border-slate-200 focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer disabled:cursor-not-allowed disabled:opacity-70"
                   >
                     <option value="">Select brand</option>
                     {clients.map((c: any) => <option key={c.id} value={c.id}>{c.companyName}</option>)}
@@ -329,7 +326,7 @@ function CreateOrderContent() {
                   value={source}
                   disabled={isEdit}
                   onChange={(e) => setSource(e.target.value as any)}
-                  className="w-full appearance-none bg-white border-2 border-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider pl-4 pr-10 py-2.5 text-slate-900 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer disabled:cursor-not-allowed disabled:opacity-70"
+                  className="w-full appearance-none bg-white border-2 border-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider pl-4 pr-10 py-2.5 text-slate-900 focus:outline-none focus:border-slate-200 focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   {["turuq", "integration"].map((o) => <option key={o} value={o}>{o}</option>)}
                 </select>
@@ -341,7 +338,7 @@ function CreateOrderContent() {
                     value={orderType}
                     disabled={isEdit}
                     onChange={(e) => setOrderType(e.target.value)}
-                    className="w-full appearance-none bg-white border-2 border-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider pl-4 pr-10 py-2.5 text-slate-900 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer disabled:cursor-not-allowed disabled:opacity-70"
+                    className="w-full appearance-none bg-white border-2 border-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider pl-4 pr-10 py-2.5 text-slate-900 focus:outline-none focus:border-slate-200 focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer disabled:cursor-not-allowed disabled:opacity-70"
                   >
                     {["NORMAL", "EXCHANGE", "REFUND", "PROMOTIONAL"].map((o) => <option key={o} value={o}>{o}</option>)}
                   </select>
@@ -351,21 +348,21 @@ function CreateOrderContent() {
           </section>
 
           {/* Customer */}
-          <section className="border-2 border-primary rounded-2xl bg-white overflow-hidden shadow-sm">
+          <section className="border border-slate-200 rounded-2xl bg-white overflow-hidden shadow-sm">
             <SectionHeader icon={User} title="Customer" />
             <div className="p-5 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <FieldLabel>CUSTOMER NAME</FieldLabel>
-                  <Input value={customerName} onChange={(e: any) => setCustomerName(e.target.value)} disabled={isEdit && !allowedFields.has("customerName")} className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-black text-primary focus-visible:ring-primary focus:border-primary focus:bg-white disabled:cursor-not-allowed disabled:opacity-60" />
+                  <Input value={customerName} onChange={(e: any) => setCustomerName(e.target.value)} disabled={isEdit && !allowedFields.has("customerName")} className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-black text-slate-900 focus-visible:ring-primary focus:border-slate-200 focus:bg-white disabled:cursor-not-allowed disabled:opacity-60" />
                 </div>
                 <div>
                   <FieldLabel>PHONE NUMBER</FieldLabel>
-                  <Input value={customerPhone} onChange={(e: any) => setCustomerPhone(e.target.value)} disabled={isEdit && !allowedFields.has("customerPhone")} className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-black text-primary focus-visible:ring-primary focus:border-primary focus:bg-white mono-num text-primary disabled:cursor-not-allowed disabled:opacity-60" />
+                  <Input value={customerPhone} onChange={(e: any) => setCustomerPhone(e.target.value)} disabled={isEdit && !allowedFields.has("customerPhone")} className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-black text-slate-900 focus-visible:ring-primary focus:border-slate-200 focus:bg-white mono-num text-slate-900 disabled:cursor-not-allowed disabled:opacity-60" />
                 </div>
                 <div>
                   <FieldLabel>STREET ADDRESS</FieldLabel>
-                  <Input value={customerAddress} onChange={(e: any) => setCustomerAddress(e.target.value)} disabled={isEdit && !allowedFields.has("customerAddress")} className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-black text-primary focus-visible:ring-primary focus:border-primary focus:bg-white disabled:cursor-not-allowed disabled:opacity-60" />
+                  <Input value={customerAddress} onChange={(e: any) => setCustomerAddress(e.target.value)} disabled={isEdit && !allowedFields.has("customerAddress")} className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-black text-slate-900 focus-visible:ring-primary focus:border-slate-200 focus:bg-white disabled:cursor-not-allowed disabled:opacity-60" />
                 </div>
                 <div>
                   <FieldLabel>GOVERNORATE</FieldLabel>
@@ -374,7 +371,7 @@ function CreateOrderContent() {
                       value={customerGovernorate}
                       onChange={(e) => setCustomerGovernorate(e.target.value)}
                       disabled={isEdit && !allowedFields.has("customerGovernorate")}
-                      className="w-full appearance-none bg-white border-2 border-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider pl-4 pr-10 py-2.5 text-slate-900 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+                      className="w-full appearance-none bg-white border-2 border-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider pl-4 pr-10 py-2.5 text-slate-900 focus:outline-none focus:border-slate-200 focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       <option value="">Select governorate</option>
                       {Object.keys(GOVERNORATE_DEFAULT_SHIPPING).map((g) => (
@@ -387,7 +384,7 @@ function CreateOrderContent() {
               </div>
               {verifiedList.length > 0 && (
                 <div className="bg-surface-50 p-4 rounded-xl border border-surface-200 space-y-2.5">
-                  <div className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-1.5">
+                  <div className="text-[10px] font-black uppercase tracking-widest text-slate-900 flex items-center gap-1.5">
                     <Verified className="w-4 h-4 text-thumbnail" />
                     <span>VERIFIED ADDRESS SUGGESTIONS (CLICK TO APPLY):</span>
                   </div>
@@ -401,8 +398,8 @@ function CreateOrderContent() {
                           onClick={() => { setCustomerAddress(v.address); if (v.governorate) setCustomerGovernorate(v.governorate); }}
                           className={`px-3 py-1.5 rounded-lg border text-[11px] font-black uppercase tracking-wide transition-colors ${
                             v.governorate === customerGovernorate
-                              ? "border-primary bg-white hover:bg-primary hover:text-white text-primary"
-                              : "border-surface-200 bg-white hover:border-primary text-primary"
+                              ? "border-slate-200 bg-white hover:bg-slate-100 hover:text-slate-900 text-slate-900"
+                              : "border-surface-200 bg-white hover:border-slate-200 text-slate-900"
                           }`}
                         >
                           {v.address}{v.governorate ? `, ${v.governorate}` : ""}
@@ -415,16 +412,16 @@ function CreateOrderContent() {
           </section>
 
           {/* Products */}
-          <section className="border-2 border-primary rounded-2xl bg-white overflow-hidden shadow-sm">
+          <section className="border border-slate-200 rounded-2xl bg-white overflow-hidden shadow-sm">
             <SectionHeader
               icon={Package}
               title="Products"
-              badge={<span className="px-2.5 py-0.5 rounded bg-white text-primary text-[10px] font-black uppercase mono-num">{products.length} ITEMS</span>}
+              badge={<span className="px-2.5 py-0.5 rounded bg-white text-slate-900 text-[10px] font-black uppercase mono-num">{products.length} ITEMS</span>}
             />
             <div className="p-5 space-y-4">
               <div className="bg-surface-50 p-3.5 rounded-xl border border-surface-200 grid grid-cols-12 gap-2.5 items-end">
                 <div className="col-span-12 md:col-span-6">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-primary/80 block mb-1">SELECT BRAND PRODUCT</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-600 block mb-1">SELECT BRAND PRODUCT</label>
                   <div className="relative">
                     <select
                       value={selectedProductUid}
@@ -434,7 +431,7 @@ function CreateOrderContent() {
                         const pr = availProducts.find((p: any) => p.uid === uid);
                         if (pr) setProductPrice(pr.unitPrice);
                       }}
-                      className="w-full appearance-none bg-white border-2 border-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider pl-4 pr-10 py-2.5 text-slate-900 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer"
+                      className="w-full appearance-none bg-white border-2 border-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider pl-4 pr-10 py-2.5 text-slate-900 focus:outline-none focus:border-slate-200 focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer"
                     >
                       <option value="">Select product</option>
                       {availProducts.map((p: any) => (
@@ -444,30 +441,30 @@ function CreateOrderContent() {
                   </div>
                 </div>
                 <div className="col-span-4 md:col-span-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-primary/80 block mb-1">QTY</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-600 block mb-1">QTY</label>
                   <Input
                     type="number"
                     min={1}
                     value={productQty}
                     onChange={(e) => setProductQty(parseInt(e.target.value) || 1)}
-                    className="w-full px-2.5 py-2 bg-white border border-surface-200 rounded-xl text-xs font-black mono-num text-primary text-center focus-visible:ring-primary focus:border-primary"
+                    className="w-full px-2.5 py-2 bg-white border border-surface-200 rounded-xl text-xs font-black mono-num text-slate-900 text-center focus-visible:ring-primary focus:border-slate-200"
                   />
                 </div>
                 <div className="col-span-4 md:col-span-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-primary/80 block mb-1">PRICE</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-600 block mb-1">PRICE</label>
                   <Input
                     type="number"
                     min={0}
                     value={productPrice}
                     onChange={(e) => setProductPrice(parseFloat(e.target.value) || 0)}
-                    className="w-full px-2.5 py-2 bg-white border border-surface-200 rounded-xl text-xs font-black mono-num text-primary text-center focus-visible:ring-primary focus:border-primary"
+                    className="w-full px-2.5 py-2 bg-white border border-surface-200 rounded-xl text-xs font-black mono-num text-slate-900 text-center focus-visible:ring-primary focus:border-slate-200"
                   />
                 </div>
                 <div className="col-span-4 md:col-span-2">
                   <Button
                     onClick={addProduct}
                     disabled={!selectedProductUid || (isEdit && !allowedFields.has("products"))}
-                    className="w-full py-2 px-3 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1 shadow-sm transition-colors"
+                    className="w-full py-2 px-3 rounded-xl bg-slate-100 hover:bg-primary/90 text-slate-900 text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1 shadow-sm transition-colors"
                   >
                     <Plus className="w-4 h-4 text-secondary" />
                     <span>ADD</span>
@@ -479,8 +476,8 @@ function CreateOrderContent() {
                 {products.map((p, i) => (
                   <div key={i} className="flex items-center justify-between p-3.5 rounded-xl bg-surface-50 border border-surface-200 gap-3">
                     <div className="min-w-0 flex-1">
-                      <div className="text-xs font-black uppercase text-primary-950 truncate">{p.name}</div>
-                      <div className="text-[11px] font-extrabold uppercase text-primary/75 mt-0.5 mono-num">{p.variant}</div>
+                      <div className="text-xs font-black uppercase text-slate-900 truncate">{p.name}</div>
+                      <div className="text-[11px] font-extrabold uppercase text-slate-500 mt-0.5 mono-num">{p.variant}</div>
                     </div>
                     {isEdit ? (
                       <div className="flex items-center gap-2">
@@ -490,7 +487,7 @@ function CreateOrderContent() {
                           value={p.quantity}
                           onChange={(e) => updateProductQty(i, parseInt(e.target.value) || 1)}
                           disabled={isEdit && !allowedFields.has("products")}
-                          className="w-16 px-2 py-1.5 bg-white border border-surface-200 rounded-xl text-xs font-black mono-num text-primary text-center disabled:cursor-not-allowed disabled:opacity-60"
+                          className="w-16 px-2 py-1.5 bg-white border border-surface-200 rounded-xl text-xs font-black mono-num text-slate-900 text-center disabled:cursor-not-allowed disabled:opacity-60"
                         />
                         <Input
                           type="number"
@@ -498,9 +495,9 @@ function CreateOrderContent() {
                           value={p.price}
                           onChange={(e) => updateProductPrice(i, parseFloat(e.target.value) || 0)}
                           disabled={isEdit && !allowedFields.has("products")}
-                          className="w-20 px-2 py-1.5 bg-white border border-surface-200 rounded-xl text-xs font-black mono-num text-primary text-center disabled:cursor-not-allowed disabled:opacity-60"
+                          className="w-20 px-2 py-1.5 bg-white border border-surface-200 rounded-xl text-xs font-black mono-num text-slate-900 text-center disabled:cursor-not-allowed disabled:opacity-60"
                         />
-                        <span className="text-sm font-black mono-num text-primary w-16 text-right">{p.price * p.quantity}</span>
+                        <span className="text-sm font-black mono-num text-slate-900 w-16 text-right">{p.price * p.quantity}</span>
                         <button
                           type="button"
                           onClick={() => removeProduct(i)}
@@ -513,7 +510,7 @@ function CreateOrderContent() {
                       </div>
                     ) : (
                       <div className="flex items-center gap-3">
-                        <span className="text-sm font-black mono-num text-primary">{p.price * p.quantity}</span>
+                        <span className="text-sm font-black mono-num text-slate-900">{p.price * p.quantity}</span>
                         <button
                           type="button"
                           onClick={() => removeProduct(i)}
@@ -535,7 +532,7 @@ function CreateOrderContent() {
         {/* Right column */}
         <div className="col-span-12 lg:col-span-5 space-y-6">
           {/* Payment & Shipping */}
-          <section className="border-2 border-primary rounded-2xl bg-white overflow-hidden shadow-sm">
+          <section className="border border-slate-200 rounded-2xl bg-white overflow-hidden shadow-sm">
             <SectionHeader icon={CreditCard} title="Payment & Shipping" />
             <div className="p-5 space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -551,13 +548,13 @@ function CreateOrderContent() {
               {orderType === "REFUND" && (
                 <div>
                   <FieldLabel>REFUND AMOUNT (positive)</FieldLabel>
-                  <Input type="number" min={0} value={refundAmount} onChange={(e) => setRefundAmount(Number(e.target.value))} disabled={isEdit && !allowedFields.has("refundAmount")} className="w-full px-3.5 py-2.5 bg-white border border-surface-200 rounded-xl text-xs font-black mono-num text-primary focus:outline-none disabled:cursor-not-allowed disabled:opacity-60" />
+                  <Input type="number" min={0} value={refundAmount} onChange={(e) => setRefundAmount(Number(e.target.value))} disabled={isEdit && !allowedFields.has("refundAmount")} className="w-full px-3.5 py-2.5 bg-white border border-surface-200 rounded-xl text-xs font-black mono-num text-slate-900 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60" />
                 </div>
               )}
               {orderType === "EXCHANGE" && (
                 <div>
                   <FieldLabel>EXCHANGE AMOUNT (+/-)</FieldLabel>
-                  <Input type="number" value={exchangeAmount} onChange={(e) => setExchangeAmount(Number(e.target.value))} disabled={isEdit && !allowedFields.has("exchangeAmount")} className="w-full px-3.5 py-2.5 bg-white border border-surface-200 rounded-xl text-xs font-black mono-num text-primary focus:outline-none disabled:cursor-not-allowed disabled:opacity-60" />
+                  <Input type="number" value={exchangeAmount} onChange={(e) => setExchangeAmount(Number(e.target.value))} disabled={isEdit && !allowedFields.has("exchangeAmount")} className="w-full px-3.5 py-2.5 bg-white border border-surface-200 rounded-xl text-xs font-black mono-num text-slate-900 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60" />
                 </div>
               )}
               <div className="grid grid-cols-2 gap-4">
@@ -571,14 +568,14 @@ function CreateOrderContent() {
                     type="number"
                     value={shippingFees}
                     readOnly
-                    className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-black mono-num text-primary focus:outline-none cursor-not-allowed"
+                    className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-black mono-num text-slate-900 focus:outline-none cursor-not-allowed"
                   />
                 </div>
               </div>
-              <label className={`flex items-center justify-between p-3.5 rounded-xl bg-surface-50 border border-surface-200 transition-colors ${isEdit ? "opacity-60 cursor-not-allowed" : "cursor-pointer hover:border-primary/50"}`}>
+              <label className={`flex items-center justify-between p-3.5 rounded-xl bg-surface-50 border border-surface-200 transition-colors ${isEdit ? "opacity-60 cursor-not-allowed" : "cursor-pointer hover:border-slate-200/50"}`}>
                 <div>
-                  <span className="text-xs font-black uppercase text-primary-950 block">CAN OPEN PACKAGE</span>
-                  <span className="text-[10px] font-bold uppercase text-primary/70">ALLOW CUSTOMER INSPECTION ON DELIVERY</span>
+                  <span className="text-xs font-black uppercase text-slate-900 block">CAN OPEN PACKAGE</span>
+                  <span className="text-[10px] font-bold uppercase text-slate-500">ALLOW CUSTOMER INSPECTION ON DELIVERY</span>
                 </div>
                 <input
                   type="checkbox"
@@ -589,10 +586,6 @@ function CreateOrderContent() {
                 />
               </label>
               <div>
-                <FieldLabel>SPECIAL HANDLING</FieldLabel>
-                <StyledSelect value={specialHandling} onChange={setSpecialHandling} options={["none", "VIP", "replacement", "urgent"]} disabled={isEdit && !allowedFields.has("specialHandling")} />
-              </div>
-              <div>
                 <FieldLabel>NOTE</FieldLabel>
                 <Textarea
                   value={notes}
@@ -600,7 +593,7 @@ function CreateOrderContent() {
                   rows={3}
                   disabled={isEdit && !allowedFields.has("notes")}
                   placeholder="Add delivery instructions or order notes..."
-                  className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-semibold placeholder:text-primary/50 text-primary focus-visible:ring-primary focus:border-primary focus:bg-white resize-y disabled:cursor-not-allowed disabled:opacity-60"
+                  className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-semibold placeholder:text-slate-400 text-slate-900 focus-visible:ring-primary focus:border-slate-200 focus:bg-white resize-y disabled:cursor-not-allowed disabled:opacity-60"
                 />
               </div>
             </div>
@@ -608,64 +601,64 @@ function CreateOrderContent() {
 
           {/* Totals */}
           {isEdit ? (
-            <section className="border-2 border-primary rounded-2xl bg-white overflow-hidden shadow-xl">
+            <section className="border border-slate-200 rounded-2xl bg-white overflow-hidden shadow-xl">
               <SectionHeader icon={Receipt} title="Totals" />
               <div className="p-5 space-y-3.5">
                 <div>
                   <FieldLabel>SUBTOTAL</FieldLabel>
-                  <div className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-black mono-num text-primary flex items-center justify-between">
+                  <div className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-black mono-num text-slate-900 flex items-center justify-between">
                     <span>{subtotal}</span>
                   </div>
                 </div>
                 <div>
                   <FieldLabel>SHIPPING</FieldLabel>
-                  <div className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-black mono-num text-primary flex items-center justify-between">
+                  <div className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-xs font-black mono-num text-slate-900 flex items-center justify-between">
                     <span>{shippingFees}</span>
                   </div>
                 </div>
-                <div className="pt-3 border-t-2 border-primary">
+                <div className="pt-3 border-t-2 border-slate-200">
                   <FieldLabel>TOTAL (+ / -)</FieldLabel>
                   <Input
                     type="number"
                     value={totalInput}
                     onChange={(e) => { setTotalInput(e.target.value); setTotalEdited(true); }}
                     disabled={isEdit && !allowedFields.has("total")}
-                    className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-sm font-black mono-num text-primary focus-visible:ring-primary focus:border-primary disabled:cursor-not-allowed disabled:opacity-60"
+                    className="w-full px-3.5 py-2.5 bg-surface-50 border border-surface-200 rounded-xl text-sm font-black mono-num text-slate-900 focus-visible:ring-primary focus:border-slate-200 disabled:cursor-not-allowed disabled:opacity-60"
                   />
                 </div>
                 <Button
                   onClick={submit}
                   disabled={!customerPhone || products.length === 0}
-                  className="w-full mt-2 py-3 px-4 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-md transition-all"
+                  className="w-full mt-2 py-3 px-4 rounded-xl bg-slate-100 hover:bg-primary/90 text-slate-900 text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-md transition-all"
                 >
                   <CheckCircle className="w-4 h-4 text-secondary" />
-                  <span>UPDATE ORDER</span>
+                  <span>{t("createOrder.updateOrder")}</span>
                 </Button>
               </div>
             </section>
           ) : (
-            <section className="border-2 border-primary rounded-2xl bg-white overflow-hidden shadow-xl">
+            <section className="border border-slate-200 rounded-2xl bg-white overflow-hidden shadow-xl">
               <SectionHeader icon={Receipt} title="Totals" />
               <div className="p-5 space-y-3.5">
-                <div className="flex items-center justify-between text-xs font-bold uppercase text-primary/85">
+                <div className="flex items-center justify-between text-xs font-bold uppercase text-slate-600">
                   <span>SUBTOTAL</span>
-                  <span className="font-black mono-num text-primary-950">{subtotal}</span>
+                  <span className="font-black mono-num text-slate-900">{subtotal}</span>
                 </div>
-                <div className="flex items-center justify-between text-xs font-bold uppercase text-primary/85">
+                <div className="flex items-center justify-between text-xs font-bold uppercase text-slate-600">
                   <span>SHIPPING</span>
-                  <span className="font-black mono-num text-primary-950">{shippingFees}</span>
+                  <span className="font-black mono-num text-slate-900">{shippingFees}</span>
                 </div>
-                <div className="pt-3.5 border-t-2 border-primary flex items-center justify-between">
-                  <span className="text-sm font-black uppercase tracking-wider text-primary">TOTAL</span>
-                  <span className="text-2xl font-black mono-num text-primary">{total}</span>
+                <div className="pt-3.5 border-t-2 border-slate-200 flex items-center justify-between">
+                  <span className="text-sm font-black uppercase tracking-wider text-slate-900">TOTAL</span>
+                  <span className="text-2xl font-black mono-num text-slate-900">{total}</span>
                 </div>
                 <Button
                   onClick={submit}
                   disabled={!clientId || !customerPhone || products.length === 0}
-                  className="w-full mt-2 py-3 px-4 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-md transition-all"
+                  className="w-full mt-2 py-3 px-4 rounded-xl bg-slate-100 hover:bg-primary/90 text-slate-900 text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-md transition-all"
                 >
                   <Plus className="w-4 h-4 text-secondary" />
-                  <span>SUBMIT & CREATE ORDER</span>
+                  <span>{t("createOrder.submit")} & {t("createOrder.createOrder")}</span>
                 </Button>
               </div>
             </section>

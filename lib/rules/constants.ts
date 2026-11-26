@@ -53,9 +53,6 @@ export type IssueFlagType = (typeof ISSUE_FLAG_TYPES)[number];
 export const REPORTER_ROLES = ["system", "brand", "support", "warehouse", "distribution_center"] as const;
 export type ReporterRole = (typeof REPORTER_ROLES)[number];
 
-export const SPECIAL_HANDLING = ["none", "urgent", "vip", "replacement"] as const;
-export type SpecialHandling = (typeof SPECIAL_HANDLING)[number];
-
 export const SHIPPING_HANDLED_BY = ["CUSTOMER", "BRAND", "TURUQ"] as const;
 export type ShippingHandledBy = (typeof SHIPPING_HANDLED_BY)[number];
 

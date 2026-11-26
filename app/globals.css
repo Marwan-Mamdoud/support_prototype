@@ -1,4 +1,7 @@
 @import "tailwindcss";
+
+html[lang="ar"] body { font-family: var(--font-noto-arabic), var(--font-inter), sans-serif; }
+html[lang="en"] body { font-family: var(--font-inter), var(--font-noto-arabic), sans-serif; }
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 

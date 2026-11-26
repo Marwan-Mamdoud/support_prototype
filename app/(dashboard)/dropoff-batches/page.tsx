@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { timeAgo, formatDate } from "@/lib/time";
 
 export default function DropoffBatchesPage() {
+  const { t } = useLanguage();
   const qc = useQueryClient();
   const { data } = useQuery({ queryKey: ["dropoff-batches"], queryFn: async () => (await fetch("/api/dropoff-batches")).json() });
   const items = data?.items || [];
@@ -47,20 +49,20 @@ export default function DropoffBatchesPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-primary">Dropoff Batches</h1>
-        <Button onClick={() => setCreateOpen(true)}>Create batch</Button>
+        <h1 className="text-2xl font-bold text-primary">{t("dropoffBatches.title")}</h1>
+        <Button onClick={() => setCreateOpen(true)}>{t("dropoffBatches.createBatch")}</Button>
       </div>
       <div className="bg-white rounded-lg border border-slate-200 overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>BID</TableHead>
-              <TableHead>Courier</TableHead>
-              <TableHead>Destination</TableHead>
-              <TableHead>Start</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Old open (2d+)</TableHead>
-              <TableHead>Action</TableHead>
+              <TableHead>{t("dropoffBatches.bid")}</TableHead>
+              <TableHead>{t("dropoffBatches.courier")}</TableHead>
+              <TableHead>{t("dropoffBatches.destination")}</TableHead>
+              <TableHead>{t("dropoffBatches.start")}</TableHead>
+              <TableHead>{t("dropoffBatches.status")}</TableHead>
+              <TableHead>{t("dropoffBatches.oldOpen")}</TableHead>
+              <TableHead>{t("dropoffBatches.action")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -73,7 +75,7 @@ export default function DropoffBatchesPage() {
                 <TableCell>{b.status}</TableCell>
                 <TableCell>{b.oldOpenCount}</TableCell>
                 <TableCell>
-                  {b.status === "OPEN" && <Button size="sm" onClick={() => setCloseOpen(b)}>Close</Button>}
+                  {b.status === "OPEN" && <Button size="sm" onClick={() => setCloseOpen(b)}>{t("dropoffBatches.close")}</Button>}
                 </TableCell>
               </TableRow>
             ))}
@@ -83,29 +85,29 @@ export default function DropoffBatchesPage() {
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Create dropoff batch</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{t("dropoffBatches.createDropoffBatch")}</DialogTitle></DialogHeader>
           <div className="space-y-3">
-            <Input placeholder="BID" value={bid} onChange={(e) => setBid(e.target.value)} />
-            <Input placeholder="Courier ID" value={courierId} onChange={(e) => setCourierId(e.target.value)} />
+            <Input placeholder={t("dropoffBatches.bid")} value={bid} onChange={(e) => setBid(e.target.value)} />
+            <Input placeholder={t("dropoffBatches.courierId")} value={courierId} onChange={(e) => setCourierId(e.target.value)} />
             <Select value={dest} onValueChange={(v) => setDest(v ?? "BRAND")}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="BRAND">BRAND</SelectItem>
-                <SelectItem value="WAREHOUSE">WAREHOUSE</SelectItem>
+                <SelectItem value="BRAND">{t("dropoffBatches.brand")}</SelectItem>
+                <SelectItem value="WAREHOUSE">{t("dropoffBatches.warehouse")}</SelectItem>
               </SelectContent>
             </Select>
-            <Input placeholder="OTP (6 digits)" value={otp} onChange={(e) => setOtp(e.target.value)} />
-            <Button onClick={() => create.mutate()}>Create</Button>
+            <Input placeholder={t("dropoffBatches.otp")} value={otp} onChange={(e) => setOtp(e.target.value)} />
+            <Button onClick={() => create.mutate()}>{t("dropoffBatches.createBatch")}</Button>
           </div>
         </DialogContent>
       </Dialog>
 
       <Dialog open={!!closeOpen} onOpenChange={(o) => !o && setCloseOpen(null)}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Close {closeOpen?.bid}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{t("dropoffBatches.close")} {closeOpen?.bid}</DialogTitle></DialogHeader>
           <div className="space-y-3">
-            <Input placeholder="Enter OTP" value={closeOtp} onChange={(e) => setCloseOtp(e.target.value)} />
-            <Button onClick={() => close.mutate()}>Close batch</Button>
+            <Input placeholder={t("dropoffBatches.enterOtp")} value={closeOtp} onChange={(e) => setCloseOtp(e.target.value)} />
+            <Button onClick={() => close.mutate()}>{t("dropoffBatches.closeBatch")}</Button>
           </div>
         </DialogContent>
       </Dialog>

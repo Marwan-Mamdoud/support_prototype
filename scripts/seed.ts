@@ -378,58 +378,40 @@ async function main() {
 
   const orderTypes = ["NORMAL", "PROMOTIONAL", "REFUND", "EXCHANGE"];
 
-  // Build 200 order specs: every brand gets all 4 order types, remaining are random
-  const orderSpecs: { clientIdx: number; type: string; status: string }[] = [];
+  // Build order specs: every brand gets all statuses in BOTH collections, plus all turuq order types
+  const orderSpecs: { clientIdx: number; model: "turuq" | "integration"; type: string; status: string }[] = [];
   for (let c = 0; c < clientDocs.length; c++) {
-    for (const t of orderTypes) {
-      orderSpecs.push({ clientIdx: c, type: t, status: "" });
+    for (const st of ALL_STATUSES) {
+      // Turuq: all order types
+      for (const t of orderTypes) {
+        orderSpecs.push({ clientIdx: c, model: "turuq", type: t, status: st });
+      }
+      // Integration: status coverage (type not applicable)
+      orderSpecs.push({ clientIdx: c, model: "integration", type: "NORMAL", status: st });
     }
-  }
-  while (orderSpecs.length < 200) {
-    orderSpecs.push({ clientIdx: rndInt(0, clientDocs.length - 1), type: rnd(orderTypes), status: "" });
   }
   shuffle(orderSpecs);
 
-  // Assign statuses from distribution
-  const statusList: string[] = [];
-  for (const [s, n] of Object.entries(statusDistribution)) {
-    for (let i = 0; i < n; i++) statusList.push(s);
-  }
-  shuffle(statusList);
-  console.log("status count", statusList.length);
-
-  for (let i = 0; i < 200; i++) {
-    let status = statusList[i];
-    const orderType = orderSpecs[i].type;
-    // REFUND orders follow the refund lifecycle
-    if (orderType === "REFUND") {
-      status = rnd(["processing", "outForDelivery", "delivered", "QC", "droppedOff", "RTO", "RTW", "RTW"]);
+  // REFUND orders follow the refund lifecycle
+  for (const spec of orderSpecs) {
+    if (spec.type === "REFUND") {
+      spec.status = rnd(["processing", "outForDelivery", "delivered", "QC", "droppedOff", "RTO", "RTW", "RTW"]);
     }
-    orderSpecs[i].status = status;
   }
 
-  const turuqTarget = 130;
   const ordersCreated: { model: string; id: any; status: string; clientId: any }[] = [];
   const staleCandidates: any[] = [];
-  let turuqCount = 0;
+  let turuqSeq = 0;
+  let intSeq = 0;
 
-  for (let i = 0; i < 200; i++) {
-    const { clientIdx, type: orderType, status } = orderSpecs[i];
-
-    // Decide source; aim for ~130 Turuq / 70 Integration
-    let model2: "turuq" | "integration";
-    if (turuqCount < turuqTarget) {
-      model2 = "turuq";
-    } else {
-      model2 = "integration";
-    }
-    if (model2 === "turuq") turuqCount++;
+  for (let i = 0; i < orderSpecs.length; i++) {
+    const { clientIdx, model: model2, type: orderType, status } = orderSpecs[i];
 
     const customer = rnd(customers);
     const client = clientDocs[clientIdx];
     const serviceScheme = client.serviceScheme;
 
-    let baseDate = daysAgo(rndInt(0, 89));
+    let baseDate = daysAgo(rndInt(-1, 13));
     const isFinal = FINAL_STATUSES.has(status as any);
     const makeStale = !isFinal && Math.random() < 0.15 && staleCandidates.length < 20;
     if (makeStale) baseDate = daysAgo(rndInt(3, 6));
@@ -494,8 +476,6 @@ async function main() {
     const address = rnd(customer.addresses);
     const phoneNorm = customer.normalized;
 
-    let specialHandling = "none";
-    if (Math.random() < 0.08) specialHandling = rnd(["urgent", "vip", "replacement"]);
 
     const addrValid = isAddressValid(address);
     const phoneValid = isValidPhone(phoneNorm);
@@ -508,7 +488,6 @@ async function main() {
         if (p.quantity > prod.quantity && outOfStockFlags.length === 0) {
           outOfStockFlags.push({ type: "outOfStock", note: `${p.name} ordered ${p.quantity} but only ${prod.quantity} in stock`, reportedByRole: "system", reportedByUser: "system", reportedAt: new Date(), state: "open" });
         }
-        prod.quantity -= p.quantity;
       }
     }
 
@@ -517,7 +496,7 @@ async function main() {
     const creator = eligibleStaff.length ? rnd(eligibleStaff) : superAccount;
 
     const orderDoc: any = {
-      oid: model2 === "turuq" ? oid("TQ", i) : oid("SH", i),
+      oid: model2 === "turuq" ? oid("TQ", turuqSeq++) : oid("SH", intSeq++),
       clientId: client._id,
       status,
       statusHistory: history,
@@ -543,7 +522,6 @@ async function main() {
       deliveryAttemptTimestamps: {},
       trackingNumber,
       currentLocation: location,
-      specialHandling,
       hasOpenIssue: false,
       issueFlags: [],
       cancellationReason: null,
@@ -641,13 +619,10 @@ async function main() {
     }
   }
 
-  console.log("orders created", ordersCreated.length, "turuq", turuqCount, "integration", 200 - turuqCount);
+  const turuqCreated = ordersCreated.filter((o) => o.model === "turuq").length;
+  console.log("orders created", ordersCreated.length, "turuq", turuqCreated, "integration", ordersCreated.length - turuqCreated);
 
-  // Persist updated product stock levels
-  for (const prod of productStockMap.values()) {
-    await Product.updateOne({ _id: prod._id }, { $set: { quantity: prod.quantity } });
-  }
-  console.log("product stock updated");
+  console.log("product stock unchanged (seed)");
 
   // Ensure ~8 cancelled-before-delivery orders by narrowing some cancelled orders
   const cancelledBeforeDeliveryTarget = 8;
@@ -749,8 +724,8 @@ async function main() {
   }
   console.log("batches done");
 
-  // Support notes
-  for (const s of staff) {
+  // Support notes (including super)
+  for (const s of [superAccount, ...staff]) {
     for (let i = 0; i < rndInt(2, 4); i++) {
       await SupportNote.create({
         staffId: s._id,

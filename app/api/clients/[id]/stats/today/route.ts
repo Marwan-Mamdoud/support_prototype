@@ -35,13 +35,22 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string 
     IntegrationOrder.countDocuments({ clientId: id, createdAt: { $gte: startToday } }),
   ]);
 
-  // by status today
-  const [tStatus, iStatus] = await Promise.all([
-    TuruqOrder.aggregate([{ $match: { clientId: id, createdAt: { $gte: startToday } } }, { $group: { _id: "$status", n: { $sum: 1 } } }]),
-    IntegrationOrder.aggregate([{ $match: { clientId: id, createdAt: { $gte: startToday } } }, { $group: { _id: "$status", n: { $sum: 1 } } }]),
+  // by status today: count orders that entered a status today (statusHistory timestamp in today's range)
+  const [tOrders, iOrders] = await Promise.all([
+    TuruqOrder.find({ clientId: id }).select("statusHistory").lean(),
+    IntegrationOrder.find({ clientId: id }).select("statusHistory").lean(),
   ]);
+  const tomorrow = new Date(startToday.getTime() + 24 * 60 * 60 * 1000);
   const statusMap: Record<string, number> = {};
-  for (const r of [...tStatus, ...iStatus]) statusMap[r._id] = (statusMap[r._id] || 0) + r.n;
+  for (const o of [...tOrders, ...iOrders]) {
+    const history = (o as any).statusHistory || {};
+    for (const [status, ts] of Object.entries(history)) {
+      const d = ts ? new Date(ts as any) : null;
+      if (d && d >= startToday && d < tomorrow) {
+        statusMap[status] = (statusMap[status] || 0) + 1;
+      }
+    }
+  }
 
   return NextResponse.json({
     today,

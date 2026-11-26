@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,7 @@ import { Beaker, RefreshCw, Flag, Mail } from "lucide-react";
 const STATUSES = ["pending","processing","packed","QC","pickedUp","droppedOff","outForDelivery","postponed","outOfStock","delivered","collected","returned","RTW","RTO","cancelled"];
 
 export default function SimulatorPage() {
+  const { t } = useLanguage();
   const qc = useQueryClient();
   const [tab, setTab] = useState("status");
   const [model, setModel] = useState("turuq");
@@ -28,7 +30,7 @@ export default function SimulatorPage() {
     const data = await res.json();
     const match = (data.results || []).find((r: any) => r.source === model) || (data.results || [])[0];
     if (match) setOrderId(match.id);
-    else alert("Order not found");
+    else alert(t("simulator.orderNotFound"));
   }
 
   const [fModel, setFModel] = useState("turuq");
@@ -45,7 +47,7 @@ export default function SimulatorPage() {
     const data = await res.json();
     const match = (data.results || []).find((r: any) => r.source === fModel) || (data.results || [])[0];
     if (match) setFOrderId(match.id);
-    else alert("Order not found");
+    else alert(t("simulator.orderNotFound"));
   }
 
   const { data: outbox } = useQuery({
@@ -61,8 +63,8 @@ export default function SimulatorPage() {
 
   const changeStatus = useMutation({
     mutationFn: async () => {
-      if (!orderId) throw new Error("Resolve an order first");
-      if (newStatus === "cancelled" && !cancelReason) throw new Error("Cancellation reason is required");
+      if (!orderId) throw new Error(t("simulator.resolveFirst"));
+      if (newStatus === "cancelled" && !cancelReason) throw new Error(t("simulator.reasonRequired"));
       const res = await fetch(`/api/demo/orders/${model}/${orderId}/status`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -70,7 +72,7 @@ export default function SimulatorPage() {
       });
       if (!res.ok) throw new Error((await res.json()).error);
     },
-    onSuccess: () => { alert("Status changed"); setCancelReason(""); },
+    onSuccess: () => { alert(t("simulator.statusChanged")); setCancelReason(""); },
   });
 
   const reportFlag = useMutation({
@@ -82,7 +84,7 @@ export default function SimulatorPage() {
       });
       if (!res.ok) throw new Error((await res.json()).error);
     },
-    onSuccess: () => { alert("Flag reported"); setFNote(""); },
+    onSuccess: () => { alert(t("simulator.flagReported")); setFNote(""); },
   });
 
   return (
@@ -95,13 +97,13 @@ export default function SimulatorPage() {
         <div className="p-5">
           <div className="bg-primary p-1.5 rounded-2xl inline-flex flex-wrap items-center gap-1.5 shadow-md border border-primary/80 mb-4">
             <button type="button" onClick={() => setTab("status")} className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all ${tab === "status" ? "font-black bg-cyan-200 text-nowrap shadow-sm" : "text-white/90 hover:text-white hover:bg-white/10"}`}>
-              <RefreshCw className="w-4 h-4" /> Change Status
+              <RefreshCw className="w-4 h-4" /> {t("simulator.changeStatus")}
             </button>
             <button type="button" onClick={() => setTab("flag")} className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all ${tab === "flag" ? "font-black bg-cyan-200 text-nowrap shadow-sm" : "text-white/90 hover:text-white hover:bg-white/10"}`}>
-              <Flag className="w-4 h-4" /> Report Flag
+              <Flag className="w-4 h-4" /> {t("simulator.reportFlag")}
             </button>
             <button type="button" onClick={() => setTab("outbox")} className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all ${tab === "outbox" ? "font-black bg-cyan-200 text-nowrap shadow-sm" : "text-white/90 hover:text-white hover:bg-white/10"}`}>
-              <Mail className="w-4 h-4" /> Outbox
+              <Mail className="w-4 h-4" /> {t("simulator.outbox")}
             </button>
           </div>
 
@@ -132,7 +134,7 @@ export default function SimulatorPage() {
                 <div className="bg-surface-50 p-4 rounded-xl border border-surface-200 space-y-3">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 block">Cancellation Reason (required)</label>
                   <Select value={cancelReason} onValueChange={(v) => setCancelReason(v ?? "")}>
-                    <SelectTrigger className="border-slate-300"><SelectValue placeholder="Select reason" /></SelectTrigger>
+                    <SelectTrigger className="border-slate-300"><SelectValue placeholder={t("simulator.selectReason")} /></SelectTrigger>
                     <SelectContent>
                       {cancelReasons.map((r: any) => <SelectItem key={r.code} value={r.code}>{r.label}</SelectItem>)}
                     </SelectContent>
@@ -142,10 +144,10 @@ export default function SimulatorPage() {
               <div className="bg-surface-50 p-4 rounded-xl border border-surface-200 space-y-3">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 block">Order Number or ID</label>
                 <div className="flex gap-2">
-                  <Input placeholder="Order number or ID" value={orderInput} onChange={(e) => setOrderInput(e.target.value)} className="bg-white border-slate-300" />
-                  <Button variant="outline" onClick={resolveOrder}>Find</Button>
+                  <Input placeholder={t("simulator.orderNumberOrId")} value={orderInput} onChange={(e) => setOrderInput(e.target.value)} className="bg-white border-slate-300" />
+                  <Button variant="outline" onClick={resolveOrder}>{t("simulator.find")}</Button>
                 </div>
-                {orderId && <div className="text-xs text-slate-500 mono-num">Resolved ID: {orderId}</div>}
+                {orderId && <div className="text-xs text-slate-500 mono-num">{t("simulator.resolvedId")}: {orderId}</div>}
               </div>
               <Button className="w-full bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-wider" disabled={!orderId} onClick={() => changeStatus.mutate()}>Change Status</Button>
             </div>
@@ -177,10 +179,10 @@ export default function SimulatorPage() {
               <div className="bg-surface-50 p-4 rounded-xl border border-surface-200 space-y-3">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 block">Order Number or ID</label>
                 <div className="flex gap-2">
-                  <Input placeholder="Order number or ID" value={fOrderInput} onChange={(e) => setFOrderInput(e.target.value)} className="bg-white border-slate-300" />
-                  <Button variant="outline" onClick={resolveFlagOrder}>Find</Button>
+                  <Input placeholder={t("simulator.orderNumberOrId")} value={fOrderInput} onChange={(e) => setFOrderInput(e.target.value)} className="bg-white border-slate-300" />
+                  <Button variant="outline" onClick={resolveFlagOrder}>{t("simulator.find")}</Button>
                 </div>
-                {fOrderId && <div className="text-xs text-slate-500 mono-num">Resolved ID: {fOrderId}</div>}
+                {fOrderId && <div className="text-xs text-slate-500 mono-num">{t("simulator.resolvedId")}: {fOrderId}</div>}
               </div>
               <div className="bg-surface-50 p-4 rounded-xl border border-surface-200 space-y-3">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 block">Flag Type</label>
@@ -193,7 +195,7 @@ export default function SimulatorPage() {
               </div>
               <div className="bg-surface-50 p-4 rounded-xl border border-slate-200 space-y-3">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 block">Note</label>
-                <Textarea placeholder="Note" value={fNote} onChange={(e) => setFNote(e.target.value)} className="border-slate-300" />
+                <Textarea placeholder={t("simulator.note")} value={fNote} onChange={(e) => setFNote(e.target.value)} className="border-slate-300" />
               </div>
               <Button className="w-full bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-wider" onClick={() => reportFlag.mutate()}>Report Flag</Button>
             </div>

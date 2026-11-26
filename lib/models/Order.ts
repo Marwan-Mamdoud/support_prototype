@@ -39,7 +39,7 @@ export interface IOrderBase extends Document {
   deliveryAttemptTimestamps: any;
   trackingNumber?: string | null;
   currentLocation?: string | null;
-  specialHandling: string;
+
   hasOpenIssue: boolean;
   issueFlags: IIssueFlag[];
   cancellationReason?: string;
@@ -109,7 +109,6 @@ const commonFields: Record<string, any> = {
   deliveryAttemptTimestamps: { type: Schema.Types.Mixed, default: {} },
   trackingNumber: { type: String, default: null },
   currentLocation: { type: String, default: null },
-  specialHandling: { type: String, default: "none" },
   hasOpenIssue: { type: Boolean, default: false },
   issueFlags: { type: [issueFlagSchema], default: [] },
   cancellationReason: { type: String, default: null },
@@ -133,7 +132,6 @@ function addIndexes(schema: Schema) {
   schema.index({ courierId: 1 });
   schema.index({ customerPhoneNormalized: 1 });
   schema.index({ oid: 1 }, { unique: true });
-  schema.index({ specialHandling: 1 });
   schema.index({ currentLocation: 1 });
 }
 

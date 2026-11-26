@@ -17,8 +17,6 @@ interface Props {
   setModel: (m: "turuq" | "integration") => void;
   hours: number;
   setHours: (h: number) => void;
-  noAction: boolean;
-  setNoAction: (v: boolean) => void;
   brand: string;
   setBrand: (v: string) => void;
   status: string;
@@ -28,20 +26,17 @@ interface Props {
   onSelect?: (o: any) => void;
 }
 
-export function StaleOrdersPanel({ model, setModel, hours, setHours, noAction, setNoAction, brand, setBrand, status, setStatus, carrier, setCarrier, onSelect }: Props) {
+export function StaleOrdersPanel({ model, setModel, hours, setHours, brand, setBrand, status, setStatus, carrier, setCarrier, onSelect }: Props) {
   const qc = useQueryClient();
   const [customHours, setCustomHours] = useState("");
   const [hoursMode, setHoursMode] = useState<"preset" | "custom">("preset");
   const [page, setPage] = useState(1);
-  const [actionOrder, setActionOrder] = useState<any>(null);
-  const [flagType, setFlagType] = useState("delayed_shipment");
-  const [flagNote, setFlagNote] = useState("");
 
   const { data: clientsData } = useQuery({ queryKey: ["clients"], queryFn: async () => (await fetch("/api/clients")).json() });
   const clients = clientsData?.items || [];
 
   // reset page when filters change
-  useEffect(() => { setPage(1); }, [model, hours, noAction, brand, carrier, status, customHours, hoursMode]);
+  useEffect(() => { setPage(1); }, [model, hours, brand, carrier, status, customHours, hoursMode]);
 
   const h = hoursMode === "custom" ? (parseInt(customHours) || 24) : hours;
 
@@ -54,12 +49,11 @@ export function StaleOrdersPanel({ model, setModel, hours, setHours, noAction, s
     p.set("hours", String(h));
     p.set("limit", "12");
     p.set("page", String(page));
-    if (noAction) p.set("noAction", "true");
     if (brand) p.set("brand", brand);
     if (carrier) p.set("carrier", carrier);
     if (status) p.set("status", status);
     return p.toString();
-  }, [model, h, noAction, brand, carrier, status, page]);
+  }, [model, h, brand, carrier, status, page]);
 
   const { data, isLoading } = useQuery({
     queryKey: ["stale", qs],
@@ -70,22 +64,9 @@ export function StaleOrdersPanel({ model, setModel, hours, setHours, noAction, s
   const total = data?.total ?? 0;
   const pages = data?.pages ?? 1;
 
-  const takeAction = useMutation({
-    mutationFn: async () => {
-      const res = await fetch("/api/demo/flags", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ model, orderId: actionOrder.id, reporterRole: "support", type: flagType, note: flagNote }),
-      });
-      if (!res.ok) throw new Error((await res.json()).error);
-    },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["stale"] }); setActionOrder(null); setFlagNote(""); },
-  });
-
   function setPreset(val: number) { setHours(val); setHoursMode("preset"); }
-  function toggleNoAction() { setNoAction(!noAction); }
   function reset() {
-    setHours(24); setHoursMode("preset"); setCustomHours(""); setNoAction(true);
+    setHours(24); setHoursMode("preset"); setCustomHours("");
     setBrand(""); setCarrier(""); setStatus(""); setModel("turuq");
   }
 
@@ -104,10 +85,6 @@ export function StaleOrdersPanel({ model, setModel, hours, setHours, noAction, s
               <label className="text-[10px] font-black uppercase tracking-wider text-slate-700">Min hours</label>
               <input type="number" min={0} value={hoursMode === "custom" ? customHours : hours} onChange={(e) => { setCustomHours(e.target.value); setHoursMode("custom"); }} className="w-16 px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-black uppercase mono-num text-primary focus:outline-none focus:ring-2 focus:ring-primary text-center" />
             </div>
-            <button type="button" onClick={toggleNoAction} className={`px-3.5 py-2 rounded-xl border-2 text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-sm transition-all ${noAction ? "border-primary bg-primary text-white" : "border-slate-200 bg-white text-slate-700"}`}>
-              <span>No action taken</span>
-              <span className={`px-1.5 py-0.5 rounded text-[10px] font-black mono-num ${noAction ? "bg-amber-400 text-slate-900" : "bg-slate-100 text-slate-700"}`}>{items.filter((o: any) => !o.hasOpenIssue).length}</span>
-            </button>
           </div>
           <button type="button" onClick={reset} className="px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider text-slate-500 hover:text-primary bg-white border border-slate-200 hover:border-primary/40 transition-colors flex items-center gap-1.5 shadow-sm">Reset</button>
         </div>
@@ -140,12 +117,11 @@ export function StaleOrdersPanel({ model, setModel, hours, setHours, noAction, s
               <th className="py-3.5 px-3">Hours Stale</th>
               <th className="py-3.5 px-3">Ships Via</th>
               <th className="py-3.5 px-3">Flag</th>
-              <th className="py-3.5 px-4 text-right">Action</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 font-medium">
-            {isLoading && <tr><td colSpan={8} className="py-8 text-center text-slate-500">Loading...</td></tr>}
-            {!isLoading && items.length === 0 && <tr><td colSpan={8} className="py-8 text-center text-slate-500">No stale orders found</td></tr>}
+            {isLoading && <tr><td colSpan={7} className="py-8 text-center text-slate-500">Loading...</td></tr>}
+            {!isLoading && items.length === 0 && <tr><td colSpan={7} className="py-8 text-center text-slate-500">No stale orders found</td></tr>}
             {items.map((o: any) => {
               const cname = detectCarrier(o.courier?.name);
               const hs = o.hoursStale ?? 0;
@@ -160,14 +136,10 @@ export function StaleOrdersPanel({ model, setModel, hours, setHours, noAction, s
                   </td>
                   <td className="py-3.5 px-3 font-bold uppercase text-slate-700 whitespace-nowrap">{cname === "Turuq" ? (o.courier ? o.courier.name : "NO COURIER ASSIGNED") : cname}</td>
                   <td className="py-3.5 px-3 whitespace-nowrap">
-                    {o.hasOpenIssue ? (
-                      <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-primary/10 text-primary border border-primary/30">ACTION TAKEN</span>
-                    ) : (
-                      <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-rose-50 text-rose-800 border border-rose-200">NO ACTION</span>
-                    )}
-                  </td>
-                  <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                    <button onClick={(e) => { e.stopPropagation(); setActionOrder(o); }} className="px-3 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-white text-[10px] font-black uppercase tracking-wider shadow-sm transition-colors">Take action</button>
+                    {(() => {
+                      const of = (o.issueFlags || []).find((f: any) => f.state === "open");
+                      return of ? <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-rose-100 text-rose-700 border border-rose-200">{of.type.toUpperCase().replace(/_/g, " ")}</span> : <span className="text-slate-400 font-bold uppercase">—</span>;
+                    })()}
                   </td>
                 </tr>
               );
@@ -185,7 +157,7 @@ export function StaleOrdersPanel({ model, setModel, hours, setHours, noAction, s
       <div className="bg-slate-50 px-6 py-3.5 border-t border-slate-200 flex items-center justify-between text-xs font-bold uppercase text-slate-600">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-amber-400"></span>
-          <span className="mono-num">Total stale: {total} · No action taken: {items.filter((o:any) => !o.hasOpenIssue).length}</span>
+          <span className="mono-num">Total stale: {total}</span>
         </div>
         <div className="flex items-center gap-2">
           <button className="px-3 py-1.5 rounded-lg border border-slate-300 text-slate-700 font-bold uppercase text-[11px] hover:bg-white transition-colors disabled:opacity-50" disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>Prev</button>
@@ -195,29 +167,6 @@ export function StaleOrdersPanel({ model, setModel, hours, setHours, noAction, s
         <div className="mono-num text-[11px] font-extrabold text-primary">TURUQ SUPPORT DISPATCH</div>
       </div>
 
-      <Dialog open={!!actionOrder} onOpenChange={(o) => !o && setActionOrder(null)}>
-        <DialogContent className="bg-white rounded-2xl border-2 border-primary shadow-xl">
-          <DialogHeader>
-            <DialogTitle className="text-primary font-black uppercase tracking-wider">Take Action on {actionOrder?.oid}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3">
-            <div>
-              <label className="text-[10px] font-black uppercase tracking-wider text-slate-500 block mb-1">Issue Type</label>
-              <Select value={flagType} onValueChange={(v) => setFlagType(v ?? "delayed_shipment")}>
-                <SelectTrigger className="border-slate-300"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {ISSUE_FLAG_TYPES.map((t) => <SelectItem key={t} value={t}>{t.toUpperCase().replace(/_/g, " ")}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="text-[10px] font-black uppercase tracking-wider text-slate-500 block mb-1">Note</label>
-              <Textarea placeholder="Note" value={flagNote} onChange={(e) => setFlagNote(e.target.value)} className="border-slate-300" />
-            </div>
-            <Button className="w-full bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-wider" onClick={() => takeAction.mutate()}>Save Action</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }
