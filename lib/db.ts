@@ -27,10 +27,24 @@ export async function connectDB(): Promise<typeof mongoose> {
   if (!cached.promise) {
     const { MONGODB_URI, MONGODB_DB } = getEnv();
     cached.promise = mongoose
-      .connect(MONGODB_URI as string, { dbName: MONGODB_DB })
-      .then((m) => m);
+      .connect(MONGODB_URI as string, {
+        dbName: MONGODB_DB,
+        serverSelectionTimeoutMS: 10000,
+        socketTimeoutMS: 45000,
+        bufferCommands: false,
+      })
+      .then((m) => m)
+      .catch((err) => {
+        cached.promise = null;
+        throw err;
+      });
   }
-  cached.conn = await cached.promise;
+  try {
+    cached.conn = await cached.promise;
+  } catch (err) {
+    cached.promise = null;
+    throw err;
+  }
   return cached.conn;
 }
 

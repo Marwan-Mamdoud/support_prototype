@@ -1,5 +1,6 @@
 import { getSession } from "@/lib/auth";
 import { StaffMember } from "@/lib/models";
+import { connectDB } from "@/lib/db";
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 
@@ -14,6 +15,7 @@ export interface AuthedSession {
 export async function requireSession() {
   const session = await getSession();
   if (!session) return { session: null, response: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
+  await connectDB();
   const staff = await StaffMember.findById(session.staffId).lean();
   if (!staff) return { session: null, response: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
   const authed: AuthedSession = {

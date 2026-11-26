@@ -131,7 +131,7 @@ function addIndexes(schema: Schema) {
   schema.index({ clientId: 1 });
   schema.index({ courierId: 1 });
   schema.index({ customerPhoneNormalized: 1 });
-  schema.index({ oid: 1 }, { unique: true });
+  // oid unique index already declared in commonFields (unique: true)
   schema.index({ currentLocation: 1 });
 }
 
